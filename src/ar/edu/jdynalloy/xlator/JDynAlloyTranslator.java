@@ -1,0 +1,214 @@
+package ar.edu.jdynalloy.xlator;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import ar.edu.jdynalloy.JDynAlloyConfig;
+import ar.edu.jdynalloy.ast.JDynAlloyModule;
+import ar.edu.jdynalloy.ast.JDynAlloyPrinter;
+import ar.edu.jdynalloy.ast.JProgramDeclaration;
+import ar.uba.dc.rfm.alloy.AlloyVariable;
+import ar.uba.dc.rfm.dynalloy.ast.DynalloyModule;
+
+public final class JDynAlloyTranslator {
+
+	private final JDynAlloyBinding binding;
+
+	public static String headerComment(String fragmentId) {
+		return "//-------------- " + fragmentId + "--------------//" + "\n";
+	}
+
+	public JDynAlloyTranslator(JDynAlloyBinding binding) {
+		super();
+		this.binding = binding;
+	}
+
+	public Vector<DynalloyModule> translateAll(JDynAlloyModule[] asts) {
+		Vector<JDynAlloyModule> initial = new Vector<JDynAlloyModule>(Arrays.asList(asts));
+
+		JDynAlloyContext context = createContext(initial);
+
+		Vector<JDynAlloyModule> prepared = prepareAll(context, initial);
+
+		Vector<DynalloyModule> translated = translateAll(context, prepared);
+
+		return translated;
+	}
+
+	private JDynAlloyContext createContext(Vector<JDynAlloyModule> ms) {
+		JDynAlloyContext context = JDynAlloyContext.buildNewContext();
+		for (JDynAlloyModule m : ms)
+			context.load(m);
+
+		return context;
+	}
+
+	private Vector<JDynAlloyModule> prepareAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules) {
+
+		// create dynamic dispatch
+		Vector<JDynAlloyModule> ms = new Vector<JDynAlloyModule>();
+		VAlloyVisitor valloyVisitor = new VAlloyVisitor(binding);
+		for (JDynAlloyModule module : modules) {
+			JDynAlloyModule resolved_module = (JDynAlloyModule) module.accept(valloyVisitor);
+			ms.add(resolved_module);
+		}
+		
+		// transform loop invariants into assert,havoc,assume
+		Vector<JDynAlloyModule> transformedModules = new Vector<JDynAlloyModule>();
+		JDynAlloyTransformationVisitor transformationVisitor = new JDynAlloyTransformationVisitor();
+		for (JDynAlloyModule module : ms) {
+			JDynAlloyModule transformedModule = (JDynAlloyModule) module.accept(transformationVisitor);
+			transformedModules.add(transformedModule);
+		}
+		ms = transformedModules;
+
+		// create spec programs (if wanted)
+		if (JDynAlloyConfig.getInstance().getModularReasoning() == true) {
+			Vector<JDynAlloyModule> modular_modules = create_spec_programs(ms);
+			ms = modular_modules;
+
+			// print spec programs (if wanted)
+			if (JDynAlloyConfig.getInstance().getOutputModularJDynalloy() != null) {
+
+				String filename = JDynAlloyConfig.getInstance().getOutputModularJDynalloy();
+
+				writeDynJAlloyOutput(filename, ms.toArray(new JDynAlloyModule[] {}));
+			}
+
+		}
+
+		// create call graph
+		CallGraphVisitor callGraphVisitor = new CallGraphVisitor();
+		for (JDynAlloyModule module : ms) {
+			module.accept(callGraphVisitor);
+		}
+		Graph<String> callGraph = callGraphVisitor.getCallGraph();
+
+		// prune unused methods
+		String programToCheck = JDynAlloyConfig.getInstance().getMethodToCheck();
+		PruneVisitor pruneVisitor = new PruneVisitor(callGraph, programToCheck);
+		Vector<JDynAlloyModule> prunedModules = new Vector<JDynAlloyModule>();
+		for (JDynAlloyModule module : ms) {
+			JDynAlloyModule prunedModule = (JDynAlloyModule) module.accept(pruneVisitor);
+			prunedModules.add(prunedModule);
+		}
+
+		// inline contracts (if needed)
+
+		// Unfold recursion
+		Vector<JDynAlloyModule> non_recursive_modules = new Vector<JDynAlloyModule>();
+		int recursion_unfold = this.binding.unfoldScopeForRecursiveCode;
+		RecursionUnfolderVisitor recursionUnfolderVisitor = new RecursionUnfolderVisitor(callGraph, recursion_unfold);
+		for (JDynAlloyModule module : prunedModules) {
+			JDynAlloyModule non_recursive_module = (JDynAlloyModule) module.accept(recursionUnfolderVisitor);
+			non_recursive_modules.add(non_recursive_module);
+		}
+
+		// create call graph
+		CallGraphVisitor non_recursive_callGraphVisitor = new CallGraphVisitor();
+		for (JDynAlloyModule module : non_recursive_modules) {
+			module.accept(non_recursive_callGraphVisitor);
+		}
+		Graph<String> non_recursive_callGraph = non_recursive_callGraphVisitor.getCallGraph();
+
+		// fill modifies table
+		ModifiesTableBuilder modifiesTableBuilder = new ModifiesTableBuilder();
+		Map<String, Set<AlloyVariable>> modifiesTable = modifiesTableBuilder.buildTable(non_recursive_modules, non_recursive_callGraph);
+
+		context.setModifiesTable(modifiesTable);
+
+		return non_recursive_modules;
+	}
+
+	private Vector<JDynAlloyModule> create_spec_programs(Vector<JDynAlloyModule> ms) {
+		Vector<JDynAlloyModule> modular_modules;
+		modular_modules = new Vector<JDynAlloyModule>();
+		ModularMutator modularMutator = new ModularMutator();
+		for (JDynAlloyModule module : ms) {
+			JDynAlloyModule spec_program_module = (JDynAlloyModule) module.accept(modularMutator);
+			modular_modules.add(spec_program_module);
+		}
+		return modular_modules;
+	}
+
+	private Vector<DynalloyModule> translateAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules) {
+
+		Vector<DynalloyModule> ms = new Vector<DynalloyModule>();
+		
+		// start by translating relevant modules
+		for (JDynAlloyModule m : modules) {
+			String signatureId = m.getSignature().getSignatureId();
+
+			// Collect vars per module. These vars come from arithmetic constraints and 
+			// should be constrained outside the program. That requires to prefix them 
+			// with a "QF.".
+			HashSet<AlloyVariable> sav = new HashSet<AlloyVariable>();
+			if (m.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants() != null)
+					sav.addAll(m.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().getVarsInTyping());
+			
+			for (JProgramDeclaration jpd : m.getPrograms()){
+				if (jpd.getVarsResultOfArithmeticOperationsInContracts() != null)
+					sav.addAll(jpd.getVarsResultOfArithmeticOperationsInContracts().getVarsInTyping());
+			}
+			
+
+			if (containsModule(context.getRelevantModules(), signatureId)) {
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
+				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
+				ms.add(dynalloyModule);
+			}
+		}
+
+		// continue with the rest of the modules
+		for (JDynAlloyModule m : modules) {
+			String signatureId = m.getSignature().getSignatureId();
+			HashSet<AlloyVariable> sav = new HashSet<AlloyVariable>();
+			if (m.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants() != null)
+					sav.addAll(m.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().getVarsInTyping());
+			
+			for (JProgramDeclaration jpd : m.getPrograms()){
+				if (jpd.getVarsResultOfArithmeticOperationsInContracts() != null)
+					sav.addAll(jpd.getVarsResultOfArithmeticOperationsInContracts().getVarsInTyping());
+			}
+
+			if (!containsModule(context.getRelevantModules(), signatureId)) {
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
+				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
+				ms.add(dynalloyModule);
+			}
+		}
+		return ms;
+	}
+
+	private boolean containsModule(List<JDynAlloyModule> modules, String signatureId) {
+		for (JDynAlloyModule module : modules) {
+			if (module.getSignature().getSignatureId().equals(signatureId))
+				return true;
+		}
+		return false;
+	}
+
+	public static void writeDynJAlloyOutput(String outputDynJAlloy, JDynAlloyModule[] modules) {
+		StringBuffer sb = new StringBuffer();
+		for (JDynAlloyModule m : modules) {
+			String modHeader = headerComment(m.getSignature().getSignatureId());
+			String modBody = (String) m.accept(new JDynAlloyPrinter());
+			sb.append(modHeader);
+			sb.append(modBody);
+		}
+		try {
+			FileWriter writer = new FileWriter(outputDynJAlloy);
+			writer.write(sb.toString());
+			writer.close();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+}
