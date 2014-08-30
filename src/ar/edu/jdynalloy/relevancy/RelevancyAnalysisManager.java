@@ -87,6 +87,11 @@ public class RelevancyAnalysisManager {
 				.findModuleByName(moduleName, modules);
 		scene.addModule(moduleToCheck);
 		scene.addProgram(methodToCheckDeclaration);
+		for (JDynAlloyModule m : modules){
+			if (m.pinnedForNonRelevancyAnalysisForStryker){
+				scene.addModule(m);
+			}
+		}
 
 		// add class fields to scene
 		// scene = <{ Program_to_check }, {CLASS_FIELDS}, {}>

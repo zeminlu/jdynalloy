@@ -56,7 +56,7 @@ class PruneVisitor extends JDynAlloyMutator {
 				class_singleton, literal_singleton, fields, class_invariants,
 				class_constraints, object_invariants, object_constraints,
 				represents, programs, node.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
-				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants());
+				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.pinnedForNonRelevancyAnalysisForStryker);
 
 		return pruned_module;
 	}

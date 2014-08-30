@@ -24,7 +24,7 @@ public class SceneSlicerManager {
 		boolean useJavaPrimitiveIntegerValue = relevantClassesList.contains("JavaPrimitiveIntegerValue");
 
 		for (JDynAlloyModule module : modules) {
-			if (relevantClassesList.contains(module.getModuleId())) {
+			if (relevantClassesList.contains(module.getModuleId()) || module.pinnedForNonRelevancyAnalysisForStryker) {
 
 				String classFieldsSignatureId = JSignatureFactory
 						.buildClassFieldsSignature().getSignatureId();
@@ -101,7 +101,8 @@ public class SceneSlicerManager {
 								.getClassConstraints(), module
 								.getObjectInvariants(), module
 								.getObjectConstraints(),
-						module.getRepresents(), to_add, module.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants());
+						module.getRepresents(), to_add, module.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
+						module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), module.pinnedForNonRelevancyAnalysisForStryker);
 				
 				pruned_program_modules.add(pruned_module);
 

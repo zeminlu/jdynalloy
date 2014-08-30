@@ -88,7 +88,7 @@ public class JavaPrimitiveFloatValue implements IBuiltInModule {
 				Collections.<JObjectInvariant> emptySet(),
 				Collections.<JObjectConstraint> emptySet(),
 				Collections.<JRepresents> emptySet(),
-				Collections.<JProgramDeclaration> emptySet(), null, null);
+				Collections.<JProgramDeclaration> emptySet(), null, null, false);
 
 	}
 
@@ -119,7 +119,7 @@ public class JavaPrimitiveFloatValue implements IBuiltInModule {
 					Collections.<JObjectInvariant> emptySet(),
 					Collections.<JObjectConstraint> emptySet(),
 					Collections.<JRepresents> emptySet(),
-					Collections.<JProgramDeclaration> emptySet(), null, null);
+					Collections.<JProgramDeclaration> emptySet(), null, null, false);
 			float_literals.put(float_literal, literal_module);
 		}
 		literal_module = float_literals.get(float_literal);
