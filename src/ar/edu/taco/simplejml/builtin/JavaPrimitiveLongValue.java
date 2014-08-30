@@ -93,7 +93,7 @@ public class JavaPrimitiveLongValue implements IBuiltInModule {
 						.<JObjectInvariant> emptySet(), Collections
 						.<JObjectConstraint> emptySet(), Collections
 						.<JRepresents> emptySet(), Collections
-						.<JProgramDeclaration> emptySet(), null, null);
+						.<JProgramDeclaration> emptySet(), null, null, false);
 
 	}
 
@@ -190,7 +190,7 @@ public class JavaPrimitiveLongValue implements IBuiltInModule {
 							.<JObjectInvariant> emptySet(), Collections
 							.<JObjectConstraint> emptySet(), Collections
 							.<JRepresents> emptySet(), Collections
-							.<JProgramDeclaration> emptySet(), null, null);
+							.<JProgramDeclaration> emptySet(), null, null, false);
 			long_literals.put(long_literal, literal_module);
 		}
 		literal_module = long_literals.get(long_literal);

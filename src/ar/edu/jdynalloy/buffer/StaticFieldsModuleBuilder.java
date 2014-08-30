@@ -73,7 +73,7 @@ public class StaticFieldsModuleBuilder implements IBuiltInModule {
 
 		JDynAlloyModule module = new JDynAlloyModule(signature.getSignatureId(), signature, classSignature, null, this.fields, this.staticInvariants, 
 				this.staticConstraints, Collections.<JObjectInvariant> emptySet(), Collections.<JObjectConstraint> emptySet(), 
-				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), null, null);
+				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), null, null, false);
 
 		return module;
 	}

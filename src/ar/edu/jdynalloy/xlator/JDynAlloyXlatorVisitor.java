@@ -105,6 +105,7 @@ import ar.uba.dc.rfm.dynalloy.util.ProgramCloner;
 
 final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
+
 	@Override
 	public Object visit(JModifies node) {
 		return node.getLocation();
@@ -119,6 +120,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 			//			FormulaMutator fm = new FormulaMutator(qftransf);
 			//			requires.set(index, (AlloyFormula)requires.get(index).accept(fm));
 			requires.set(index, (AlloyFormula)requires.get(index));
+
 		}
 
 		Vector<AlloyFormula> ensures = (Vector<AlloyFormula>) v.get(1);
@@ -146,7 +148,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 	private JDynAlloyTyping parameterVariables;
 
-	private final JDynAlloyContext context;
+	private JDynAlloyContext context;
 
 	private final Stack<String> escapedDynalloy = new Stack<String>();
 
@@ -163,17 +165,18 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 		return this.varsToPrefix;
 	}
 
-	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav) {
+	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav, Object inputToFix) {
 		super();
 		this.context = _context;
 		this.varsToPrefix = sav;
+		this.inputToFix = inputToFix;
 	}
 
 
-	public JDynAlloyXlatorVisitor(JDynAlloyContext _context) {
-		super();
-		this.context = _context;
-	}
+	//	public JDynAlloyXlatorVisitor(JDynAlloyContext _context) {
+	//		super();
+	//		this.context = _context;
+	//	}
 
 	public Set<PredicateDeclaration> getPredicateDeclarations() {
 		return new HashSet<PredicateDeclaration>(formulaWrapper.getWrapperPredicates().values());
@@ -452,6 +455,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 	@Override
 	public Object visit(JProgramDeclaration node) {
 
+		formalParameterNames = node.getParameters();
 		localVariables = new JDynAlloyTyping();
 		parameterVariables = new JDynAlloyTyping();
 		formulaWrapper.bindLocalVariables(localVariables);
@@ -906,18 +910,18 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 			formulas.addAll(notQuantify);
 		}
-		
+
 		List<AlloyFormula> formulasAfterSKProcessing = new LinkedList<AlloyFormula>();
 		HashSet<AlloyVariable> varsFromInv = new HashSet<AlloyVariable>();
 		for (AlloyVariable av : this.currentModule.peek().getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().getVarsInTyping())
 			varsFromInv.add(av);
-		 
+
 		QFPreconditionPostfixTransformer qfpt = new QFPreconditionPostfixTransformer(varsFromInv);
 		FormulaMutator fm = new FormulaMutator(qfpt);
 		for (AlloyFormula af : formulas){
 			formulasAfterSKProcessing.add((AlloyFormula)af.accept(fm));
 		}
-		
+
 		return formulasAfterSKProcessing;
 	}
 
@@ -1119,10 +1123,11 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JObjectInvariant node) {
-//		QFtransformer qfmutator = new QFtransformer(varsToPrefix);
+		//		QFtransformer qfmutator = new QFtransformer(varsToPrefix);
+		//		super.visit(node);
 		AlloyFormula af = node.getFormula();
-//		FormulaMutator fm = new FormulaMutator(qfmutator);
-//		af = (AlloyFormula) af.accept(fm);
+		//		FormulaMutator fm = new FormulaMutator(qfmutator);
+		//		af = (AlloyFormula) af.accept(fm);
 		invariants.add(af);
 		return af;
 	}
@@ -1184,6 +1189,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 		// TODO Finish havocing translation
 	}
 
+
 	private List<AlloyFormula> buildPostconditionFormulas(String signatureToCheckId, String programId) {
 
 		List<AlloyFormula> formulas = new LinkedList<AlloyFormula>();
@@ -1201,6 +1207,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 		}
 		return formulas;
+
 	}
 
 	private Set<AlloyFormula> extract_object_invariant_formulas(String signatureToCheckId, String programId, JDynAlloyModule module) {

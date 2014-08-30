@@ -384,7 +384,7 @@ public abstract class JPredicateFactory {
 			String varName = ((ExprVariable)e).getVariable().getVariableId().getString();
 			int index = Integer.valueOf(varName.substring(varName.lastIndexOf("_")+1, varName.length()));
 			AlloyExpression new_e = new ExprVariable(new AlloyVariable(varName));
-			AlloyExpression[] pars = new AlloyExpression[]{new_e, JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(0)};
+			AlloyExpression[] pars = new AlloyExpression[]{new_e, JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(0, false)};
 			return buildPredicate(PRED_JAVA_PRIMITIVE_INTEGER_VALUE_EQ, pars);
 		}
 		if (typeName.equals("JavaPrimitiveLongValue")) {

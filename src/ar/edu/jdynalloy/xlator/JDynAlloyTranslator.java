@@ -18,15 +18,18 @@ import ar.uba.dc.rfm.dynalloy.ast.DynalloyModule;
 
 public final class JDynAlloyTranslator {
 
+	private Object inputToFix = null;
+	
 	private final JDynAlloyBinding binding;
 
 	public static String headerComment(String fragmentId) {
 		return "//-------------- " + fragmentId + "--------------//" + "\n";
 	}
 
-	public JDynAlloyTranslator(JDynAlloyBinding binding) {
+	public JDynAlloyTranslator(JDynAlloyBinding binding, Object inputToFix) {
 		super();
 		this.binding = binding;
+		this.inputToFix = inputToFix;
 	}
 
 	public Vector<DynalloyModule> translateAll(JDynAlloyModule[] asts) {
@@ -159,7 +162,7 @@ public final class JDynAlloyTranslator {
 			
 
 			if (containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}
@@ -178,7 +181,7 @@ public final class JDynAlloyTranslator {
 			}
 
 			if (!containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}

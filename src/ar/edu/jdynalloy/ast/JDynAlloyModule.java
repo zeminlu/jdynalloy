@@ -15,6 +15,8 @@ import ar.uba.dc.rfm.alloy.util.FormulaMutator;
 
 public final class JDynAlloyModule implements JDynAlloyASTNode {
 
+	public boolean pinnedForNonRelevancyAnalysisForStryker = false;
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -142,7 +144,8 @@ public final class JDynAlloyModule implements JDynAlloyASTNode {
 			Set<JRepresents> represents, 
 			Set<JProgramDeclaration> programs,
 			AlloyTyping varsEncodingValueOfArithmeticOperationsInObjectInvariants,
-			List<AlloyFormula> predsEncodingValueOfArithmeticOperationsInObjectInvariants) {
+			List<AlloyFormula> predsEncodingValueOfArithmeticOperationsInObjectInvariants,
+			boolean pinnedForStryker) {
 		super();
 		this.moduleId = moduleId;
 		this.signature = signature;
@@ -157,6 +160,7 @@ public final class JDynAlloyModule implements JDynAlloyASTNode {
 		this.programs = programs;
 		this.predsEncodingValueOfArithmeticOperationsInObjectInvariants = predsEncodingValueOfArithmeticOperationsInObjectInvariants;
 		this.varsEncodingValueOfArithmeticOperationsInObjectInvariants = varsEncodingValueOfArithmeticOperationsInObjectInvariants;
+		this.pinnedForNonRelevancyAnalysisForStryker = pinnedForStryker;
 	}
 
 	public String getModuleId() {

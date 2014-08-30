@@ -244,7 +244,7 @@ public class ReplaceModifiesModuleVisitor extends JDynAlloyVisitor {
 		JDynAlloyModule module = new JDynAlloyModule(node.getModuleId(), node.getSignature(), node.getClassSingleton(), node.getLiteralSingleton(), 
 													node.getFields(), node.getClassInvariants(), node.getClassConstraints(), 
 													node.getObjectInvariants(), node.getObjectConstraints(), node.getRepresents(), programs, 
-													node.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants());
+													node.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.pinnedForNonRelevancyAnalysisForStryker);
 
 		if (node.getClassSingleton() != null) {
 			module.setLiteralSingleton(node.getClassSingleton());
