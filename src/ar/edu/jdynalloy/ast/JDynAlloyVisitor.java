@@ -30,8 +30,8 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 	public String specFromMethod = null;
 
 	public List<JVariableDeclaration> formalParameterNames;
-	
-//	public AlloyFormula objectInvariantForStryker = null;
+
+	//	public AlloyFormula objectInvariantForStryker = null;
 
 
 	protected static class JDynAlloyModuleVisitResult {
@@ -343,7 +343,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 			ensures.accept(this);
 			ensuresResults.add(result);
 		}
-		
+
 		Vector<Object> modifiesResults = new Vector<Object>();
 		for (JModifies modifies : node.getModifies()) {
 			Object result = modifies.accept(this);
@@ -388,65 +388,49 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 					&& !vd.getVariable().getVariableId().getString().equals("return")
 					&& !vd.getVariable().getVariableId().getString().startsWith("customvar")){
 				if (vd.getType().toString().equals("JavaPrimitiveIntegerValue")) {
-					
+
 					AlloyFormula af = new EqualsFormula(
-									new ExprVariable(vd.getVariable()), 
-									new ExprConstant("JavaPrimitiveIntegerValue", 
-											JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(((Integer)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).intValue(), true).getConstantId()
-											        )
-									);
+							new ExprVariable(vd.getVariable()), 
+							new ExprConstant("JavaPrimitiveIntegerValue", 
+									JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(((Integer)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).intValue(), true).getConstantId()
+									)
+							);
 					if (fixedInputFormula == null)
 						fixedInputFormula = af;
 					else
 						fixedInputFormula = new AndFormula(fixedInputFormula, af);
 
 				} else {
-					if (!mapConcreteToExpre.containsKey(inputToFix2.get(vd.getVariable().getVariableId().getString()))) {
-						mapConcreteToExpre.put(inputToFix2.get(vd.getVariable().getVariableId().getString()), new ExprVariable(vd.getVariable()));
-						AlloyFormula f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre);
+					if (vd.getType().toString().equals("Int")){
+						AlloyFormula af = new EqualsFormula(
+								new ExprVariable(vd.getVariable()), 
+								new ExprConstant("Int", inputToFix2.get(vd.getVariable().getVariableId().getString()).toString())
+								);
 						if (fixedInputFormula == null)
-							fixedInputFormula = f;
+							fixedInputFormula = af;
 						else
-							fixedInputFormula = new AndFormula(fixedInputFormula, f);
+							fixedInputFormula = new AndFormula(fixedInputFormula, af);
 					} else {
-						AlloyFormula aff = new EqualsFormula(new ExprVariable(vd.getVariable()), mapConcreteToExpre.get(inputToFix2.get(vd.getVariable().getVariableId().getString())));
-						if (fixedInputFormula == null)
-							fixedInputFormula = aff;
-						else
-							fixedInputFormula = new AndFormula(fixedInputFormula, aff);
+
+						if (!mapConcreteToExpre.containsKey(inputToFix2.get(vd.getVariable().getVariableId().getString()))) {
+							mapConcreteToExpre.put(inputToFix2.get(vd.getVariable().getVariableId().getString()), new ExprVariable(vd.getVariable()));
+							AlloyFormula f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre);
+							if (fixedInputFormula == null)
+								fixedInputFormula = f;
+							else
+								fixedInputFormula = new AndFormula(fixedInputFormula, f);
+						} else {
+							AlloyFormula aff = new EqualsFormula(new ExprVariable(vd.getVariable()), mapConcreteToExpre.get(inputToFix2.get(vd.getVariable().getVariableId().getString())));
+							if (fixedInputFormula == null)
+								fixedInputFormula = aff;
+							else
+								fixedInputFormula = new AndFormula(fixedInputFormula, aff);
+						}
 					}
+					index++;
 				}
-				index++;
 			}
-
 		}
-
-
-
-
-
-		//		for (JVariableDeclaration vd : formalParameterNames){
-		//			if (!vd.getVariable().getVariableId().getString().equals("throw")
-		//					&& !vd.getVariable().getVariableId().getString().equals("return")){
-		//				if (!mapConcreteToExpre.containsKey(inputToFix2[index])) {
-		//					mapConcreteToExpre.put(inputToFix2[index], new ExprVariable(vd.getVariable()));
-		//					AlloyFormula f = processInputToFixToFormula(inputToFix2[index], mapConcreteToExpre);
-		//					if (fixedInputFormula == null)
-		//						fixedInputFormula = f;
-		//					else
-		//						fixedInputFormula = new AndFormula(fixedInputFormula, f);
-		//				} else {
-		//					AlloyFormula aff = new EqualsFormula(new ExprVariable(vd.getVariable()), mapConcreteToExpre.get(inputToFix2[index]));
-		//					if (fixedInputFormula == null)
-		//						fixedInputFormula = aff;
-		//					else
-		//						fixedInputFormula = new AndFormula(fixedInputFormula, aff);
-		//				}
-		//
-		//				index++;
-		//			}
-		//
-		//		}
 
 		Object[] obs = mapConcreteToExpre.keySet().toArray();
 
