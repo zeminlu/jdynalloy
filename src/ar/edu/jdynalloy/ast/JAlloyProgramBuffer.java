@@ -13,6 +13,16 @@ import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
 import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 
 final public class JAlloyProgramBuffer {
+	
+	private boolean isJavaArithmetic;
+
+	public boolean isJavaArithmetic() {
+		return isJavaArithmetic;
+	}
+
+	public void setJavaArithmetic(boolean isJavaArithmetic) {
+		this.isJavaArithmetic = isJavaArithmetic;
+	}
 
 	private static class PartialAST {
 
@@ -281,7 +291,7 @@ final public class JAlloyProgramBuffer {
 	
 	
 	private JBlock buildDoBlock(List<JStatement> currBlock, JWhile w) {
-		List<Object> objvars = collectNewlyDefinedVars(currBlock);
+		List<Object> objvars = collectNewlyDefinedVars(currBlock, isJavaArithmetic);
 		List<AlloyVariable> vars = new LinkedList<AlloyVariable>();
 		for (int idx = 0; idx < objvars.size(); idx++)
 			vars.add((AlloyVariable)objvars.get(idx));
@@ -299,7 +309,7 @@ final public class JAlloyProgramBuffer {
 	
 	private JWhile avoidCollisions(JWhile w, List<AlloyVariable> vars) {
 		JStatement body = w.getBody();
-		VariableNameChangerVisitor visitor = new VariableNameChangerVisitor(vars);
+		VariableNameChangerVisitor visitor = new VariableNameChangerVisitor(vars, isJavaArithmetic);
 		JStatement newBody = (JStatement) body.accept(visitor);
 		AlloyFormula cond = w.getCondition();
 		VariableNameChangerFormulaMutator condVisitor = new VariableNameChangerFormulaMutator(vars);
@@ -307,9 +317,9 @@ final public class JAlloyProgramBuffer {
 		return new JWhile(newCond, newBody, w.getLoopInvariant(), w.getBranchId());
 	}
 
-	public static List<Object> collectNewlyDefinedVars(List<JStatement> currBlock){
+	public static List<Object> collectNewlyDefinedVars(List<JStatement> currBlock, boolean isJavaArithmetic){
 		Vector<Object> vars = new Vector<Object>();
-		JDynAlloyVarDeclarationCollector newDecsVisitor = new JDynAlloyVarDeclarationCollector();
+		JDynAlloyVarDeclarationCollector newDecsVisitor = new JDynAlloyVarDeclarationCollector(isJavaArithmetic);
 		for (int idx = 0; idx < currBlock.size(); idx++){
 			Vector<Object> v = (Vector<Object>)currBlock.get(idx).accept(newDecsVisitor);
 			Vector<Object> input = flatten(v);

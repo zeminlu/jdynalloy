@@ -73,7 +73,8 @@ public class ReplaceModifiesModuleVisitor extends JDynAlloyVisitor {
 		return dynJAlloyBinding;
 	}
 
-	public ReplaceModifiesModuleVisitor(JDynAlloyBinding dynJAlloyBinding, SymbolTable symbolTable) {
+	public ReplaceModifiesModuleVisitor(JDynAlloyBinding dynJAlloyBinding, SymbolTable symbolTable, boolean isJavaArith) {
+		super(isJavaArith);
 		this.dynJAlloyBinding = dynJAlloyBinding;
 		this.jDynAlloyModule = null;
 		this.symbolTable = symbolTable;

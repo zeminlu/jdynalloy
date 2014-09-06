@@ -24,6 +24,11 @@ class ModifiesTableBuilder {
 
 	class DirectModifiesVisitor extends JDynAlloyVisitor {
 
+		public DirectModifiesVisitor(boolean isJavaArithmetic) {
+			super(isJavaArithmetic);
+			// TODO Auto-generated constructor stub
+		}
+
 		public Map<String, Set<AlloyVariable>> getDirectModifiesTable() {
 			return modifiesTable;
 		}
@@ -71,10 +76,10 @@ class ModifiesTableBuilder {
 	}
 
 	public Map<String, Set<AlloyVariable>> buildTable(Vector<JDynAlloyModule> modules,
-			Graph<String> callGraph) {
+			Graph<String> callGraph, boolean isJavaArith) {
 
 		// fill modifies tables
-		DirectModifiesVisitor directModifiesVisitor = new DirectModifiesVisitor();
+		DirectModifiesVisitor directModifiesVisitor = new DirectModifiesVisitor(isJavaArith);
 		for (JDynAlloyModule prunedModule : modules) {
 			prunedModule.accept(directModifiesVisitor);
 		}

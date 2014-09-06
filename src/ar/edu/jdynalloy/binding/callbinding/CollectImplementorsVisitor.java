@@ -23,8 +23,8 @@ import ar.edu.jdynalloy.ast.JDynAlloyVisitor;
 
 public class CollectImplementorsVisitor extends JDynAlloyVisitor{
 	
-	public CollectImplementorsVisitor() {
-	
+	public CollectImplementorsVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 	}
 	
 

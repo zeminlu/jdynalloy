@@ -23,8 +23,8 @@ import ar.uba.dc.rfm.alloy.ast.formulas.PredicateFormula;
 
 class VAlloyVisitor extends JDynAlloyMutator {
 
-	public VAlloyVisitor(JDynAlloyBinding binding) {
-		super();
+	public VAlloyVisitor(JDynAlloyBinding binding, boolean isJavaArith) {
+		super(isJavaArith);
 		this.binding = binding;
 	}
 

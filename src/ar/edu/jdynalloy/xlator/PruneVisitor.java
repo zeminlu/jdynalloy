@@ -61,8 +61,8 @@ class PruneVisitor extends JDynAlloyMutator {
 		return pruned_module;
 	}
 
-	public PruneVisitor(Graph<String> callGraph, String programToCheck) {
-		super();
+	public PruneVisitor(Graph<String> callGraph, String programToCheck, boolean isJavaArith) {
+		super(isJavaArith);
 		this.reachedPrograms = callGraph.descendentsOf(programToCheck);
 		this.reachedPrograms.add(programToCheck);
 	}

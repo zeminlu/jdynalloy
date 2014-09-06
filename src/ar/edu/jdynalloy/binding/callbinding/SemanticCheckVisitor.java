@@ -83,12 +83,14 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 		this.symbolTable = symbolTable;
 	}
 
-	public SemanticCheckVisitor(SymbolTable symbolTable) {
+	public SemanticCheckVisitor(SymbolTable symbolTable, boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.symbolTable = symbolTable;
 		this.callBindings = new IdentityHashMap<IProgramCall, JBindingKey>();
 	}
 
-	public SemanticCheckVisitor() {
+	public SemanticCheckVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.symbolTable = new SymbolTable();
 		this.callBindings = new IdentityHashMap<IProgramCall, JBindingKey>();
 	}

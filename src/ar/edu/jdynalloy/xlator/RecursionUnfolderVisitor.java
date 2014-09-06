@@ -28,7 +28,8 @@ class RecursionUnfolderVisitor extends JDynAlloyMutator {
 		return unfolded_programs;
 	}
 
-	public RecursionUnfolderVisitor(Graph<String> callGraph, int unroll) {
+	public RecursionUnfolderVisitor(Graph<String> callGraph, int unroll, boolean isJavaArith) {
+		super(isJavaArith);
 		this.callGraph = callGraph;
 		this.unfolded_programs = new LinkedList<JProgramDeclaration>();
 		this.unroll = unroll;

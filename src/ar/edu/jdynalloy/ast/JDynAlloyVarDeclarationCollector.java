@@ -4,7 +4,8 @@ import java.util.Vector;
 
 public class JDynAlloyVarDeclarationCollector extends JDynAlloyVisitor {
 	
-	public JDynAlloyVarDeclarationCollector() {
+	public JDynAlloyVarDeclarationCollector(boolean isJavaArithmetic){
+		super(isJavaArithmetic);
 		// TODO Auto-generated constructor stub
 	}
 

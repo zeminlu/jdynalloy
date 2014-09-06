@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Vector;
 
 import edu.mit.csail.sdg.alloy4compiler.ast.ExprBinary;
-
 import ar.edu.taco.simplejml.builtin.JavaPrimitiveIntegerValue;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
@@ -30,6 +29,9 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 	public String specFromMethod = null;
 
 	public List<JVariableDeclaration> formalParameterNames;
+	
+	public boolean isJavaArithmetic = false;
+
 
 	//	public AlloyFormula objectInvariantForStryker = null;
 
@@ -59,12 +61,15 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 		public Object predsEncodingArithmeticConstraintsFromObjectInvariant;
 
 		public Object varsUsedInArithmeticConstraintsFromObjectInvariant;
+		
 
 
 	}
 
 
-	public JDynAlloyVisitor() {
+	
+	public JDynAlloyVisitor(boolean isJavaArithmetic) {
+		this.isJavaArithmetic = isJavaArithmetic;
 	}
 
 	public Object visit(JAssert n) {
@@ -334,7 +339,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 				requiresResults.add(result);
 			}
 		} else {
-			requiresResults = processInputToFix((HashMap<String, Object>)inputToFix);
+			requiresResults = processInputToFix((HashMap<String, Object>)inputToFix, this.isJavaArithmetic);
 		}
 
 		Vector<Object> ensuresResults = new Vector<Object>();
@@ -362,7 +367,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 
 
 
-	private Vector<Object> processInputToFix(HashMap<String, Object> inputToFix2) {
+	private Vector<Object> processInputToFix(HashMap<String, Object> inputToFix2, boolean isJavaArithmetic) {
 		HashMap<Object, AlloyExpression> mapConcreteToExpre = new HashMap<Object, AlloyExpression>();
 
 		String[] metSplit = this.specFromMethod.split("_");
@@ -414,7 +419,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 
 						if (!mapConcreteToExpre.containsKey(inputToFix2.get(vd.getVariable().getVariableId().getString()))) {
 							mapConcreteToExpre.put(inputToFix2.get(vd.getVariable().getVariableId().getString()), new ExprVariable(vd.getVariable()));
-							AlloyFormula f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre);
+							AlloyFormula f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre, isJavaArithmetic);
 							if (fixedInputFormula == null)
 								fixedInputFormula = f;
 							else
@@ -459,11 +464,14 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 
 
 
-	private static AlloyFormula processInputToFixToFormula(Object inputToFix2, HashMap<Object, AlloyExpression> mapConcreteToExpre) {
+	private static AlloyFormula processInputToFixToFormula(Object inputToFix2, HashMap<Object, 
+			AlloyExpression> mapConcreteToExpre, boolean isJavaArithmetic) {
 		AlloyFormula accumulator = null;
 		if (inputToFix2 != null){
 			Class<?> clazz = inputToFix2.getClass();
 
+			if (!clazz.isPrimitive() && !isAutoboxingClass(clazz)) {
+				
 			Field[] fields = clazz.getDeclaredFields();
 			if (fields.length > 0){
 				for (Field f : fields){
@@ -531,7 +539,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 										)
 										);
 
-								AlloyFormula af = processInputToFixToFormula(o, mapConcreteToExpre);	
+								AlloyFormula af = processInputToFixToFormula(o, mapConcreteToExpre, isJavaArithmetic);	
 								if (accumulator == null) {
 									accumulator = af;
 								} else {
@@ -559,8 +567,29 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 							);
 		}
 
+		}
+		else {
+			// class is a primitive type or autoboxing
+			AlloyFormula af = new EqualsFormula( 
+									mapConcreteToExpre.get(inputToFix2),
+									(AlloyExpression)getValueAsString(inputToFix2, isJavaArithmetic)
+								);
+		}
 		return accumulator;
 
+	}
+	
+	private static AlloyExpression getValueAsString(Object o, boolean isJavaArith) {
+		if (o.getClass().equals(int.class) || o.getClass().equals(Integer.class)){
+			if (isJavaArith){
+				return new ExprConstant("JavaPrimitiveIntegerValue", 
+										JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(((Integer)o).intValue(), true).toString()
+						);
+			} else {
+				return new ExprConstant("Int", ((Integer)o).toString());
+			}
+		} 
+		return null;
 	}
 
 	@Override
@@ -573,4 +602,24 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param clazz
+	 * @return
+	 */
+	private static boolean isAutoboxingClass(Class<?> clazz) {
+		boolean ret_Value = false;
+
+		ret_Value |= Boolean.class.isAssignableFrom(clazz);
+		ret_Value |= Byte.class.isAssignableFrom(clazz);
+		ret_Value |= Character.class.isAssignableFrom(clazz);
+		ret_Value |= Double.class.isAssignableFrom(clazz);
+		ret_Value |= Float.class.isAssignableFrom(clazz);
+		ret_Value |= Integer.class.isAssignableFrom(clazz);
+		ret_Value |= Long.class.isAssignableFrom(clazz);
+		ret_Value |= Short.class.isAssignableFrom(clazz);
+
+		return ret_Value;
+	}
+	
 }

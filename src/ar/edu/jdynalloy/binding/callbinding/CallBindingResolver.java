@@ -53,12 +53,13 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 	 */
 	private final IdentityHashMap<IProgramCall, JProgramDeclaration> binding = new IdentityHashMap<IProgramCall, JProgramDeclaration>();
 
-	public CallBindingResolver() {}
+	public CallBindingResolver(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
+	}
 
 	public CallBindingResolver(JDynAlloyContext dynJAlloyContext, Map<JBindingKey, JProgramDeclaration> programBindings,
-			IdentityHashMap<IProgramCall, JBindingKey> callBindings) {
-		
-		super();
+			IdentityHashMap<IProgramCall, JBindingKey> callBindings, boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.dynJAlloyContext = dynJAlloyContext;
 		this.callBindings = callBindings;
 		this.programBindings = programBindings;

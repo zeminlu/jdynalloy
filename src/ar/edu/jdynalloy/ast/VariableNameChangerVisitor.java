@@ -21,8 +21,8 @@ public class VariableNameChangerVisitor extends JDynAlloyMutator{
 	List<AlloyVariable> vars = null;
 
 
-	public VariableNameChangerVisitor(List<AlloyVariable> vars) {
-		super();
+	public VariableNameChangerVisitor(List<AlloyVariable> vars, boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.vars = vars;
 		VariableNameChangerFormulaMutator fm = new VariableNameChangerFormulaMutator(vars);
 		this.setFormulaMutator(fm);

@@ -20,6 +20,10 @@ import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
  */
 public class DynJAlloyLocationFinderVisitor extends JDynAlloyVisitor {
 	
+	public DynJAlloyLocationFinderVisitor(boolean isJavaArith) {
+		super(isJavaArith);
+	}
+	
 	private List<AlloyExpression> locations = new ArrayList<AlloyExpression>();
 	
 	@Override

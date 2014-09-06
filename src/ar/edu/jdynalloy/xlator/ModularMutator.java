@@ -32,6 +32,11 @@ import ar.uba.dc.rfm.alloy.util.VarSubstitutor;
 
 class ModularMutator extends JDynAlloyMutator {
 
+	public ModularMutator(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
+		// TODO Auto-generated constructor stub
+	}
+
 	static class PreStateExprMutator extends VarSubstitutor {
 
 		@Override

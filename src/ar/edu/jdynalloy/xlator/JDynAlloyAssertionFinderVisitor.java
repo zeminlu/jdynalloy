@@ -5,6 +5,10 @@ import ar.edu.jdynalloy.ast.JAssert;
 
 public class JDynAlloyAssertionFinderVisitor extends JDynAlloyVisitor {
 
+	public JDynAlloyAssertionFinderVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
+	}
+
 	private boolean assertFound = false;
 	
 	@Override

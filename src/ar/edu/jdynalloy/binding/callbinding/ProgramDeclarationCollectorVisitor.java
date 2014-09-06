@@ -28,6 +28,10 @@ import ar.edu.jdynalloy.ast.JProgramDeclaration;
 import ar.edu.jdynalloy.binding.JBindingKey;
 
 public class ProgramDeclarationCollectorVisitor extends JDynAlloyVisitor {
+	
+	public ProgramDeclarationCollectorVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
+	}
 
 	final Map<JBindingKey, JProgramDeclaration> programBindings = new HashMap<JBindingKey, JProgramDeclaration>();
 	String moduleId;

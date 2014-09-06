@@ -65,8 +65,8 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 		formMutator = fm;
 	}
 
-	public JDynAlloyMutator() {
-		super();
+	public JDynAlloyMutator(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.formMutator = new JFormulaMutator();
 	}
 

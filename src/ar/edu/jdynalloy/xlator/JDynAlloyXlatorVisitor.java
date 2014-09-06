@@ -159,14 +159,17 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 	private Vector<AlloyFormula> represents;
 	private HashSet<AlloyVariable> varsToPrefix;
 
+	private boolean isJavaArith;
+
 
 
 	public HashSet<AlloyVariable> getVarsToPrefix(){
 		return this.varsToPrefix;
 	}
 
-	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav, Object inputToFix) {
-		super();
+	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav, Object inputToFix, boolean isJavaArith) {
+		super(isJavaArith);
+		this.isJavaArith = isJavaArith;
 		this.context = _context;
 		this.varsToPrefix = sav;
 		this.inputToFix = inputToFix;
@@ -426,7 +429,7 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JSignature node) {
-		JDynAlloyPrinter printer = new JDynAlloyPrinter();
+		JDynAlloyPrinter printer = new JDynAlloyPrinter(this.isJavaArith);
 		String str = (String) node.accept(printer);
 		return str;
 	}

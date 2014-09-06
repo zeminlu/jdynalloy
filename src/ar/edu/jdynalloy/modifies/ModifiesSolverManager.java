@@ -41,7 +41,7 @@ public class ModifiesSolverManager {
 	 * This method replace predicate calls with the modifies clausule in 
 	 * 
 	 */
-	public List<JDynAlloyModule> process(List<JDynAlloyModule> modules, JDynAlloyBinding dynJAlloyBinding) {
+	public List<JDynAlloyModule> process(List<JDynAlloyModule> modules, JDynAlloyBinding dynJAlloyBinding, boolean isJavaArith) {
 		boolean checkedMethodFound = false;
 		
 		String classToCheck = JDynAlloyConfig.getInstance().getClassToCheck();
@@ -54,7 +54,7 @@ public class ModifiesSolverManager {
 				
 
 				SymbolTable symbolTable = new SymbolTable();				
-				FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable);
+				FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArith);
 				
 				for (JDynAlloyModule aModule : modules) {
 					aModule.accept(fieldCollectorVisitor);
@@ -69,10 +69,10 @@ public class ModifiesSolverManager {
 				
 				log.debug("Module: " + dynJAlloyModule.getModuleId());
 				
-				ReplaceModifiesModuleVisitor replaceModifiesModuleVisitor = new ReplaceModifiesModuleVisitor(dynJAlloyBinding, symbolTable);
+				ReplaceModifiesModuleVisitor replaceModifiesModuleVisitor = new ReplaceModifiesModuleVisitor(dynJAlloyBinding, symbolTable, isJavaArith);
 				JDynAlloyModule dynJAlloyModuleWithOutModifies = (JDynAlloyModule) dynJAlloyModule.accept(replaceModifiesModuleVisitor);
 	
-				JDynAlloyPrinter printer = new JDynAlloyPrinter();
+				JDynAlloyPrinter printer = new JDynAlloyPrinter(isJavaArith);
 				log.debug("New Module WITHOUT Modifies: ");
 				log.debug(dynJAlloyModuleWithOutModifies.accept(printer));
 				

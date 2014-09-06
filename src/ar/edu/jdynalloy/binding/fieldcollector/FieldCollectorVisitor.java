@@ -38,12 +38,13 @@ public class FieldCollectorVisitor extends JDynAlloyVisitor {
 		this.symbolTable = symbolTable;
 	}
 	
-	public FieldCollectorVisitor() {
+	public FieldCollectorVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.symbolTable = new SymbolTable();
 	}
 
-	public FieldCollectorVisitor(SymbolTable symbolTable) {
-		super();
+	public FieldCollectorVisitor(SymbolTable symbolTable, boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		this.symbolTable = symbolTable;
 	}
 

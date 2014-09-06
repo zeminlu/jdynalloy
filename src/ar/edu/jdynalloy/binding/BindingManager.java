@@ -39,6 +39,8 @@ import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 
 public class BindingManager {
 
+	private boolean isJavaArithmetic;
+	
 	private static Logger log = Logger.getLogger(BindingManager.class);
 	
 	private List<ar.edu.jdynalloy.ast.JDynAlloyModule> modules;
@@ -57,7 +59,13 @@ public class BindingManager {
 	}
 	
 	
+	public void setJavaArithmetic(boolean isJavaArithmetic) {
+		this.isJavaArithmetic = isJavaArithmetic;
+	}
 
+	public boolean getIsJavaArithmetic() {
+		return this.isJavaArithmetic;
+	}
 
 	public void execute() {
 		// aca viene el analisis semantico para los bindings
@@ -66,9 +74,9 @@ public class BindingManager {
 			dynJAlloyContext.load(dynJAlloyModule);
 		}
 		SymbolTable symbolTable = new SymbolTable();
-		ProgramDeclarationCollectorVisitor programDeclarationCollectorVisitor = new ProgramDeclarationCollectorVisitor();
-		SemanticCheckVisitor semanticCheckVisitor = new SemanticCheckVisitor(symbolTable);
-		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable);
+		ProgramDeclarationCollectorVisitor programDeclarationCollectorVisitor = new ProgramDeclarationCollectorVisitor(isJavaArithmetic);
+		SemanticCheckVisitor semanticCheckVisitor = new SemanticCheckVisitor(symbolTable, isJavaArithmetic);
+		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArithmetic);
 
 		//ProgramDeclarationCollectorVisitor and fieldCollectorVisitor don't have inter-dependences.
 		//They are run together. But semanticCheckVisitor visitor needs the Fields collected by fieldCollectorVisitor.
@@ -82,7 +90,9 @@ public class BindingManager {
 			dynJAlloyModule.accept(semanticCheckVisitor);			
 		}
 		
-		CallBindingResolver callBindingResolver = new CallBindingResolver(dynJAlloyContext, programDeclarationCollectorVisitor.getProgramBindings(), semanticCheckVisitor.getCallBindings());
+		CallBindingResolver callBindingResolver = new CallBindingResolver(dynJAlloyContext, 
+				programDeclarationCollectorVisitor.getProgramBindings(), 
+				semanticCheckVisitor.getCallBindings(), isJavaArithmetic);
 		callBindingResolver.resolveBinding();			
 		IdentityHashMap<IProgramCall, JProgramDeclaration> bindings = callBindingResolver.getBinding();		
 		

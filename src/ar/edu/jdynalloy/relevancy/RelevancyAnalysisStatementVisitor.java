@@ -48,8 +48,8 @@ public class RelevancyAnalysisStatementVisitor extends JDynAlloyVisitor {
 	List<JDynAlloyModule> modules;
 	RelevancyAnalysisSymbolTable symbolTable;
 
-	public RelevancyAnalysisStatementVisitor(JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules, RelevancyAnalysisSymbolTable symbolTable, Scene scene) {
-		super();
+	public RelevancyAnalysisStatementVisitor(JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules, RelevancyAnalysisSymbolTable symbolTable, Scene scene, boolean isJavaArith) {
+		super(isJavaArith);
 		this.dynJAlloyBinding = dynJAlloyBinding;
 		this.modules = modules;
 		this.symbolTable = symbolTable;

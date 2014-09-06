@@ -46,6 +46,10 @@ import ar.edu.jdynalloy.ast.JWhile;
 
 class ReplaceModifiesModuleVisitor extends JDynAlloyVisitor {
 
+	public ReplaceModifiesModuleVisitor(boolean isJavaArith) {
+		super(isJavaArith);
+	}
+	
 	@Override
 	public Object visit(JSpecCase node) {
 		return node;

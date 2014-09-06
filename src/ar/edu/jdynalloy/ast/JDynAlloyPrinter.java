@@ -103,8 +103,8 @@ public final class JDynAlloyPrinter extends JDynAlloyVisitor {
 	/**
 	 * @param output
 	 */
-	public JDynAlloyPrinter() {
-		super();
+	public JDynAlloyPrinter(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
 		formulaPrinter.setPrettyPrinting(true);
 		expressionPrinter = (ExpressionPrinter) formulaPrinter
 				.getDfsExprVisitor();

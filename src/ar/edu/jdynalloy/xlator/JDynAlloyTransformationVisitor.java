@@ -28,6 +28,11 @@ import ar.uba.dc.rfm.alloy.ast.formulas.EqualsFormula;
  */
 public class JDynAlloyTransformationVisitor extends JDynAlloyMutator {
 	
+	public JDynAlloyTransformationVisitor(boolean isJavaArithmetic) {
+		super(isJavaArithmetic);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	public Object visit(JWhile n) {
 		JWhile module = (JWhile) super.visit(n);
@@ -68,7 +73,7 @@ public class JDynAlloyTransformationVisitor extends JDynAlloyMutator {
 			JIfThenElse conditional = new JIfThenElse(module.getCondition(), trueStmt, new JSkip(), module.getBranchId());
 			
 			// Look for updated locations into the loop body
-			DynJAlloyLocationFinderVisitor locationFinderVisitor = new DynJAlloyLocationFinderVisitor();
+			DynJAlloyLocationFinderVisitor locationFinderVisitor = new DynJAlloyLocationFinderVisitor(this.isJavaArithmetic);
 			module.accept(locationFinderVisitor);
 			List<AlloyExpression> updatedLocations = locationFinderVisitor.getLocations();
 			
