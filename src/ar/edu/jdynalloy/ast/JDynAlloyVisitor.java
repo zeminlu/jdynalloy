@@ -467,13 +467,26 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 
 
 
+	private static boolean isFixable(Class<?> clazz){
+		Field[] fields = clazz.getDeclaredFields();
+		for (Field f : fields){
+			f.setAccessible(true);
+			if (f.getType().equals(long.class) || 
+					f.getType().equals(float.class) || 
+					f.getType().equals(String.class)){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private static AlloyFormula processInputToFixToFormula(Object inputToFix2, HashMap<Object, 
 			AlloyExpression> mapConcreteToExpre, boolean isJavaArithmetic) {
 		AlloyFormula accumulator = null;
 		if (inputToFix2 != null){
 			Class<?> clazz = inputToFix2.getClass();
 
-			if (!clazz.isPrimitive() && !isAutoboxingClass(clazz)) {
+			if (!clazz.isPrimitive() && !isAutoboxingClass(clazz) && isFixable(clazz)) {
 
 				Field[] fields = clazz.getDeclaredFields();
 				if (fields.length > 0){
@@ -540,10 +553,12 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 											);
 
 									AlloyFormula af = processInputToFixToFormula(o, mapConcreteToExpre, isJavaArithmetic);  
-									if (accumulator == null) {
-										accumulator = af;
-									} else {
-										accumulator = new AndFormula(accumulator, af);  
+									if (af != null){ 
+										if (accumulator == null) {
+											accumulator = af;
+										} else {
+											accumulator = new AndFormula(accumulator, af);  
+										}
 									}
 								}
 							}
@@ -565,14 +580,17 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 				}
 
 			} else {
-				// class is a primitive type or autoboxing
-				AlloyFormula af = new EqualsFormula( 
-						mapConcreteToExpre.get(inputToFix2),
-						(AlloyExpression)getValueAsString(inputToFix2, isJavaArithmetic)
-						);
-				if (accumulator == null){
-					accumulator = af;
-				} 
+				if (clazz.isPrimitive() || isAutoboxingClass(clazz)){
+					// class is a primitive type or autoboxing
+					AlloyFormula af = new EqualsFormula( 
+							mapConcreteToExpre.get(inputToFix2),
+							(AlloyExpression)getValueAsString(inputToFix2, isJavaArithmetic)
+							);
+					if (accumulator == null){
+						accumulator = af;
+					} 
+				} else {
+				}
 			}
 		} else {
 			accumulator = 
@@ -596,9 +614,9 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 			}
 		} 
 		if (o.getClass().equals(boolean.class) || o.getClass().equals(Boolean.class)){
-				return new ExprConstant("boolean", ((Boolean)o).toString());
-			
+			return new ExprConstant("boolean", ((Boolean)o).toString());
 		} 
+
 		return null;
 	}
 
