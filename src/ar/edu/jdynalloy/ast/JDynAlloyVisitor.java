@@ -595,6 +595,10 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 				return new ExprConstant("Int", ((Integer)o).toString());
 			}
 		} 
+		if (o.getClass().equals(boolean.class) || o.getClass().equals(Boolean.class)){
+				return new ExprConstant("boolean", ((Boolean)o).toString());
+			
+		} 
 		return null;
 	}
 
