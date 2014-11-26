@@ -491,6 +491,9 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 				Field[] fields = clazz.getDeclaredFields();
 				if (fields.length > 0){
 					for (Field f : fields){
+						if (f.getName().contains("goal_")) {
+							continue;
+						}
 						f.setAccessible(true);
 						try {
 							Object o = f.get(inputToFix2);
