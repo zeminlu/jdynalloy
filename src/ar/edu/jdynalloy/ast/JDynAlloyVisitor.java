@@ -593,6 +593,37 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 						accumulator = af;
 					} 
 				} else {
+					if (clazz.equals(Exception.class)){
+						AlloyFormula af = new EqualsFormula(
+								mapConcreteToExpre.get(inputToFix2),
+								new ExprVariable(new AlloyVariable("java_lang_ExceptionLit"))
+								);
+						if (accumulator == null){
+							accumulator = af;
+						} 
+					} else {
+						if (clazz.equals(Throwable.class)){
+							AlloyFormula af = new EqualsFormula(
+									mapConcreteToExpre.get(inputToFix2),
+									new ExprVariable(new AlloyVariable("java_lang_ThrowableLit"))
+									);
+							if (accumulator == null){
+								accumulator = af;
+							} 
+						} else {
+							if (clazz.equals(RuntimeException.class)){
+								AlloyFormula af = new EqualsFormula(
+										mapConcreteToExpre.get(inputToFix2),
+										new ExprVariable(new AlloyVariable("java_lang_RuntimeExceptionLit"))
+										);
+								if (accumulator == null){
+									accumulator = af;
+								} 
+							}
+
+						}
+
+					}
 				}
 			}
 		} else {
