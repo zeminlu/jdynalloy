@@ -25,13 +25,15 @@ import java.util.List;
 import ar.edu.jdynalloy.JDynAlloyConfig;
 import ar.edu.jdynalloy.JDynAlloyException;
 import ar.edu.jdynalloy.ast.JDynAlloyModule;
+import ar.edu.jdynalloy.ast.JProgramCall;
 import ar.edu.jdynalloy.ast.JProgramDeclaration;
-import ar.edu.jdynalloy.binding.callbinding.ExpressionTypeResolver;
 import ar.edu.jdynalloy.binding.callbinding.PredicateCallAlloyFormulaDescriptor;
-import ar.edu.jdynalloy.binding.callbinding.PredicateAndFunctionCallCollectorVisitor;
+import ar.edu.jdynalloy.binding.callbinding.FunctionCallAlloyFormulaDescriptor;
+import ar.edu.jdynalloy.binding.callbinding.PredicateAndFunctionCallRelevancyVisitor;
 import ar.edu.jdynalloy.xlator.JDynAlloyBinding;
 import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 
 public class RelevancyAnalysisUtils {
 
@@ -87,7 +89,35 @@ public class RelevancyAnalysisUtils {
 		JProgramDeclaration methodToCheckDeclaration = null;
 
 		String classToCheck = JDynAlloyConfig.getInstance().getClassToCheck();
+		
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitClassToCheck = classToCheck.split("_");
+		classToCheck = "";
+		for (int idx = 0; idx < splitClassToCheck.length - 2; idx++){
+			classToCheck += splitClassToCheck[idx] + "_";
+		}
+		if (splitClassToCheck.length > 1){
+			classToCheck += splitClassToCheck[splitClassToCheck.length - 2] + "Instrumented_";
+		}
+		classToCheck += splitClassToCheck[splitClassToCheck.length - 1];
+		*/
+		
 		String methodToCheck = JDynAlloyConfig.getInstance().getMethodToCheck();
+		
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitMethodToCheck = methodToCheck.split("_");
+		methodToCheck = "";
+		for (int idx = 0; idx < splitMethodToCheck.length - 4; idx++){
+			methodToCheck += splitMethodToCheck[idx] + "_";
+		}
+		if (splitMethodToCheck.length >= 4){
+			methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 4] + "Instrumented_";
+		}
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 3] + "_";
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 2] + "_";
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 1];
+		*/
+		
 
 		for (JDynAlloyModule dynJAlloyModule : modules) {
 			if (dynJAlloyModule.getModuleId().equals(classToCheck)) {
@@ -120,7 +150,7 @@ public class RelevancyAnalysisUtils {
 			RelevancyAnalysisSymbolTable symbolTable,
 			JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules) {
 
-		PredicateAndFunctionCallCollectorVisitor visitor = new PredicateAndFunctionCallCollectorVisitor(
+		PredicateAndFunctionCallRelevancyVisitor visitor = new PredicateAndFunctionCallRelevancyVisitor(
 				symbolTable);
 
 		RelevantAnalysisExpressionTypeResolver expressionTypeResolver = new RelevantAnalysisExpressionTypeResolver(
@@ -132,7 +162,19 @@ public class RelevancyAnalysisUtils {
 
 		formula.accept(visitor);
 
-		visitor.getCalledFunctionsNames().addAll(((RelevantAnalysisExpressionTypeResolver)visitor.getDfsExprVisitor()).getCalledFunctionsNames());
+//		visitor.getCalledFunctions().addAll(((RelevantAnalysisExpressionTypeResolver)visitor.getDfsExprVisitor()).getCalledFunctionsNames());
+//		for (String funName : visitor.getCalledFunctionsNames()){
+//			if ()
+//			JProgramCall fakePC = new JProgramCall(false, funName, )
+//			if (dynJAlloyBinding.resolve(node))
+//				
+//			JProgramDeclaration programDeclaration = this.dynJAlloyBinding.resolve(node);
+//			scene.addProgram(programDeclaration);
+//			//JPG::workaround to use AnalyzeFormula
+//			PredicateFormula predFormula = new PredicateFormula(null,node.getProgramId(),node.getArguments());
+//			RelevancyAnalysisUtils.analyzeFormula(scene, predFormula, symbolTable, dynJAlloyBinding, modules);
+//
+//		}
 		processCollectedFunctionNames(scene, visitor, modules);
 		
 		
@@ -170,16 +212,33 @@ public class RelevancyAnalysisUtils {
 		}
 		
 		
+		for (FunctionCallAlloyFormulaDescriptor fc : visitor.getCalledFunctions()) {
+			RelevancyAnalysisUtils.findCalledProgramAndToScene(scene, 
+					dynJAlloyBinding, fc);
+		}
+		
+		
 	}
 	
 	
 	
 	
+	private static void findCalledProgramAndToScene(Scene scene, JDynAlloyBinding dynJAlloyBinding,
+			FunctionCallAlloyFormulaDescriptor fc) {
+		JProgramCall programCall = new JProgramCall(false, 
+				fc.getfunctionCallInAlloyFormulaInfo().getFunctionId(), 
+				fc.getfunctionCallInAlloyFormulaInfo().getParameters());
+		JProgramDeclaration program = dynJAlloyBinding.resolve(programCall);
+		if (program == null)
+			throw new JDynAlloyException("Program " + fc.getfunctionCallInAlloyFormulaInfo().getFunctionId() + " called in specification cannot be found.");
+		scene.addProgram(program);
+	}
+
 	public static void analyzeObjectInvariant(Scene scene, AlloyFormula objectInvariant,
 			RelevancyAnalysisSymbolTable symbolTable,
 			JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules) {
 
-		PredicateAndFunctionCallCollectorVisitor visitor = new PredicateAndFunctionCallCollectorVisitor(symbolTable);
+		PredicateAndFunctionCallRelevancyVisitor visitor = new PredicateAndFunctionCallRelevancyVisitor(symbolTable);
 
 		RelevantAnalysisExpressionTypeResolver expressionTypeResolver = new RelevantAnalysisExpressionTypeResolver(
 				visitor, symbolTable);
@@ -190,7 +249,7 @@ public class RelevancyAnalysisUtils {
 
 		objectInvariant.accept(visitor);
 
-		visitor.getCalledFunctionsNames().addAll(((RelevantAnalysisExpressionTypeResolver)visitor.getDfsExprVisitor()).getCalledFunctionsNames());
+//		visitor.getCalledFunctions().addAll(((RelevantAnalysisExpressionTypeResolver)visitor.getDfsExprVisitor()).getCalledFunctionsNames());
 		processCollectedFunctionNames(scene, visitor, modules);
 
 		symbolTable.setEnableRelevantAnalysis(false);
@@ -231,7 +290,7 @@ public class RelevancyAnalysisUtils {
 	
 
 	private static void retriveBindingsTypeSupport(Scene scene,
-			PredicateAndFunctionCallCollectorVisitor visitor,
+			PredicateAndFunctionCallRelevancyVisitor visitor,
 			JDynAlloyBinding dynJAlloyBinding) {
 		for (PredicateCallAlloyFormulaDescriptor element : visitor
 				.getPredicatesCollected()) {
@@ -246,8 +305,8 @@ public class RelevancyAnalysisUtils {
 	}
 	
 	
-	private static void processCollectedFunctionNames(Scene scene, PredicateAndFunctionCallCollectorVisitor visitor, List<JDynAlloyModule> modules){
-		if (visitor.getCalledFunctionsNames().contains("fun_java_primitive_integer_value_size_of")){
+	private static void processCollectedFunctionNames(Scene scene, PredicateAndFunctionCallRelevancyVisitor visitor, List<JDynAlloyModule> modules){
+		if (visitor.getCalledFunctions().contains("fun_java_primitive_integer_value_size_of")){
 			for (JDynAlloyModule module : modules){
 				if (module.getModuleId().contains("JavaPrimitiveIntegerLiteral")){
 					String strNum = module.getModuleId().substring(module.getModuleId().lastIndexOf("l") + 1);

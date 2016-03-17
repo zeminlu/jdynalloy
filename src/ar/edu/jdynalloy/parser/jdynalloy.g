@@ -21,6 +21,7 @@ header {
 	
 package ar.edu.jdynalloy.parser;
 
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -202,7 +203,7 @@ dynJmlAlloyModule[JDynAlloyProgramParseContext ctx] returns [JDynAlloyModule r]
 	
 	{
 		if (!moduleId.getText().equals(alloySignature.getText())) {
-			throw new RuntimeException("Module name must be equals to Signature name"); 
+			throw new RuntimeException("Module name must equal Signature name"); 
 		}
 		
 		buffer.setSignatureId(alloySignature.getText());
@@ -303,6 +304,8 @@ SUCH_THAT alloyFormula1=alloyFormula[ctx]
 jProgramDeclaration[JDynAlloyProgramParseContext ctx] returns [JProgramDeclaration r]
 {
 	boolean isAbstract = false;
+	boolean isConstructor = false;
+	boolean isPure = false;
 	String programId;
 	String signatureId;
 	List<JSpecCase> specCases = new ArrayList<JSpecCase>();
@@ -316,7 +319,7 @@ jProgramDeclaration[JDynAlloyProgramParseContext ctx] returns [JProgramDeclarati
 :
 
 (VIRTUAL {isAbstract = true;})? 
-PROGRAM moduleName:IDENT COLON COLON programName:IDENT 
+PROGRAM (PURE {isPure = true;})? moduleName:IDENT COLON COLON programName:IDENT 
 LBRACKET
 variableDeclaration1=jVariableDeclaration[ctx] {parameters.add(variableDeclaration1);} (COMMA variableDeclaration1=jVariableDeclaration[ctx] {parameters.add(variableDeclaration1);} )*
 RBRACKET
@@ -331,7 +334,8 @@ body=jBlock[ctx]
 {
 	signatureId = moduleName.getText();
 	programId = programName.getText();
-	r = new JProgramDeclaration(isAbstract, signatureId, programId, parameters, specCases, body);
+	isConstructor = programName.getText().equals("Constructor");
+	r = new JProgramDeclaration(isAbstract, isConstructor, isPure, signatureId, programId, parameters, specCases, body, new AlloyTyping(), new ArrayList<AlloyFormula>());
 }
 ;
 //Program specification

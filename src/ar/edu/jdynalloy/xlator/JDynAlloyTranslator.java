@@ -18,28 +18,25 @@ import ar.uba.dc.rfm.dynalloy.ast.DynalloyModule;
 
 public final class JDynAlloyTranslator {
 
-	private Object inputToFix = null;
-	
 	private final JDynAlloyBinding binding;
 
 	public static String headerComment(String fragmentId) {
 		return "//-------------- " + fragmentId + "--------------//" + "\n";
 	}
 
-	public JDynAlloyTranslator(JDynAlloyBinding binding, Object inputToFix) {
+	public JDynAlloyTranslator(JDynAlloyBinding binding) {
 		super();
 		this.binding = binding;
-		this.inputToFix = inputToFix;
 	}
 
-	public Vector<DynalloyModule> translateAll(JDynAlloyModule[] asts, boolean isJavaArith) {
+	public Vector<DynalloyModule> translateAll(JDynAlloyModule[] asts) {
 		Vector<JDynAlloyModule> initial = new Vector<JDynAlloyModule>(Arrays.asList(asts));
 
 		JDynAlloyContext context = createContext(initial);
 
-		Vector<JDynAlloyModule> prepared = prepareAll(context, initial, isJavaArith);
+		Vector<JDynAlloyModule> prepared = prepareAll(context, initial);
 
-		Vector<DynalloyModule> translated = translateAll(context, prepared, isJavaArith);
+		Vector<DynalloyModule> translated = translateAll(context, prepared);
 
 		return translated;
 	}
@@ -52,11 +49,11 @@ public final class JDynAlloyTranslator {
 		return context;
 	}
 
-	private Vector<JDynAlloyModule> prepareAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules, boolean isJavaArith) {
+	private Vector<JDynAlloyModule> prepareAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules) {
 
 		// create dynamic dispatch
 		Vector<JDynAlloyModule> ms = new Vector<JDynAlloyModule>();
-		VAlloyVisitor valloyVisitor = new VAlloyVisitor(binding, isJavaArith);
+		VAlloyVisitor valloyVisitor = new VAlloyVisitor(binding);
 		for (JDynAlloyModule module : modules) {
 			JDynAlloyModule resolved_module = (JDynAlloyModule) module.accept(valloyVisitor);
 			ms.add(resolved_module);
@@ -64,7 +61,7 @@ public final class JDynAlloyTranslator {
 		
 		// transform loop invariants into assert,havoc,assume
 		Vector<JDynAlloyModule> transformedModules = new Vector<JDynAlloyModule>();
-		JDynAlloyTransformationVisitor transformationVisitor = new JDynAlloyTransformationVisitor(isJavaArith);
+		JDynAlloyTransformationVisitor transformationVisitor = new JDynAlloyTransformationVisitor();
 		for (JDynAlloyModule module : ms) {
 			JDynAlloyModule transformedModule = (JDynAlloyModule) module.accept(transformationVisitor);
 			transformedModules.add(transformedModule);
@@ -73,7 +70,7 @@ public final class JDynAlloyTranslator {
 
 		// create spec programs (if wanted)
 		if (JDynAlloyConfig.getInstance().getModularReasoning() == true) {
-			Vector<JDynAlloyModule> modular_modules = create_spec_programs(ms, isJavaArith);
+			Vector<JDynAlloyModule> modular_modules = create_spec_programs(ms);
 			ms = modular_modules;
 
 			// print spec programs (if wanted)
@@ -81,13 +78,13 @@ public final class JDynAlloyTranslator {
 
 				String filename = JDynAlloyConfig.getInstance().getOutputModularJDynalloy();
 
-				writeDynJAlloyOutput(filename, ms.toArray(new JDynAlloyModule[] {}), isJavaArith);
+				writeDynJAlloyOutput(filename, ms.toArray(new JDynAlloyModule[] {}));
 			}
 
 		}
 
 		// create call graph
-		CallGraphVisitor callGraphVisitor = new CallGraphVisitor(isJavaArith);
+		CallGraphVisitor callGraphVisitor = new CallGraphVisitor();
 		for (JDynAlloyModule module : ms) {
 			module.accept(callGraphVisitor);
 		}
@@ -95,7 +92,22 @@ public final class JDynAlloyTranslator {
 
 		// prune unused methods
 		String programToCheck = JDynAlloyConfig.getInstance().getMethodToCheck();
-		PruneVisitor pruneVisitor = new PruneVisitor(callGraph, programToCheck, isJavaArith);
+		
+/*Keyword "Instrumented" as part of the class/method name seem to be obsolete
+		String[] splitMethodToCheck = programToCheck.split("_");
+		programToCheck = "";
+		for (int idx = 0; idx < splitMethodToCheck.length - 4; idx++){
+			programToCheck += splitMethodToCheck[idx] + "_";
+		}
+		if (splitMethodToCheck.length >= 4){
+			programToCheck += splitMethodToCheck[splitMethodToCheck.length - 4] + "Instrumented_";
+		}
+		programToCheck += splitMethodToCheck[splitMethodToCheck.length - 3] + "_";
+		programToCheck += splitMethodToCheck[splitMethodToCheck.length - 2] + "_";
+		programToCheck += splitMethodToCheck[splitMethodToCheck.length - 1];
+*/
+		
+		PruneVisitor pruneVisitor = new PruneVisitor(callGraph, programToCheck);
 		Vector<JDynAlloyModule> prunedModules = new Vector<JDynAlloyModule>();
 		for (JDynAlloyModule module : ms) {
 			JDynAlloyModule prunedModule = (JDynAlloyModule) module.accept(pruneVisitor);
@@ -107,14 +119,14 @@ public final class JDynAlloyTranslator {
 		// Unfold recursion
 		Vector<JDynAlloyModule> non_recursive_modules = new Vector<JDynAlloyModule>();
 		int recursion_unfold = this.binding.unfoldScopeForRecursiveCode;
-		RecursionUnfolderVisitor recursionUnfolderVisitor = new RecursionUnfolderVisitor(callGraph, recursion_unfold, isJavaArith);
+		RecursionUnfolderVisitor recursionUnfolderVisitor = new RecursionUnfolderVisitor(callGraph, recursion_unfold);
 		for (JDynAlloyModule module : prunedModules) {
 			JDynAlloyModule non_recursive_module = (JDynAlloyModule) module.accept(recursionUnfolderVisitor);
 			non_recursive_modules.add(non_recursive_module);
 		}
 
 		// create call graph
-		CallGraphVisitor non_recursive_callGraphVisitor = new CallGraphVisitor(isJavaArith);
+		CallGraphVisitor non_recursive_callGraphVisitor = new CallGraphVisitor();
 		for (JDynAlloyModule module : non_recursive_modules) {
 			module.accept(non_recursive_callGraphVisitor);
 		}
@@ -122,17 +134,17 @@ public final class JDynAlloyTranslator {
 
 		// fill modifies table
 		ModifiesTableBuilder modifiesTableBuilder = new ModifiesTableBuilder();
-		Map<String, Set<AlloyVariable>> modifiesTable = modifiesTableBuilder.buildTable(non_recursive_modules, non_recursive_callGraph, isJavaArith);
+		Map<String, Set<AlloyVariable>> modifiesTable = modifiesTableBuilder.buildTable(non_recursive_modules, non_recursive_callGraph);
 
 		context.setModifiesTable(modifiesTable);
 
 		return non_recursive_modules;
 	}
 
-	private Vector<JDynAlloyModule> create_spec_programs(Vector<JDynAlloyModule> ms, boolean isJavaArith) {
+	private Vector<JDynAlloyModule> create_spec_programs(Vector<JDynAlloyModule> ms) {
 		Vector<JDynAlloyModule> modular_modules;
 		modular_modules = new Vector<JDynAlloyModule>();
-		ModularMutator modularMutator = new ModularMutator(isJavaArith);
+		ModularMutator modularMutator = new ModularMutator();
 		for (JDynAlloyModule module : ms) {
 			JDynAlloyModule spec_program_module = (JDynAlloyModule) module.accept(modularMutator);
 			modular_modules.add(spec_program_module);
@@ -140,7 +152,7 @@ public final class JDynAlloyTranslator {
 		return modular_modules;
 	}
 
-	private Vector<DynalloyModule> translateAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules, boolean isJavaArith) {
+	private Vector<DynalloyModule> translateAll(JDynAlloyContext context, Vector<JDynAlloyModule> modules) {
 
 		Vector<DynalloyModule> ms = new Vector<DynalloyModule>();
 		
@@ -158,11 +170,10 @@ public final class JDynAlloyTranslator {
 			for (JProgramDeclaration jpd : m.getPrograms()){
 				if (jpd.getVarsResultOfArithmeticOperationsInContracts() != null)
 					sav.addAll(jpd.getVarsResultOfArithmeticOperationsInContracts().getVarsInTyping());
-			}
-			
+			}			
 
 			if (containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith);
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}
@@ -181,7 +192,7 @@ public final class JDynAlloyTranslator {
 			}
 
 			if (!containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith);
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}
@@ -197,11 +208,11 @@ public final class JDynAlloyTranslator {
 		return false;
 	}
 
-	public static void writeDynJAlloyOutput(String outputDynJAlloy, JDynAlloyModule[] modules, boolean isJavaArith) {
+	public static void writeDynJAlloyOutput(String outputDynJAlloy, JDynAlloyModule[] modules) {
 		StringBuffer sb = new StringBuffer();
 		for (JDynAlloyModule m : modules) {
 			String modHeader = headerComment(m.getSignature().getSignatureId());
-			String modBody = (String) m.accept(new JDynAlloyPrinter(isJavaArith));
+			String modBody = (String) m.accept(new JDynAlloyPrinter());
 			sb.append(modHeader);
 			sb.append(modBody);
 		}

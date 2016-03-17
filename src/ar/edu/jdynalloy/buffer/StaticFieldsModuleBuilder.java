@@ -19,6 +19,7 @@
  */
 package ar.edu.jdynalloy.buffer;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,6 +37,8 @@ import ar.edu.jdynalloy.ast.JRepresents;
 import ar.edu.jdynalloy.ast.JSignature;
 import ar.edu.jdynalloy.factory.JSignatureFactory;
 import ar.edu.taco.simplejml.builtin.IBuiltInModule;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
+import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 
 public class StaticFieldsModuleBuilder implements IBuiltInModule {
 
@@ -73,7 +76,7 @@ public class StaticFieldsModuleBuilder implements IBuiltInModule {
 
 		JDynAlloyModule module = new JDynAlloyModule(signature.getSignatureId(), signature, classSignature, null, this.fields, this.staticInvariants, 
 				this.staticConstraints, Collections.<JObjectInvariant> emptySet(), Collections.<JObjectConstraint> emptySet(), 
-				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), null, null, false);
+				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>());
 
 		return module;
 	}

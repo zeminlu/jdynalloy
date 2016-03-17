@@ -23,6 +23,7 @@ import static ar.edu.jdynalloy.xlator.JType.parse;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ import ar.edu.jdynalloy.ast.JSignature;
 import ar.edu.jdynalloy.factory.JSignatureFactory;
 import ar.edu.jdynalloy.parser.JDynAlloyParserManager;
 import ar.edu.jdynalloy.xlator.JDynAlloyTyping;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -101,7 +103,7 @@ public class JavaPrimitiveIntegerValue implements IBuiltInModule {
 
 		this.module = new JDynAlloyModule(JAVA_PRIMITIVE_INTEGER_VALUE, signature, classSignature, null, fields, Collections.<JClassInvariant> emptySet(),
 				Collections.<JClassConstraint> emptySet(), Collections.<JObjectInvariant> emptySet(), Collections.<JObjectConstraint> emptySet(),
-				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), null, null, false);
+				Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>());
 
 	}
 
@@ -257,7 +259,7 @@ public class JavaPrimitiveIntegerValue implements IBuiltInModule {
 		return integer_literals.values();
 	}
 
-	public ExprConstant toJavaPrimitiveIntegerLiteral(int int_literal, boolean isPinnedForStryker) {
+	public ExprConstant toJavaPrimitiveIntegerLiteral(int int_literal) {
 
 		JDynAlloyModule literal_module;
 		if (!integer_literals.containsKey(int_literal)) {
@@ -271,7 +273,8 @@ public class JavaPrimitiveIntegerValue implements IBuiltInModule {
 			String moduleId = literal_signature.getSignatureId();
 			literal_module = new JDynAlloyModule(moduleId, literal_signature, null, null, Collections.<JField> emptyList(),
 					Collections.<JClassInvariant> emptySet(), Collections.<JClassConstraint> emptySet(), Collections.<JObjectInvariant> emptySet(),
-					Collections.<JObjectConstraint> emptySet(), Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), null, null, isPinnedForStryker);
+					Collections.<JObjectConstraint> emptySet(), Collections.<JRepresents> emptySet(), Collections.<JProgramDeclaration> emptySet(), 
+					new AlloyTyping(), new ArrayList<AlloyFormula>());
 			integer_literals.put(int_literal, literal_module);
 			int_literals_already_defined.add(int_literal);
 		}

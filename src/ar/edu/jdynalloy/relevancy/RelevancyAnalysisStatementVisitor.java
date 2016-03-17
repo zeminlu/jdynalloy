@@ -48,8 +48,8 @@ public class RelevancyAnalysisStatementVisitor extends JDynAlloyVisitor {
 	List<JDynAlloyModule> modules;
 	RelevancyAnalysisSymbolTable symbolTable;
 
-	public RelevancyAnalysisStatementVisitor(JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules, RelevancyAnalysisSymbolTable symbolTable, Scene scene, boolean isJavaArith) {
-		super(isJavaArith);
+	public RelevancyAnalysisStatementVisitor(JDynAlloyBinding dynJAlloyBinding, List<JDynAlloyModule> modules, RelevancyAnalysisSymbolTable symbolTable, Scene scene) {
+		super();
 		this.dynJAlloyBinding = dynJAlloyBinding;
 		this.modules = modules;
 		this.symbolTable = symbolTable;
@@ -106,7 +106,7 @@ public class RelevancyAnalysisStatementVisitor extends JDynAlloyVisitor {
 	public Object visit(JProgramCall node) {
 		JProgramDeclaration programDeclaration = this.dynJAlloyBinding.resolve(node);
 		scene.addProgram(programDeclaration);
-		//JPG::work arround to use AnalyzeFormula
+		//JPG::workaround to use AnalyzeFormula
 		PredicateFormula predFormula = new PredicateFormula(null,node.getProgramId(),node.getArguments());
 		RelevancyAnalysisUtils.analyzeFormula(scene, predFormula, symbolTable, dynJAlloyBinding, modules);
 		

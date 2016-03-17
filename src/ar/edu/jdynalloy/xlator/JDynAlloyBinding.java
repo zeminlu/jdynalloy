@@ -1,5 +1,6 @@
 package ar.edu.jdynalloy.xlator;
 
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 
@@ -9,8 +10,8 @@ import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 
 public class JDynAlloyBinding {
 
-	private final IdentityHashMap<IProgramCall, JProgramDeclaration> binding = new IdentityHashMap<IProgramCall, JProgramDeclaration>();
-	private final IdentityHashMap<JProgramDeclaration, List<JProgramDeclaration>> implementors = new IdentityHashMap<JProgramDeclaration, List<JProgramDeclaration>>();
+	private final HashMap<IProgramCall, JProgramDeclaration> binding = new HashMap<IProgramCall, JProgramDeclaration>();
+	private final HashMap<JProgramDeclaration, List<JProgramDeclaration>> implementors = new HashMap<JProgramDeclaration, List<JProgramDeclaration>>();
 
 	public JDynAlloyBinding(
 			IdentityHashMap<IProgramCall, JProgramDeclaration> _binding,

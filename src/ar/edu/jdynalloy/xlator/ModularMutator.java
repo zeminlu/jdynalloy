@@ -32,11 +32,6 @@ import ar.uba.dc.rfm.alloy.util.VarSubstitutor;
 
 class ModularMutator extends JDynAlloyMutator {
 
-	public ModularMutator(boolean isJavaArithmetic) {
-		super(isJavaArithmetic);
-		// TODO Auto-generated constructor stub
-	}
-
 	static class PreStateExprMutator extends VarSubstitutor {
 
 		@Override
@@ -224,8 +219,8 @@ class ModularMutator extends JDynAlloyMutator {
 		}
 		JStatement spec_program_body = programBuffer.toJAlloyProgram();
 
-		JProgramDeclaration spec_program = new JProgramDeclaration(false,
-				signatureId, programId, parameters, spec_cases,
+		JProgramDeclaration spec_program = new JProgramDeclaration(false, node.isConstructor(),
+				node.isPure(), signatureId, programId, parameters, spec_cases,
 				spec_program_body, null, null);
 
 		return spec_program;

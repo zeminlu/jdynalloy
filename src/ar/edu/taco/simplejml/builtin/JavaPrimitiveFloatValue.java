@@ -4,6 +4,7 @@ import static ar.edu.jdynalloy.xlator.JType.parse;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import ar.edu.jdynalloy.ast.JSignature;
 import ar.edu.jdynalloy.factory.JSignatureFactory;
 import ar.edu.jdynalloy.parser.JDynAlloyParserManager;
 import ar.edu.jdynalloy.xlator.JDynAlloyTyping;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -88,7 +90,7 @@ public class JavaPrimitiveFloatValue implements IBuiltInModule {
 				Collections.<JObjectInvariant> emptySet(),
 				Collections.<JObjectConstraint> emptySet(),
 				Collections.<JRepresents> emptySet(),
-				Collections.<JProgramDeclaration> emptySet(), null, null, false);
+				Collections.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>());
 
 	}
 
@@ -119,7 +121,7 @@ public class JavaPrimitiveFloatValue implements IBuiltInModule {
 					Collections.<JObjectInvariant> emptySet(),
 					Collections.<JObjectConstraint> emptySet(),
 					Collections.<JRepresents> emptySet(),
-					Collections.<JProgramDeclaration> emptySet(), null, null, false);
+					Collections.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>());
 			float_literals.put(float_literal, literal_module);
 		}
 		literal_module = float_literals.get(float_literal);

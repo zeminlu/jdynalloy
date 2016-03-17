@@ -3,6 +3,7 @@ package ar.edu.jdynalloy.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
 import ar.edu.jdynalloy.factory.JExpressionFactory;
 import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.AlloyTyping;
+import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
 import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 
@@ -58,6 +60,7 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 	public boolean isAbstract() {
 		return isAbstract;
 	}
+	
 
 	public void setSpecCases(List<JSpecCase> specCases) {
 		this.specCases = specCases;
@@ -68,7 +71,7 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 	}
 
 	private final String programId;
-
+	
 	private List<JVariableDeclaration> parameters;
 
 	private JStatement body;
@@ -76,6 +79,8 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 	private final String signatureId;
 
 	private final boolean isAbstract;
+	
+	private final boolean isConstructor;
 
 	private List<JSpecCase> specCases;
 	
@@ -86,9 +91,19 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 
 	private AlloyTyping varsResultOfArithmeticOperationsInObjectInvariants;
 
-
+	private boolean isPure;	
+			
+	public boolean isPure(){
+		return isPure;
+	}
+	
+	public void setPure(boolean b){
+		isPure = b;
+	}
+	
+	
 	public static JProgramDeclaration buildJProgramDeclaration(
-			boolean isAbstract, String signatureId, String programId,
+			boolean isAbstract, boolean isConstructor, boolean isPure, String signatureId, String programId,
 			List<JVariableDeclaration> parameters, Set<JPrecondition> requires,
 			Set<JModifies> modifies, Set<JPostcondition> ensures, JStatement body, 
 			AlloyTyping varsResultOfArithmeticOperationsInRequiresAndEnsures,
@@ -104,17 +119,18 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 					new LinkedList<JModifies>(modifies));
 			specCasesList = Collections.singletonList(specCase);
 		}
-		return new JProgramDeclaration(isAbstract, signatureId, programId,
-				parameters, specCasesList, body, varsResultOfArithmeticOperationsInRequiresAndEnsures, 
-				predsEncodingValueOfArithmeticOperationsInRequiresAndEnsures
-//				varsResultOfArithmeticOperationsInObjectInvariants, 
-//				predsEncodingValueOfArithmeticOperationsInObjectInvariants
-				);
+		
+		return new JProgramDeclaration(isAbstract, isConstructor, isPure, signatureId, programId,
+				parameters, specCasesList, body, 
+				varsResultOfArithmeticOperationsInRequiresAndEnsures, 
+				predsEncodingValueOfArithmeticOperationsInRequiresAndEnsures);
 
 	}
 
 	public JProgramDeclaration(
 			boolean isAbstract, 
+			boolean isConstructor,
+			boolean isPure,
 			String signatureId,
 			String programId, 
 			List<JVariableDeclaration> parameters,
@@ -125,6 +141,8 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 		) {
 		super();
 		this.isAbstract = isAbstract;
+		this.isConstructor = isConstructor;
+		this.isPure = isPure;
 		this.signatureId = signatureId;
 		this.programId = programId;
 		this.parameters = parameters;
@@ -132,8 +150,6 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 		this.body = body;
 		this.varsResultOfArithmeticOperationsInContracts = varsResultOfArithmeticOperationsInContracts;
 		this.predsEncodingValueOfArithmeticOperationsInContracts = predsEncodingValueOfArithmeticOperationsInContracts;
-//		this.varsResultOfArithmeticOperationsInObjectInvariants = varsResultOfArithmeticOperationsInObjectInvariants;
-//		this.predsEncodingValueOfArithmeticOperationsInObjectInvariants = predsEncodingValueOfArithmeticOperationsInObjectsInvariants;
 	}
 
 	public AlloyTyping getVarsResultOfArithmeticOperationsInContracts(){
@@ -197,6 +213,10 @@ public final class JProgramDeclaration implements JDynAlloyASTNode {
 				+ this.parameters.toString() + "]" + "{...}";
 	}
 
+	public boolean isConstructor(){
+		return isConstructor;
+	}
+	
 	public boolean isStatic() {
 	    if (this.parameters.get(0).getVariable().equals(JExpressionFactory.THROW_VARIABLE) ||
 	    		this.parameters.get(0).getVariable().equals(JExpressionFactory.ARG_THROW_VARIABLE)) {

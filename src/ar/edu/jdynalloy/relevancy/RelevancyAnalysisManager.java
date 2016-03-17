@@ -68,12 +68,12 @@ public class RelevancyAnalysisManager {
 	}
 
 	public String process(List<JDynAlloyModule> modules,
-			JDynAlloyBinding dynJAlloyBinding, boolean isJavaArith) {
+			JDynAlloyBinding dynJAlloyBinding) {
 		this.dynJAlloyBinding = dynJAlloyBinding;
 		this.modules = modules;
 
 		log.debug("Making relevancy analysis: ");
-		this.symbolTable = createSymbolTable(modules, isJavaArith);
+		this.symbolTable = createSymbolTable(modules);
 
 		JProgramDeclaration methodToCheckDeclaration = RelevancyAnalysisUtils
 				.findMethodToCheckDeclaration(modules);
@@ -83,15 +83,24 @@ public class RelevancyAnalysisManager {
 		
 	
 		String moduleName = JDynAlloyConfig.getInstance().getClassToCheck();
+		
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitModuleName = moduleName.split("_");
+		moduleName = "";
+		for (int idx = 0; idx < splitModuleName.length - 2; idx++){
+			moduleName += splitModuleName[idx] + "_";
+		}
+		if (splitModuleName.length > 1){
+			moduleName += splitModuleName[splitModuleName.length - 2] + "Instrumented_";
+		}
+		moduleName += splitModuleName[splitModuleName.length - 1];
+		*/
+		
+		
 		JDynAlloyModule moduleToCheck = RelevancyAnalysisUtils
 				.findModuleByName(moduleName, modules);
 		scene.addModule(moduleToCheck);
 		scene.addProgram(methodToCheckDeclaration);
-		for (JDynAlloyModule m : modules){
-			if (m.pinnedForNonRelevancyAnalysisForStryker){
-				scene.addModule(m);
-			}
-		}
 
 		// add class fields to scene
 		// scene = <{ Program_to_check }, {CLASS_FIELDS}, {}>
@@ -100,7 +109,7 @@ public class RelevancyAnalysisManager {
 				this.modules);
 		scene.addModule(classFields);
 
-		relevancyAnalysis(scene, isJavaArith);
+		relevancyAnalysis(scene);
 
 		String relevantClassesAsString = extractRelevantClassesAsString(scene);
 		return relevantClassesAsString;
@@ -122,7 +131,7 @@ public class RelevancyAnalysisManager {
 		return buffer.toString();
 	}
 
-	private void relevancyAnalysis(Scene scene, boolean isJavaArith) {
+	private void relevancyAnalysis(Scene scene) {
 
 		// marked = {}
 		Set<Object> marked = new HashSet<Object>();
@@ -131,15 +140,15 @@ public class RelevancyAnalysisManager {
 		while (!scene.isContainedBy(marked)) {
 			Object x = findNotMarkedElement(marked, scene);
 			marked.add(x);
-			relevancyAnalysisIteration(scene, x, isJavaArith);
+			relevancyAnalysisIteration(scene, x);
 		}
 
 	}
 
-	private void relevancyAnalysisIteration(Scene scene, Object x, boolean isJavaArith) {
+	private void relevancyAnalysisIteration(Scene scene, Object x) {
 		if (x instanceof JProgramDeclaration) {
 			JProgramDeclaration program = (JProgramDeclaration) x;
-			relevancyAnalysisIterationProgram(scene, program, isJavaArith);
+			relevancyAnalysisIterationProgram(scene, program);
 
 		} else if (x instanceof JField) {
 			JField field = (JField) x;
@@ -156,7 +165,7 @@ public class RelevancyAnalysisManager {
 	}
 
 	private void relevancyAnalysisIterationProgram(Scene scene,
-			JProgramDeclaration program, boolean isJavaArith) {
+			JProgramDeclaration program) {
 
 		this.symbolTable.beginScope();
 		
@@ -192,6 +201,7 @@ public class RelevancyAnalysisManager {
 		// End For each
 		
 		RelevancyAnalysisUtils.setBitWidth(this.bitWidth);
+		
 		for (JSpecCase specCase : program.getSpecCases()) {
 			for (JPrecondition precondition : specCase.getRequires()) {
 				RelevancyAnalysisUtils.analyzeFormula(scene, precondition
@@ -209,6 +219,7 @@ public class RelevancyAnalysisManager {
 						this.modules);
 			}
 		}
+		
 
 		// If X = Program_to_check
 		// For each s in x.Body
@@ -216,7 +227,7 @@ public class RelevancyAnalysisManager {
 		// End For each
 		JProgramDeclaration methodToCheckDeclaration = RelevancyAnalysisUtils
 				.findMethodToCheckDeclaration(modules);
-		analizeStatement(scene, program.getBody(), isJavaArith);
+		analizeStatement(scene, program.getBody());
 
 		// End If
 		// End If
@@ -300,9 +311,9 @@ public class RelevancyAnalysisManager {
 		this.symbolTable.endScope();
 	}
 
-	private void analizeStatement(Scene scene, JStatement body, boolean isJavaArith) {
+	private void analizeStatement(Scene scene, JStatement body) {
 		RelevancyAnalysisStatementVisitor relevancyAnalysisStatementVisitor = new RelevancyAnalysisStatementVisitor(
-				this.dynJAlloyBinding, this.modules, this.symbolTable, scene, isJavaArith);
+				this.dynJAlloyBinding, this.modules, this.symbolTable, scene);
 		body.accept(relevancyAnalysisStatementVisitor);
 	}
 
@@ -339,10 +350,10 @@ public class RelevancyAnalysisManager {
 	}
 
 	private static RelevancyAnalysisSymbolTable createSymbolTable(
-			List<JDynAlloyModule> modules, boolean isJavaArith) {
+			List<JDynAlloyModule> modules) {
 		RelevancyAnalysisSymbolTable symbolTable = new RelevancyAnalysisSymbolTable();
 		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(
-				symbolTable, isJavaArith);
+				symbolTable);
 		// ProgramDeclarationCollectorVisitor and fieldCollectorVisitor do not have
 		// interdependences.
 		// They can run together. But semanticCheckVisitor visitor needs the

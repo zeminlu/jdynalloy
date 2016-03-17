@@ -36,7 +36,7 @@ public abstract class AbstractModifiesCase {
 
 	public abstract boolean accepts(JModifies modifies);
 	public abstract AlloyFormula generateFormula(JModifies modifies);
-	private Set<String> modificableFieldSet;
+	private Set<String> modifiableFieldSet;
 	private SymbolTable symbolTable;
 	
 	public AbstractModifiesCase(SymbolTable symbolTable) {
@@ -52,12 +52,12 @@ public abstract class AbstractModifiesCase {
 		return symbolTable;
 	}
 	
-	public void setUnmodificableFieldSet(Set<String> modificableFieldSet) {
-		this.modificableFieldSet = modificableFieldSet;
+	public void setUnmodificableFieldSet(Set<String> modifiableFieldSet) {
+		this.modifiableFieldSet = modifiableFieldSet;
 	}
 	
-	public Set<String> getModificableFieldSet() {
-		return modificableFieldSet;
+	public Set<String> getModifiableFieldSet() {
+		return modifiableFieldSet;
 	}
 	
 	protected AlloyExpression primeExpression(AlloyExpression expression) {

@@ -23,8 +23,8 @@ import ar.uba.dc.rfm.alloy.ast.formulas.PredicateFormula;
 
 class VAlloyVisitor extends JDynAlloyMutator {
 
-	public VAlloyVisitor(JDynAlloyBinding binding, boolean isJavaArith) {
-		super(isJavaArith);
+	public VAlloyVisitor(JDynAlloyBinding binding) {
+		super();
 		this.binding = binding;
 	}
 
@@ -42,7 +42,7 @@ class VAlloyVisitor extends JDynAlloyMutator {
 			body = pd.getBody();
 		}
 		
-		return new JProgramDeclaration(false, null, programId, pd
+		return new JProgramDeclaration(false, node.isConstructor(), node.isPure(), null, programId, pd
 				.getParameters(), pd.getSpecCases(), body, node.getVarsResultOfArithmeticOperationsInContracts(), node.getPredsEncodingValueOfArithmeticOperationsInContracts());
 	}
 
@@ -78,7 +78,23 @@ class VAlloyVisitor extends JDynAlloyMutator {
 			String prefix = d.getSignatureId() + "_" + d.getProgramId();
 			if (!prefixes.containsKey(prefix))
 				prefixes.put(prefix, -1);
-
+			else {
+				if (d.isPure()){
+					List<JVariableDeclaration> pars = d.getParameters();
+					boolean isThrowAParam = false;
+					for (JVariableDeclaration j : pars){
+						if (j.getType().toString().contains("java_lang_Throwable")){
+							isThrowAParam = true;
+						}
+					}
+					if (!isThrowAParam){
+						String id = prefix + "_" + 0;
+						prefixes.put(prefix, 0);
+						programs.put(d, id);
+						return programs.get(d);
+					}
+				}
+			}
 			int index = prefixes.get(prefix);
 			index++;
 			String id = prefix + "_" + index;

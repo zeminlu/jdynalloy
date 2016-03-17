@@ -395,7 +395,7 @@ public abstract class JPreludeFactory {
 
 			bff.append("action updateMap[\n");
 			bff.append("  Map_entries:" + javaUtilPackage()
-					+ "Map->univ->univ,\n");
+					+ "Map -> (univ set -> lone univ),\n");
 			bff.append("  map:" + javaUtilPackage()
 					+ "Map,entries: univ->univ\n");
 			bff.append("]{ \n");
@@ -599,7 +599,7 @@ public abstract class JPreludeFactory {
 			bff.append("                             ]\n");
 			bff.append("     }\n");
 			bff.append("}\n");
-		} else if (moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray")) {
+		} else if (moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray") || moduleIds.contains("java_lang_LongArray")) {
 			bff.append("pred havocArrayContentsPost[array:  univ,\n");
 			bff.append("                            domain: set univ,\n");
 			bff.append("                            Array_0: univ -> (JavaPrimitiveIntegerValue set -> lone univ),\n");
@@ -1115,10 +1115,6 @@ public abstract class JPreludeFactory {
 		}
 
 		
-		
-		
-		
-
 		DynalloyModule preludeModule = new DynalloyModule("prelude", null, bff
 				.toString(), actionDeclarations, Collections
 				.<ProgramDeclaration> emptySet(), Collections

@@ -46,10 +46,6 @@ import ar.edu.jdynalloy.ast.JWhile;
 
 class ReplaceModifiesModuleVisitor extends JDynAlloyVisitor {
 
-	public ReplaceModifiesModuleVisitor(boolean isJavaArith) {
-		super(isJavaArith);
-	}
-	
 	@Override
 	public Object visit(JSpecCase node) {
 		return node;
@@ -119,7 +115,7 @@ class ReplaceModifiesModuleVisitor extends JDynAlloyVisitor {
 		if (methodToCheck.startsWith(qualifiedMethodName)) {
 
 			// dynJAlloyBinding.
-			return new JProgramDeclaration(node.isVirtual(), node.getSignatureId(), node.getProgramId(), 
+			return new JProgramDeclaration(node.isVirtual(), node.isConstructor(), node.isPure(), node.getSignatureId(), node.getProgramId(), 
 					node.getParameters(), node.getSpecCases(), node.getBody(), null, null);
 		} else {
 			return node;

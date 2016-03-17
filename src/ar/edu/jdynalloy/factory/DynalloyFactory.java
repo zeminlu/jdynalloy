@@ -45,14 +45,20 @@ public abstract class DynalloyFactory {
 	public static final AlloyVariable OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_ObjectArray_contents", false);
 	public static final AlloyVariable PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_ObjectArray_contents", true);
 	
-	public static final AlloyVariable INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", false);
-	public static final AlloyVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", true);
-
 	public static final ExprVariable OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE);
 
+	public static final AlloyVariable INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", false);
+	public static final AlloyVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", true);
+
 	public static final ExprVariable INT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(INT_ARRAY_CONTENTS_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE);
+
+	public static final AlloyVariable LONG_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_contents", false);
+	public static final AlloyVariable PRIMED_LONG_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_contents", true);
+
+	public static final ExprVariable LONG_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(LONG_ARRAY_CONTENTS_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_LONG_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_LONG_ARRAY_CONTENTS_FIELD_VARIABLE);
 
 //mfrias 16-03-2013: adding java_util_set support in specs
 	public static final AlloyVariable JAVA_UTIL_SET_ELEMS_FIELD_VARIABLE = new AlloyVariable("java_util_Set_elems", false);
@@ -75,6 +81,12 @@ public abstract class DynalloyFactory {
 	public static final ExprVariable INT_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(INT_ARRAY_LENGTH_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_INT_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(PRIMED_INT_ARRAY_LENGTH_FIELD_VARIABLE);
 	
+	public static final AlloyVariable LONG_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_length", false);
+	public static final AlloyVariable PRIMED_LONG_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_length", true);
+	
+	public static final ExprVariable LONG_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(LONG_ARRAY_LENGTH_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_LONG_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(PRIMED_LONG_ARRAY_LENGTH_FIELD_VARIABLE);
+
 	
 	public static final ExprVariable OBJECT_ARRAY_EXPRESSION = buildExprVariable(OBJECT_ARRAY_VARIABLE);
 	public static final ExprVariable PRIMED_OBJECT_ARRAY_EXPRESSION = buildExprVariable(PRIMED_OBJECT_ARRAY_VARIABLE);

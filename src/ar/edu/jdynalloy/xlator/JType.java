@@ -51,7 +51,7 @@ public final class JType {
 
 	public enum SpecialType {
 		ALLOCATED_OBJECT, SYSTEM_ARRAY, SET_CONTAINS, MAP_ENTRIES, ALLOY_LIST_CONTAINS, JML_OBJECTSET_CONTAINS, JML_OBJECTSEQUENCE_CONTAINS, 
-		ITERATOR_CONTAINS, UNIV_TO_UNIV, OBJECT_ARRAY_CONTAINS, INT_ARRAY_CONTAINS, ALLOY_OBJECT_ARRAY_CONTAINS, ALLOY_INT_ARRAY_CONTAINS
+		ITERATOR_CONTAINS, UNIV_TO_UNIV, OBJECT_ARRAY_CONTAINS, INT_ARRAY_CONTAINS, LONG_ARRAY_CONTAINS, ALLOY_OBJECT_ARRAY_CONTAINS, ALLOY_INT_ARRAY_CONTAINS
 	};
 	
 
@@ -90,7 +90,10 @@ public final class JType {
 	
 	private static final JType INT_ARRAY_CONTAINS_TYPE = new JType(
 			SpecialType.INT_ARRAY_CONTAINS);
-	
+
+	private static final JType LONG_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.LONG_ARRAY_CONTAINS);
+
 	private static final JType ALLOY_OBJECT_ARRAY_CONTAINS_TYPE = new JType(
 			SpecialType.ALLOY_OBJECT_ARRAY_CONTAINS);
 	
@@ -98,6 +101,10 @@ public final class JType {
 			SpecialType.ALLOY_INT_ARRAY_CONTAINS);
 
 	public static JType parse(String source) {
+		if (source.contains("Iterator")){
+			int i = 0;
+		}
+		
 		String str = source.replaceAll("\\(", "").replaceAll("\\)", "");
 		str = str.replace("set -> lone","set->lone");
 		str = str.replace("-> one","->one");
@@ -145,11 +152,13 @@ public final class JType {
 			return JType.ALLOY_OBJECT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("java_lang_IntArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveIntegerValue"))
 			return JType.INT_ARRAY_CONTAINS_TYPE;
-		else if (str.equals("java_lang_IntArray->one  seq Int"))
+		else if (str.equals("java_lang_LongArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveLongValue"))
+			return JType.LONG_ARRAY_CONTAINS_TYPE;
+		else if (str.equals("java_lang_IntArray->one seq Int"))
 			return JType.ALLOY_INT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("" + javaUtilPackage() + "Set->univ"))
 			return new JType(SpecialType.SET_CONTAINS, javaUtilPackage() + "Set", "null");
-		else if (str.equals("" + javaUtilPackage() + "Map->univ->lone univ"))
+		else if (str.equals("" + javaUtilPackage() + "Map->" + javaLangPackage() + "Object set->lone " + javaLangPackage() + "Object+null"))
 			return JType.MAP_ENTRIES_TYPE;
 		else if (str.equals("" + javaUtilPackage() + "List->Int->univ")) 
 			return new JType(SpecialType.ALLOY_LIST_CONTAINS, javaUtilPackage() + "List", "null");
@@ -157,7 +166,7 @@ public final class JType {
 			return JType.JML_OBJECTSET_CONTAINS_TYPE;
 		else if (str.equals("org_jmlspecs_models_JMLObjectSequence->(Int -> univ)"))
 			return JType.JML_OBJECTSEQUENCE_CONTAINS_TYPE;
-		else if (str.equals("" + javaUtilPackage() + "Iterator->set univ"))
+		else if (str.equals("" + javaUtilPackage() + "Iterator->univ"))
 			return JType.ITERATOR_CONTAINS_TYPE;
 		else if (str.startsWith("set ")) {
 			String setOf = str.substring("set ".length());
@@ -331,7 +340,7 @@ public final class JType {
 	}
 	
 	public boolean isBinaryRelation() {
-		return ((this.img!=null && this.img.size() > 0) || this.specialType != null);
+		return ((this.img!=null && this.img.size() > 0) || (this.specialType != null && !specialType.equals(SpecialType.MAP_ENTRIES)));
 	}
 
 	public boolean isTernaryRelation() {
@@ -479,6 +488,11 @@ public final class JType {
 				used_types.add(javaLangPackage() + "IntArray");
 				used_types.add("JavaPrimitiveIntegerValue");
 				break;
+			case LONG_ARRAY_CONTAINS:
+				used_types.add(javaLangPackage() + "LongArray");
+				used_types.add("JavaPrimitiveIntegerValue");
+				used_types.add("JavaPrimitiveLongValue");
+				break;
 			case OBJECT_ARRAY_CONTAINS:
 				used_types.add(javaLangPackage() + "ObjectArray");
 				used_types.add("JavaPrimitiveIntegerValue");
@@ -533,6 +547,9 @@ public final class JType {
 			case INT_ARRAY_CONTAINS:
 				s = "" + javaLangPackage() + "IntArray";
 				break;
+			case LONG_ARRAY_CONTAINS:
+				s = "" + javaLangPackage() + "LongArray";
+				break;				
 			case OBJECT_ARRAY_CONTAINS:
 				s = "" + javaLangPackage() + "ObjectArray";
 				break;
@@ -626,10 +643,13 @@ public final class JType {
 				sb.append("(org_jmlspecs_models_JMLObjectSequence)->(Int -> univ)");
 				break;
 			case ITERATOR_CONTAINS:
-				sb.append("(" + javaUtilPackage() + "Iterator)->set univ");
+				sb.append("" + javaUtilPackage() + "Iterator->univ");
 				break;
 			case INT_ARRAY_CONTAINS:
 				sb.append(javaLangPackage() + "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue)");
+				break;
+			case LONG_ARRAY_CONTAINS:
+				sb.append(javaLangPackage() + "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue)");
 				break;
 			case OBJECT_ARRAY_CONTAINS:
 				sb.append(javaLangPackage() + "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone (" + javaLangPackage() + "Object + null))");

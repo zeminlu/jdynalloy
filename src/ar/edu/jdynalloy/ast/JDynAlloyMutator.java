@@ -65,8 +65,8 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 		formMutator = fm;
 	}
 
-	public JDynAlloyMutator(boolean isJavaArithmetic) {
-		super(isJavaArithmetic);
+	public JDynAlloyMutator() {
+		super();
 		this.formMutator = new JFormulaMutator();
 	}
 
@@ -192,7 +192,7 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 				class_invariants, class_constraints, object_invariants,
 				object_constraints, represents, programs, 
 				node.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
-				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.pinnedForNonRelevancyAnalysisForStryker);
+				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants());
 
 		return module;
 	}
@@ -221,7 +221,7 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 		List<JSpecCase> specCases = Arrays.asList(specResults
 				.<JSpecCase> toArray(new JSpecCase[] {}));
 
-		return new JProgramDeclaration(node.isVirtual(), node.getSignatureId(),
+		return new JProgramDeclaration(node.isVirtual(), node.isConstructor(), node.isPure(), node.getSignatureId(),
 				node.getProgramId(), new LinkedList<JVariableDeclaration>(
 						varResults), specCases, body, node.getVarsResultOfArithmeticOperationsInContracts(), node.getPredsEncodingValueOfArithmeticOperationsInContracts());
 	}
