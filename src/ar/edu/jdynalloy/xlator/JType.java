@@ -141,11 +141,9 @@ public final class JType {
 			return JType.SYSTEM_ARRAY_TYPE;
 		else if (str.equals("java_lang_ObjectArray->JavaPrimitiveIntegerValue set->lone java_lang_Object+null"))
 			return JType.OBJECT_ARRAY_CONTAINS_TYPE;
-		else if (str.equals("java_lang_ObjectArray->one  seq java_lang_Object+null"))
-			return JType.ALLOY_OBJECT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("java_lang_IntArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveIntegerValue"))
 			return JType.INT_ARRAY_CONTAINS_TYPE;
-		else if (str.equals("java_lang_IntArray->one  seq Int"))
+		else if (str.equals("java_lang_IntArray->Int set->lone Int"))
 			return JType.ALLOY_INT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("" + javaUtilPackage() + "Set->univ"))
 			return new JType(SpecialType.SET_CONTAINS, javaUtilPackage() + "Set", "null");
@@ -345,7 +343,7 @@ public final class JType {
 	}
 
 	public Set<String> to() {
-		if (img.isEmpty())
+		if (img.isEmpty() && !this.equals(JType.parse("java_lang_IntArray->(Int set->lone Int)")))
 			throw new IllegalStateException("Cannot ask for image when type "
 					+ this.toString() + " is not a relation.");
 
@@ -635,7 +633,7 @@ public final class JType {
 				sb.append(javaLangPackage() + "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone (" + javaLangPackage() + "Object + null))");
 				break;
 			case ALLOY_INT_ARRAY_CONTAINS:
-				sb.append(javaLangPackage() + "IntArray -> (seq Int)");
+				sb.append(javaLangPackage() + "IntArray -> (Int set -> lone Int)");
 				break;
 			case ALLOY_OBJECT_ARRAY_CONTAINS:
 				sb.append(javaLangPackage() + "ObjectArray -> (Int set -> lone (" + javaLangPackage() + "Object + null))");

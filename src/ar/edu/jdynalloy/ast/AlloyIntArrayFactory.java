@@ -174,7 +174,7 @@ public final class AlloyIntArrayFactory {
 	
 	public static AlloyExpression arrayElements(AlloyExpression array) {
 		return buildExprFunction("arrayElements",
-				DynalloyFactory.OBJECT_ARRAY_EXPRESSION, array);
+				DynalloyFactory.INT_ARRAY_CONTENTS_FIELD_EXPRESSION, array);
 	}
 
 

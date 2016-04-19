@@ -782,11 +782,11 @@ public abstract class JPreludeFactory {
 
 			
 			bff.append("fun arrayElements[\n");
-			bff.append("  Object_Array:" + javaLangPackage()
+			bff.append("  elems_field:" + javaLangPackage()
 					+ "ObjectArray->(Int set -> lone univ), \n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null\n");
 			bff.append("]: set univ {\n");
-			bff.append("  Int.(array.Object_Array)\n");
+			bff.append("  Int.(array.elems_field)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -876,11 +876,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  Object_Array:" + javaLangPackage()
+			bff.append("  elems_field:" + javaLangPackage()
 					+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ), \n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null\n");
 			bff.append("]: set univ {\n");
-			bff.append("  JavaPrimitiveIntegerValue.(array.Object_Array)\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.elems_field)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -978,11 +978,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  Int_Array:" + javaLangPackage()
+			bff.append("  elems_field:" + javaLangPackage()
 					+ "IntArray->(Int set -> lone Int), \n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null\n");
 			bff.append("]: set Int {\n");
-			bff.append("  Int.(array.Int_Array)\n");
+			bff.append("  Int.(array.elems_field)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -1080,11 +1080,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  Int_Array:" + javaLangPackage()
+			bff.append("  elems_field:" + javaLangPackage()
 					+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null\n");
 			bff.append("]: set JavaPrimitiveIntegerValue {\n");
-			bff.append("  JavaPrimitiveIntegerValue.(array.Int_Array)\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.elems_field)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
