@@ -60,7 +60,7 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 	}
 
 	private JFormulaMutator formMutator;
-	
+
 	public void setFormulaMutator(JFormulaMutator fm){
 		formMutator = fm;
 	}
@@ -79,6 +79,9 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 	public Object visit(JAssignment n) {
 		AlloyExpression left = (AlloyExpression) n.getLvalue().accept(
 				formMutator.getExpressionMutator());
+		if (n.getRvalue() == null){
+			System.out.println("BUG");
+		}
 		AlloyExpression right = (AlloyExpression) n.getRvalue().accept(
 				formMutator.getExpressionMutator());
 		return new JAssignment(left, right);
@@ -129,8 +132,8 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 	public Object visit(JDynAlloyModule node) {
 		JDynAlloyModuleVisitResult v = (JDynAlloyModuleVisitResult) super
 				.visit(node);
-	
-		
+
+
 		JSignature signature = (JSignature) v.signature_result;
 
 		JSignature class_singleton;
@@ -192,7 +195,8 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 				class_invariants, class_constraints, object_invariants,
 				object_constraints, represents, programs, 
 				node.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
-				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), node.pinnedForNonRelevancyAnalysisForStryker);
+				node.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(),
+				node.pinnedForNonRelevancyAnalysisForStryker);
 
 		return module;
 	}
@@ -221,7 +225,7 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 		List<JSpecCase> specCases = Arrays.asList(specResults
 				.<JSpecCase> toArray(new JSpecCase[] {}));
 
-		return new JProgramDeclaration(node.isVirtual(), node.getSignatureId(),
+		return new JProgramDeclaration(node.isVirtual(), node.isConstructor(), node.isPure(), node.getSignatureId(),
 				node.getProgramId(), new LinkedList<JVariableDeclaration>(
 						varResults), specCases, body, node.getVarsResultOfArithmeticOperationsInContracts(), node.getPredsEncodingValueOfArithmeticOperationsInContracts());
 	}
@@ -233,7 +237,7 @@ public class JDynAlloyMutator extends JDynAlloyVisitor {
 				.getFields(), node.isPrimitive(), node.getExtSigId(), node
 				.getInSignatureId(), node.superInterfaces(), node.getFacts(),
 				node.getAlloyPredicates(), node.getAlloyFunctions(), node
-						.getTypeParameters());
+				.getTypeParameters());
 
 		return signature;
 	}

@@ -31,12 +31,36 @@ public class JBindingKey implements Comparable<JBindingKey> {
 	private String moduleId;
 	private String programId;
 	private List<JType> arguments;
+//	private int numArgs;
+//	private boolean comesFromFunctionCall;
 
+//	public boolean comesFromFunctionCall(){
+//		return comesFromFunctionCall;
+//	}
+	
+	public int getNumArgs(){
+		return this.arguments.size();
+	}
+	
 	public JBindingKey(JProgramDeclaration programDeclaration) {
-		// this constructor need to be changed to a method in someplace, maybe
+		// this constructor need to be changed to a method in some place, maybe
 		// an static method here.)
 		this(extractSignatureId(programDeclaration), extractProgramId(programDeclaration), extracParameterTypesList(programDeclaration));
+		if (programDeclaration.isConstructor()){
+			this.programId = "Constructor";
+		}
 	}
+
+	public JBindingKey(String moduleId, String programId, List<JType> arguments) {
+		super();
+		this.moduleId = moduleId;
+		this.programId = programId;
+		this.arguments = removeExceptionResultThrowArgument(arguments);
+	}
+
+//	private static int extractNumArgsIncludingThrow(JProgramDeclaration programDeclaration) {
+//		return programDeclaration.getParameters().size();
+//	}
 
 	private static String extractProgramId(JProgramDeclaration programDeclaration) {
 		if (programDeclaration.isStatic()) {
@@ -58,12 +82,6 @@ public class JBindingKey implements Comparable<JBindingKey> {
 		this(null, programId, arguments);
 	}
 
-	public JBindingKey(String moduleId, String programId, List<JType> arguments) {
-		super();
-		this.moduleId = moduleId;
-		this.programId = programId;
-		this.arguments = removeExceptionResultThrowArgument(arguments);
-	}
 
 
 	/* Method removeExceptionResultThrowArgument strongly assumes that the receiver object 
@@ -157,8 +175,10 @@ public class JBindingKey implements Comparable<JBindingKey> {
 		if (programId == null) {
 			if (other.programId != null)
 				return false;
-		} else if (!programId.equals(other.programId))
+		} else if (!programId.equals(other.programId)) {
 			return false;
+		} 
+
 		return true;
 	}
 
@@ -178,6 +198,7 @@ public class JBindingKey implements Comparable<JBindingKey> {
 
 		}
 		s += ")";
+		s += ":" + this.arguments.size();
 		return s;
 	}
 

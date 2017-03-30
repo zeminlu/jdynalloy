@@ -36,7 +36,17 @@ import ar.edu.jdynalloy.xlator.JDynAlloyBinding;
 
 public class ModifiesSolverManager {
 	private static Logger log = Logger.getLogger(ModifiesSolverManager.class);
+	private boolean javaArithmetic;
 
+	
+	public boolean getJavaArithmetic(){
+		return javaArithmetic;
+	}
+	
+	public void setJavaArithmetic(boolean b){
+		this.javaArithmetic = b;
+	}
+	
 	/**
 	 * This method replace predicate calls with the modifies clausule in 
 	 * 
@@ -45,7 +55,36 @@ public class ModifiesSolverManager {
 		boolean checkedMethodFound = false;
 		
 		String classToCheck = JDynAlloyConfig.getInstance().getClassToCheck();
+		
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitClassToCheck = classToCheck.split("_");
+		classToCheck = "";
+		for (int idx = 0; idx < splitClassToCheck.length - 2; idx++){
+			classToCheck += splitClassToCheck[idx] + "_";
+		}
+		if (splitClassToCheck.length > 1){
+			classToCheck += splitClassToCheck[splitClassToCheck.length - 2] + "Instrumented_";
+		}
+		classToCheck += splitClassToCheck[splitClassToCheck.length - 1];
+		*/
+		
 		String methodToCheck = JDynAlloyConfig.getInstance().getMethodToCheck();
+		
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitMethodToCheck = methodToCheck.split("_");
+		methodToCheck = "";
+		for (int idx = 0; idx < splitMethodToCheck.length - 4; idx++){
+			methodToCheck += splitMethodToCheck[idx] + "_";
+		}
+		if (splitMethodToCheck.length >= 4){
+			methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 4] + "Instrumented_";
+		}
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 3] + "_";
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 2] + "_";
+		methodToCheck += splitMethodToCheck[splitMethodToCheck.length - 1];
+*/
+		
+		
 		
 		log.debug("Resolving JDynAlloy modifies: ");
 		List<JDynAlloyModule> modulesWithoutModifies = new ArrayList<JDynAlloyModule>();
@@ -53,7 +92,8 @@ public class ModifiesSolverManager {
 			if (dynJAlloyModule.getModuleId().equals(classToCheck)) {
 				
 
-				SymbolTable symbolTable = new SymbolTable();				
+				SymbolTable symbolTable = new SymbolTable();		
+				symbolTable.setJavaArithmetic(this.javaArithmetic);
 				FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArith);
 				
 				for (JDynAlloyModule aModule : modules) {
@@ -69,7 +109,8 @@ public class ModifiesSolverManager {
 				
 				log.debug("Module: " + dynJAlloyModule.getModuleId());
 				
-				ReplaceModifiesModuleVisitor replaceModifiesModuleVisitor = new ReplaceModifiesModuleVisitor(dynJAlloyBinding, symbolTable, isJavaArith);
+				//fixing impedance mismatch between TACO and Stryker version. String "methodToCheck" below may not be the right string to pass.
+				ReplaceModifiesModuleVisitor replaceModifiesModuleVisitor = new ReplaceModifiesModuleVisitor(dynJAlloyBinding, symbolTable, methodToCheck, isJavaArith);
 				JDynAlloyModule dynJAlloyModuleWithOutModifies = (JDynAlloyModule) dynJAlloyModule.accept(replaceModifiesModuleVisitor);
 	
 				JDynAlloyPrinter printer = new JDynAlloyPrinter(isJavaArith);

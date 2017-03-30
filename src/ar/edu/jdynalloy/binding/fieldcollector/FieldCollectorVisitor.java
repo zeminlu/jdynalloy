@@ -26,9 +26,10 @@ import ar.edu.jdynalloy.binding.symboltable.SymbolTable;
 import ar.edu.jdynalloy.xlator.JType;
 
 public class FieldCollectorVisitor extends JDynAlloyVisitor {
-	
+
 	private SymbolTable symbolTable;
 	private String moduleName;
+	private boolean javaArithmetic;
 
 	public SymbolTable getSymbolTable() {
 		return symbolTable;
@@ -37,10 +38,19 @@ public class FieldCollectorVisitor extends JDynAlloyVisitor {
 	public void setSymbolTable(SymbolTable symbolTable) {
 		this.symbolTable = symbolTable;
 	}
-	
+
+	public boolean getJavaArithmetic(){
+		return this.javaArithmetic;
+	}
+
+	public void setJavaArithmetic(boolean b){
+		this.javaArithmetic = b;
+	}
+
 	public FieldCollectorVisitor(boolean isJavaArithmetic) {
 		super(isJavaArithmetic);
 		this.symbolTable = new SymbolTable();
+		this.symbolTable.setJavaArithmetic(this.javaArithmetic);
 	}
 
 	public FieldCollectorVisitor(SymbolTable symbolTable, boolean isJavaArithmetic) {
@@ -53,7 +63,7 @@ public class FieldCollectorVisitor extends JDynAlloyVisitor {
 		this.moduleName = node.getModuleId();
 		return super.visit(node);
 	}
-	
+
 	@Override
 	public Object visit(JField field) {
 		String fieldName = field.getFieldVariable().getVariableId().getString();
@@ -61,16 +71,16 @@ public class FieldCollectorVisitor extends JDynAlloyVisitor {
 		this.symbolTable.insertField(this.moduleName, fieldName, fieldType);
 		return null;
 	}
-//	//TODO DOB::Extract to a common method (static or not ) in JType
-//	private String extractReciverTypeName(JType type) {
-//		String returnValue;
-//		if (JType.fromIncludesNull(type)) { 
-//			returnValue = JType.getBaseType(type);		
-//		} else {
-//			returnValue = type.singletonFrom();
-//		}
-//		return returnValue;
-//	}
+	//	//TODO DOB::Extract to a common method (static or not ) in JType
+	//	private String extractReciverTypeName(JType type) {
+	//		String returnValue;
+	//		if (JType.fromIncludesNull(type)) { 
+	//			returnValue = JType.getBaseType(type);		
+	//		} else {
+	//			returnValue = type.singletonFrom();
+	//		}
+	//		return returnValue;
+	//	}
 
 
 }

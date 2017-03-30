@@ -28,11 +28,12 @@ import ar.uba.dc.rfm.alloy.ast.formulas.EqualsFormula;
  */
 public class JDynAlloyTransformationVisitor extends JDynAlloyMutator {
 	
+	
 	public JDynAlloyTransformationVisitor(boolean isJavaArithmetic) {
 		super(isJavaArithmetic);
-		// TODO Auto-generated constructor stub
 	}
 
+	
 	@Override
 	public Object visit(JWhile n) {
 		JWhile module = (JWhile) super.visit(n);

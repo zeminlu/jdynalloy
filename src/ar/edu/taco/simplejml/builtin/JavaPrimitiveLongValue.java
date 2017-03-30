@@ -4,6 +4,7 @@ import static ar.edu.jdynalloy.xlator.JType.parse;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import ar.edu.jdynalloy.ast.JSignature;
 import ar.edu.jdynalloy.factory.JSignatureFactory;
 import ar.edu.jdynalloy.parser.JDynAlloyParserManager;
 import ar.edu.jdynalloy.xlator.JDynAlloyTyping;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -93,7 +95,7 @@ public class JavaPrimitiveLongValue implements IBuiltInModule {
 						.<JObjectInvariant> emptySet(), Collections
 						.<JObjectConstraint> emptySet(), Collections
 						.<JRepresents> emptySet(), Collections
-						.<JProgramDeclaration> emptySet(), null, null, false);
+						.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>(), false);
 
 	}
 
@@ -178,7 +180,7 @@ public class JavaPrimitiveLongValue implements IBuiltInModule {
 
 	private Map<Long, JDynAlloyModule> long_literals = new HashMap<Long, JDynAlloyModule>();
 
-	public ExprConstant toJavaPrimitiveLongLiteral(long long_literal) {
+	public ExprConstant toJavaPrimitiveLongLiteral(long long_literal, boolean isPinnedForStryker) {
 		JDynAlloyModule literal_module;
 		if (!long_literals.containsKey(long_literal)) {
 			JSignature literal_signature = create_literal_signature(long_literal);
@@ -190,7 +192,7 @@ public class JavaPrimitiveLongValue implements IBuiltInModule {
 							.<JObjectInvariant> emptySet(), Collections
 							.<JObjectConstraint> emptySet(), Collections
 							.<JRepresents> emptySet(), Collections
-							.<JProgramDeclaration> emptySet(), null, null, false);
+							.<JProgramDeclaration> emptySet(), new AlloyTyping(), new ArrayList<AlloyFormula>(), isPinnedForStryker);
 			long_literals.put(long_literal, literal_module);
 		}
 		literal_module = long_literals.get(long_literal);

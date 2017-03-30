@@ -13,7 +13,8 @@ import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
 import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 
 final public class JAlloyProgramBuffer {
-	
+
+
 	private boolean isJavaArithmetic;
 
 	public boolean isJavaArithmetic() {
@@ -23,6 +24,7 @@ final public class JAlloyProgramBuffer {
 	public void setJavaArithmetic(boolean isJavaArithmetic) {
 		this.isJavaArithmetic = isJavaArithmetic;
 	}
+
 
 	private static class PartialAST {
 
@@ -64,8 +66,8 @@ final public class JAlloyProgramBuffer {
 				this.annotation = annotation;
 			}
 		}
-		
-		
+
+
 		private static final class DoContext extends Context {
 			private JLoopInvariant annotation = null;
 
@@ -101,7 +103,7 @@ final public class JAlloyProgramBuffer {
 			context.push(whileContext);
 		}
 
-		
+
 		public void newDoState(AlloyFormula condition,
 				JLoopInvariant annotation, String branchId) {
 			DoContext doContext = new DoContext(condition, annotation);
@@ -109,7 +111,7 @@ final public class JAlloyProgramBuffer {
 			context.push(doContext);
 		}
 
-		
+
 		public List<JStatement> getPrevBlockIfAvailable() {
 			if (onIfElseState())
 				return ((IfThenElseContext) context.peek()).prevBlock;
@@ -129,7 +131,7 @@ final public class JAlloyProgramBuffer {
 			WhileContext whileContex = (WhileContext) ctx;
 			return whileContex.annotation;
 		}
-		
+
 		public JLoopInvariant getDoAnnotation() {
 			Context ctx = context.peek();
 			DoContext whileContex = (DoContext) ctx;
@@ -180,7 +182,7 @@ final public class JAlloyProgramBuffer {
 					&& context.peek().getClass().equals(DoContext.class);
 		}
 
-		
+
 		public void switchToElseState() {
 			if (onIfThenState()) {
 				IfThenElseContext c = (IfThenElseContext) context.peek();
@@ -276,7 +278,7 @@ final public class JAlloyProgramBuffer {
 			throw new IllegalStateException();
 	}
 
-	
+
 	public void closeDo() {
 		if (ast.onDoState()) {
 			JWhile w = buildWhile(ast.getCurrCondition(), ast.getDoAnnotation(),
@@ -288,8 +290,8 @@ final public class JAlloyProgramBuffer {
 			throw new IllegalStateException();
 	}
 
-	
-	
+
+
 	private JBlock buildDoBlock(List<JStatement> currBlock, JWhile w) {
 		List<Object> objvars = collectNewlyDefinedVars(currBlock, isJavaArithmetic);
 		List<AlloyVariable> vars = new LinkedList<AlloyVariable>();
@@ -304,9 +306,9 @@ final public class JAlloyProgramBuffer {
 		JBlock b = new JBlock(sts);
 		return b;
 	}
-	
-	
-	
+
+
+
 	private JWhile avoidCollisions(JWhile w, List<AlloyVariable> vars) {
 		JStatement body = w.getBody();
 		VariableNameChangerVisitor visitor = new VariableNameChangerVisitor(vars, isJavaArithmetic);
@@ -327,8 +329,8 @@ final public class JAlloyProgramBuffer {
 		}
 		return vars;
 	}
-	
-	
+
+
 	private static Vector<Object> flatten(Vector<Object> tree){
 		Vector<Object> result = new Vector<Object>();
 		for (int idx = 0; idx < tree.size(); idx++){
@@ -340,7 +342,7 @@ final public class JAlloyProgramBuffer {
 		}
 		return result;
 	}
-	
+
 	private static void addAllNonNull(Vector<Object> vars, Vector<Object> vector){
 		for (int idx = 0; idx < vector.size(); idx++){
 			if (vector.get(idx) != null){
@@ -368,7 +370,7 @@ final public class JAlloyProgramBuffer {
 			JLoopInvariant annotation, List<JStatement> body, String branchId) {
 		return new JWhile(condition, buildStmt(body), annotation, branchId);
 	}
-	
+
 
 
 	private JStatement buildStmt(List<JStatement> b) {
@@ -410,7 +412,7 @@ final public class JAlloyProgramBuffer {
 	public void openWhile(AlloyFormula condition, JLoopInvariant annotation) {
 		openWhile(condition, annotation, null);
 	}
-	
+
 	public void openDo(AlloyFormula condition, JLoopInvariant annotation) {
 		openDo(condition, annotation, null);
 	}
@@ -419,7 +421,7 @@ final public class JAlloyProgramBuffer {
 			String branchId) {
 		ast.newWhileState(condition, annotation, branchId);
 	}
-	
+
 	public void openDo(AlloyFormula condition, JLoopInvariant annotation,
 			String branchId) {
 		ast.newDoState(condition, annotation, branchId);

@@ -40,9 +40,9 @@ import ar.edu.jdynalloy.xlator.JTypeHelper;
 import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 
 public class CallBindingResolver extends JDynAlloyVisitor {
-	
+
 	private static Logger log = Logger.getLogger(CallBindingResolver.class);
-	
+
 	private Map<JBindingKey, JProgramDeclaration> programBindings;
 	private IdentityHashMap<IProgramCall, JBindingKey> callBindings;
 	private JDynAlloyContext dynJAlloyContext;
@@ -69,9 +69,9 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 		return programBindings;
 	}
 
-	public void setProgramBindings(Map<JBindingKey, JProgramDeclaration> programBindings) {
-		this.programBindings = programBindings;
-	}
+	//	public void setProgramBindings(Map<JBindingKey, JProgramDeclaration> programBindings) {
+	//		this.programBindings = programBindings;
+	//	}
 
 	public IdentityHashMap<IProgramCall, JBindingKey> getCallBindings() {
 		return callBindings;
@@ -100,13 +100,14 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 					} else {
 						hasError = true;
 					}
+				} else {
+					binding.put(entry.getKey(), selectedProgramDeclaration);
 				}
-				binding.put(entry.getKey(), selectedProgramDeclaration);
 			} catch (JDynAlloyBindingException e) {
 				bindingsErrors.add(e.getMessage());
 			}				
 		}
-		
+
 		if (!bindingsErrors.isEmpty()) {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("Bindings error: (stopOnFirstError is disabled)\r\n");
@@ -129,101 +130,114 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 		boolean moduleOrCompatibleHasMethods = false;
 		boolean moduleOrCompatibleHasMethodWithSameProgramId = false;
 		boolean moduleOrCompatibleHasMethodWithSameProgramIdAndSameArgumentCount = false;
-		
+
 		//We first separate all the bindings key that have the same moduleId.
 		//This simplifies debugging.
 		HashSet<JBindingKey> bindingKeysOfSameModule = new HashSet<JBindingKey>();
 
+		Set<JBindingKey> potencialCandidates = new HashSet<JBindingKey>();
 		for (JBindingKey potentialCandidate : programBindings.keySet()) {
 			if ((moduleId == null && potentialCandidate.getModuleId() == null)
 					|| ((moduleId != null && potentialCandidate.getModuleId() != null) &&
 							(isAssignable(bindingKey.getArguments().get(0), potentialCandidate.getArguments().get(0)))
-						)
-						 
-				){
-					moduleOrCompatibleHasMethods = true;
-					bindingKeysOfSameModule.add(potentialCandidate);
+							)
+
+					){
+				moduleOrCompatibleHasMethods = true;
+				bindingKeysOfSameModule.add(potentialCandidate);
 			}
 		}
-		
 
-		
-		Set<JBindingKey> potencialCandidates = new HashSet<JBindingKey>();
+
+
+
 		for (JBindingKey potencialCandidate : bindingKeysOfSameModule) {
 
 			if (potencialCandidate.getProgramId().equals(programId)) {
 				moduleOrCompatibleHasMethodWithSameProgramId = true;
-				
-				if (potencialCandidate.getArguments().size() == bindingKey.getArguments().size())
+
+				if (potencialCandidate.getNumArgs() == bindingKey.getNumArgs())
 				{
-				    	moduleOrCompatibleHasMethodWithSameProgramIdAndSameArgumentCount = true;
+					moduleOrCompatibleHasMethodWithSameProgramIdAndSameArgumentCount = true;
 					potencialCandidates.add(potencialCandidate);
 				}
 			}
 
 		}
-		
+
 		if (!moduleOrCompatibleHasMethods) {			
-			String bindingErrorMsg = "Binding error. Module doesn't have programs: " + bindingKey + ". Explanation: The module " + (bindingKey.getModuleId() == null ? " STATIC " : bindingKey.getModuleId()) + " or compatible module (parent) don't declare any program";
+			String bindingErrorMsg = "Binding error. Module doesn't have program: " + bindingKey + ". Explanation: The module " + (bindingKey.getModuleId() == null ? " STATIC " : bindingKey.getModuleId()) + " or compatible module (parent) don't declare any program";
 			log.error("Binding error: " + bindingErrorMsg);
 			if (stopOnFirstBindingError) {				
 				throw new JDynAlloySemanticException(bindingErrorMsg);
 			} else {
-//				bindingsErrors.add(bindingErrorMsg);
+				//				bindingsErrors.add(bindingErrorMsg);
 				throw new JDynAlloyBindingException(bindingErrorMsg);
 			}
 		} 
-		
+
 		if (!moduleOrCompatibleHasMethodWithSameProgramId) {
 			String bindingErrorMsg = "Program not found " + ( bindingKey.getModuleId() != null ? bindingKey.getModuleId() + "::" : "") + bindingKey.getProgramId() + ". Explanation: The module " + (bindingKey.getModuleId() == null ? " STATIC " : bindingKey.getModuleId()) + " or compatible module (parent) does not declare any program called " + bindingKey.getProgramId() +". Program call binding: " + bindingKey;;
 			log.error("Binding error: " + bindingErrorMsg);
 			if (stopOnFirstBindingError) {				
 				throw new JDynAlloySemanticException(bindingErrorMsg);
 			} else {
-//				bindingsErrors.add(bindingErrorMsg);
+				//				bindingsErrors.add(bindingErrorMsg);
 				throw new JDynAlloyBindingException(bindingErrorMsg);
 			}
 		} 	
-		
+
 		if (!moduleOrCompatibleHasMethodWithSameProgramIdAndSameArgumentCount) {
 			String bindingErrorMsg = "Program overload not found  " + ( bindingKey.getModuleId() != null ? bindingKey.getModuleId() + "::" : "") + bindingKey.getProgramId() + ". Explanation: The module " + (bindingKey.getModuleId() == null ? " STATIC " : bindingKey.getModuleId()) + " or compatible module (parent) don't declare any program called " + bindingKey.getProgramId() + " with " + bindingKey.getArguments().size()+ " arguments" +". Program call binding: " + bindingKey;;
 			log.error("Binding error: " + bindingErrorMsg);
 			if (stopOnFirstBindingError) {				
 				throw new JDynAlloySemanticException(bindingErrorMsg);
 			} else {
-//				bindingsErrors.add(bindingErrorMsg);
+				//				bindingsErrors.add(bindingErrorMsg);
 				throw new JDynAlloyBindingException(bindingErrorMsg);
 			}
-		} 				
+		} 
+		//		} else {
+		//			for (JBindingKey potentialCandidate : programBindings.keySet()) {
+		//				if (((moduleId == null && potentialCandidate.getModuleId() == null)
+		//						|| (moduleId != null && potentialCandidate.getModuleId() != null && moduleId.equals(potentialCandidate.getModuleId()))) 
+		//						&& (programId.equals(moduleId+"_"+potentialCandidate.getProgramId())) &&
+		//						isAssignable(bindingKey.getArguments().get(0), potentialCandidate.getArguments().get(0))
+		//						&& bindingKey.getNumArgs() == potentialCandidate.getNumArgs()){
+		//					potencialCandidates.add(potentialCandidate);
+		//				}
+		//			}
+		//		}
 		return potencialCandidates;
 	}
 
 
 	private JBindingKey resolveOverloading(JBindingKey bindingKey, Set<JBindingKey> potencialPrograms) {
-	    	//one posible candidate! it's an easy choice!
+		//one posible candidate! it's an easy choice!
 		if (potencialPrograms.size() == 1) {
-		    return potencialPrograms.iterator().next();
+			return potencialPrograms.iterator().next();
 		}
-	    
-	    	Set<JBindingKey> originalPotencialPrograms = new TreeSet<JBindingKey>(potencialPrograms);
-				
-		
+
+		Set<JBindingKey> originalPotencialPrograms = new TreeSet<JBindingKey>(potencialPrograms);
+
+
 		JBindingKey selectedBinding;
 		if (potencialPrograms.isEmpty()) {
 			String bindingErrorMsg = "Binding error. Binding not found. Couldn't bind function: " + bindingKey + ". Explanation: Programs of " + (bindingKey.getModuleId() == null ? " STATIC " : bindingKey.getModuleId()) + "(or compatible) module with called" + bindingKey.getProgramId() + " don't have compatible arguments.";
 			log.error("Binding error: " + bindingErrorMsg);
-//			if (stopOnFirstBindingError) {				
+			//			if (stopOnFirstBindingError) {				
 			throw new JDynAlloySemanticException(bindingErrorMsg);
-//			} else {
-//				//now error is handled in generatePotencialCandidatesSet
-////				bindingsErrors.add(bindingErrorMsg);
-//			}
-//			return null;
+			//			} else {
+			//				//now error is handled in generatePotencialCandidatesSet
+			////				bindingsErrors.add(bindingErrorMsg);
+			//			}
+			//			return null;
 		} else {
 
+			//nonempty candidate set
 			while (potencialPrograms.size() > 1) {
 				Set<JBindingKey> newPotencialPrograms = new HashSet<JBindingKey>();
-	
+
 				for (JBindingKey inspectedCandidateBinding : potencialPrograms) {
 					boolean mustBeRejected = false;
 					if (!isAssignable(bindingKey.getArguments(), inspectedCandidateBinding.getArguments())) {
@@ -242,25 +256,25 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 				}
 				potencialPrograms = newPotencialPrograms;
 			}
-	
+
 			if (potencialPrograms.isEmpty()) {
 				String bindingErrorMsg = "Binding error. Ambiguous call: " + bindingKey + ". potencial bindings: " + originalPotencialPrograms + ". Explanation: Most specific method can't be chosen";
 				log.error("Ambygous call: " + bindingErrorMsg);
 				if (stopOnFirstBindingError) {				
 					throw new JDynAlloySemanticException(bindingErrorMsg);
 				} else {
-//					bindingsErrors.add(bindingErrorMsg);
+					//					bindingsErrors.add(bindingErrorMsg);
 					throw new JDynAlloyBindingException(bindingErrorMsg);
 				}
-				
-//				//return null on error
-//				return null; 
-				
+
+				//				//return null on error
+				//				return null; 
+
 			} else {
-	
+
 				// get first binding!
 				selectedBinding = potencialPrograms.iterator().next();
-		
+
 				return selectedBinding;
 			}
 		}
@@ -297,16 +311,16 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 	 * @return
 	 */
 	private boolean isAssignable(JType fromType, JType toType) {
-	    	//null is compatible with everytype
-	    	if (fromType.isNull()) {
-	    	  return true;
-	    	}
+		//null is compatible with everytype
+		if (fromType.isNull()) {
+			return true;
+		}
 
-//		if (JType.fromIncludesNull(fromType)) {
-//			if (!JType.fromIncludesNull(toType)) {
-//				return false;
-//			}
-//		}
+		//		if (JType.fromIncludesNull(fromType)) {
+		//			if (!JType.fromIncludesNull(toType)) {
+		//				return false;
+		//			}
+		//		}
 
 		String fromTypeAsString = fromType.dpdTypeNameExtract();
 		String toTypeAsString = toType.dpdTypeNameExtract();
@@ -344,5 +358,5 @@ public class CallBindingResolver extends JDynAlloyVisitor {
 	public void setDynJAlloyContext(JDynAlloyContext dynJAlloyContext) {
 		this.dynJAlloyContext = dynJAlloyContext;
 	}
-	
+
 }

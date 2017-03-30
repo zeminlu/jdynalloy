@@ -42,6 +42,7 @@ import ar.edu.jdynalloy.factory.JSignatureFactory;
 import ar.edu.jdynalloy.factory.JTypeFactory;
 import ar.edu.jdynalloy.xlator.JDynAlloyTyping;
 import ar.edu.jdynalloy.xlator.JType;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 
@@ -268,7 +269,7 @@ public class DynJMLAlloyModuleBuffer {
 		}
 
 		return new JDynAlloyModule(moduleId, signature, classSig, null /* literal_signature */, fields, staticInvariants, staticConstraints, invariants,
-				constraints, represents, new HashSet<JProgramDeclaration>(this.programs), null, null, false);
+				constraints, represents, new HashSet<JProgramDeclaration>(this.programs), new AlloyTyping(), new ArrayList<AlloyFormula>(), false);
 	}
 
 	protected void processFields(JSignature signature, List<JField> field_list) {
@@ -286,6 +287,8 @@ public class DynJMLAlloyModuleBuffer {
 				fieldType = JType.parse(signature.getSignatureId() + "->(" + sb.toString() + ")");
 			} else if (image.isSequence()) {
 				fieldType = JTypeFactory.buildFieldSeq(signature.getSignatureId(), image);
+			} else if (v.getVariableId().getString().contains("SK_jml_pred_java_primitive_")) {
+				fieldType = image;
 			} else {
 				fieldType = JType.parse(signature.getSignatureId() + "->one(" + image + ")");
 			}

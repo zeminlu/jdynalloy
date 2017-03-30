@@ -1,5 +1,6 @@
 package ar.edu.jdynalloy.factory;
 
+import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -11,6 +12,11 @@ import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
 import static ar.uba.dc.rfm.alloy.ast.expressions.ExprFunction.buildExprFunction;
 import static ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant.buildExprConstant;
 import static ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable.buildExprVariable;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
+
 
 /**
  * Built-In JAlloy Expressions
@@ -39,6 +45,8 @@ public abstract class JExpressionFactory {
 
 	public static final String SUB = "sub";
 
+	public static final String EQ = "fun_univ_equals";
+
 	public static final String SHL = "shl";
 
 	public static final String USHR = "ushr";
@@ -50,7 +58,9 @@ public abstract class JExpressionFactory {
 	public static final String FUN_JAVA_PRIMITIVE_INTEGER_VALUE_ADD = "fun_java_primitive_integer_value_add";
 
 	public static final String FUN_JAVA_PRIMITIVE_INTEGER_VALUE_SUB = "fun_java_primitive_integer_value_sub";
-
+	
+//	public static final String FUN_JAVA_PRIMITIVE_INTEGER_VALUE_EQ = "fun_java_primitive_integer_value_eq";
+	
 	private static final String FUN_JAVA_PRIMITIVE_INTEGER_VALUE_NEGATE = "fun_java_primitive_integer_value_negate";
 
 	private static final String FUN_JAVA_PRIMITIVE_INTEGER_VALUE_MUL = "fun_java_primitive_integer_value_mul";
@@ -66,6 +76,25 @@ public abstract class JExpressionFactory {
 	private static final String FUN_JAVA_PRIMITIVE_LONG_VALUE_ADD = "fun_java_primitive_long_value_add";
 
 	private static final String FUN_JAVA_PRIMITIVE_LONG_VALUE_SUB = "fun_java_primitive_long_value_sub";
+	
+	private static final String FUN_JAVA_PRIMITIVE_LONG_VALUE_EQ = "fun_java_primitive_long_value_eq";
+	
+	private static final String FUN_JAVA_PRIMITIVE_CHARCHARtoINT_VALUE_ADD = "fun_java_primitive_char_value_addCharCharToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_CHARCHARtoINT_VALUE_SUB = "fun_java_primitive_char_value_subCharCharToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_CHARINTtoINT_VALUE_ADD = "fun_java_primitive_char_value_addCharIntToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_CHARINTtoINT_VALUE_SUB = "fun_java_primitive_char_value_subCharIntToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_INTCHARtoINT_VALUE_ADD = "fun_java_primitive_char_value_addIntCharToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_INTCHARtoINT_VALUE_SUB = "fun_java_primitive_char_value_subIntCharToJavaPrimitiveIntegerValue";
+
+	private static final String FUN_JAVA_PRIMITIVE_LONGCHARtoLONG_VALUE_ADD = "fun_java_primitive_char_value_addLongCharToJavaPrimitiveLongValue";
+	
+	private static final String FUN_JAVA_PRIMITIVE_LONGCHARtoLONG_VALUE_SUB = "fun_java_primitive_char_value_subLongCharToJavaPrimitiveLongValue";
+
 
 	private static final String NOT = "Not";
 
@@ -73,7 +102,7 @@ public abstract class JExpressionFactory {
 
 	public static final AlloyVariable PRIMED_THIS_VARIABLE = new AlloyVariable(
 			"thiz", true);
-	
+
 	public static final AlloyVariable USED_OBJECTS_VARIABLE = new AlloyVariable("usedObjects");
 
 	public static final AlloyVariable RETURN_VARIABLE = new AlloyVariable(
@@ -84,10 +113,10 @@ public abstract class JExpressionFactory {
 
 	public static final AlloyVariable THROW_VARIABLE = new AlloyVariable(
 			"throw");
-	
+
 	public static final AlloyVariable BREAK_REACHED_VARIABLE = new AlloyVariable(
 			"break_reached");
-	
+
 
 	public static final AlloyVariable ARG_THROW_VARIABLE = new AlloyVariable(
 			"arg_throw");
@@ -103,6 +132,18 @@ public abstract class JExpressionFactory {
 
 	public static final AlloyVariable INT_ARRAY_CONTENTS = new AlloyVariable(
 			"java_lang_IntArray_contents");
+
+	public static final AlloyVariable CHAR_ARRAY_LENGTH = new AlloyVariable(
+			"java_lang_CharArray_length");
+
+	public static final AlloyVariable CHAR_ARRAY_CONTENTS = new AlloyVariable(
+			"java_lang_CharArray_contents");
+
+	public static final AlloyVariable LONG_ARRAY_LENGTH = new AlloyVariable(
+			"java_lang_LongArray_length");
+
+	public static final AlloyVariable LONG_ARRAY_CONTENTS = new AlloyVariable(
+			"java_lang_LongArray_contents");
 
 	public static final AlloyVariable OBJECT_ARRAY_LENGTH = new AlloyVariable(
 			"java_lang_ObjectArray_length");
@@ -120,7 +161,7 @@ public abstract class JExpressionFactory {
 	public static final ExprVariable JAVA_UTIL_SET_ELEMS_EXPRESSION = buildExprVariable(JAVA_UTIL_SET_ELEMS_VARIABLE);
 	public static final ExprVariable PRIMED_JAVA_UTIL_SET_ELEMS_EXPRESSION = buildExprVariable(PRIMED_JAVA_UTIL_SET_ELEMS_VARIABLE);
 
-	
+
 	public static final ExprConstant NULL_EXPRESSION = buildExprConstant(JSignatureFactory.NULL
 			.getSignatureId());
 
@@ -133,9 +174,9 @@ public abstract class JExpressionFactory {
 	public static final ExprConstant ASSERTION_FAILURE_EXPRESSION = buildExprConstant("AssertionFailureLit");
 
 	public static final ExprVariable THROW_EXPRESSION = buildExprVariable(THROW_VARIABLE);
-	
+
 	public static final ExprVariable BREAK_REACHED_EXPRESSION = buildExprVariable(BREAK_REACHED_VARIABLE);
-	
+
 
 	public static final ExprVariable PRIMED_THROW_EXPRESSION = buildExprVariable(PRIMED_THROW_VARIABLE);
 
@@ -150,6 +191,12 @@ public abstract class JExpressionFactory {
 	public static final ExprVariable INT_ARRAY_LENGTH_EXPRESSION = buildExprVariable(INT_ARRAY_LENGTH);
 
 	public static final ExprVariable INT_ARRAY_CONTENTS_EXPRESSION = buildExprVariable(INT_ARRAY_CONTENTS);
+
+	public static final ExprVariable CHAR_ARRAY_CONTENTS_EXPRESSION = buildExprVariable(CHAR_ARRAY_CONTENTS);
+
+	public static final ExprVariable LONG_ARRAY_CONTENTS_EXPRESSION = buildExprVariable(LONG_ARRAY_CONTENTS);
+
+
 
 	public static ExprConstant buildCharConstant(char c) {
 		return buildExprConstant("Char" + new Character(c).hashCode());
@@ -208,13 +255,54 @@ public abstract class JExpressionFactory {
 		return unroll(FUN_JAVA_PRIMITIVE_INTEGER_VALUE_SUB, es);
 	}
 
+//	public static ExprFunction fun_java_primitive_integer_value_eq(
+//			AlloyExpression... es) {
+//		return unroll(FUN_JAVA_PRIMITIVE_INTEGER_VALUE_EQ, es);
+//	}
+
 	public static ExprFunction fun_java_primitive_integer_value_negate(
 			AlloyExpression e) {
 		return buildExprFunction(FUN_JAVA_PRIMITIVE_INTEGER_VALUE_NEGATE, e);
 	}
 
+	public static Object fun_java_primitive_charCharToInt_value_add(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_CHARCHARtoINT_VALUE_ADD, es);
+	}
+	
+	public static Object fun_java_primitive_charCharToInt_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_CHARCHARtoINT_VALUE_SUB, es);
+	}
+
+	
+	public static Object fun_java_primitive_charIntToInt_value_add(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_CHARINTtoINT_VALUE_ADD, es);
+	}
+	
+	public static Object fun_java_primitive_charIntToInt_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_CHARINTtoINT_VALUE_SUB, es);
+	}
+
+	public static Object fun_java_primitive_intCharToInt_value_add(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_INTCHARtoINT_VALUE_ADD, es);
+	}
+	
+	public static Object fun_java_primitive_intCharToInt_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_INTCHARtoINT_VALUE_SUB, es);
+	}
+
+	
 	public static ExprFunction alloy_int_sub(AlloyExpression... es) {
 		return unroll(SUB, es);
+	}
+
+	public static ExprFunction alloy_int_eq(AlloyExpression... es) {
+		return unroll(EQ, es);
 	}
 
 	public static ExprFunction alloy_int_shl(AlloyExpression... es) {
@@ -317,12 +405,12 @@ public abstract class JExpressionFactory {
 			ExprConstant typeConstant, ExprVariable[] fieldVariables) {
 		if (fieldVariables.length>1){
 			return ExprFunction.buildExprFunction("fun_reach", head, typeConstant,
-				ExprUnion.buildExprUnion(fieldVariables)); //mfrias-mffrias-25-09-2012-Cambiado para poder pasar suma de campos
+					ExprUnion.buildExprUnion(fieldVariables)); //mfrias-mffrias-25-09-2012-Cambiado para poder pasar suma de campos
 		} else {
 			return ExprFunction.buildExprFunction("fun_reach", head, typeConstant,
 					fieldVariables[0]); 
 		}
-		
+
 	}
 
 	public static AlloyExpression reach_JMLObjectSet(AlloyExpression head,
@@ -352,40 +440,40 @@ public abstract class JExpressionFactory {
 	public static AlloyExpression setSize(AlloyExpression expr) {
 		return ExprFunction.buildExprFunction("fun_set_size", expr);
 	}
-	
-/*mfrias: functions added for set_size returning a JavaPrimitiveIntegerValue*/
+
+	/*mfrias: functions added for set_size returning a JavaPrimitiveIntegerValue*/
 	public static AlloyExpression setSizeReturnsJavaPrimitiveIntegerValue(AlloyExpression expr) {
 		return ExprFunction.buildExprFunction("fun_java_primitive_integer_value_size_of", expr);
 	}
-	
 
-/*mfrias functions added for size of java_util_set*/	
+
+	/*mfrias functions added for size of java_util_set*/	
 	public static AlloyExpression javaUtilSetSizeReturnsJavaPrimitiveIntegerValue(AlloyExpression expr, AlloyExpression fieldExpr) {
 		return ExprFunction.buildExprFunction("fun_java_primitive_integer_value_java_util_set_size", 
 				new AlloyExpression[]{expr,fieldExpr});
 	}
-	
+
 	public static AlloyExpression javaUtilSetSizeReturnsAlloyInt(AlloyExpression expr, AlloyExpression fieldExpr) {
 		return ExprFunction.buildExprFunction("fun_alloy_int_java_util_set_size", 
 				new AlloyExpression[]{expr,fieldExpr});
 	}
 
-/*mfrias functions added for contains of java_util_set*/	
-	
+	/*mfrias functions added for contains of java_util_set*/	
+
 	public static AlloyExpression javaUtilSetContains(AlloyExpression expr, AlloyExpression arg, AlloyExpression fieldExpr) {
 		return ExprFunction.buildExprFunction("fun_java_util_set_contains", 
 				new AlloyExpression[]{expr,arg,fieldExpr});
 	}
-	
-	
-	
+
+
+
 	public static AlloyExpression floatIsNaN(AlloyExpression arg) {
 		return ExprFunction.buildExprFunction("fun_java_lang_float_isNaN", 
 				new AlloyExpression[]{arg});
 	}
 
-	
-	
+
+
 	public static AlloyExpression setSum(AlloyExpression expr) {
 		return ExprFunction.buildExprFunction("fun_set_sum", expr);
 	}
@@ -397,7 +485,7 @@ public abstract class JExpressionFactory {
 	public static AlloyExpression listGet(AlloyExpression expr) {
 		return ExprFunction.buildExprFunction("fun_list_get", expr);
 	}
-	
+
 	public static AlloyExpression listEquals(AlloyExpression list1,
 			AlloyExpression list2) {
 		return ExprFunction.buildExprFunction("fun_list_equals",
@@ -459,6 +547,29 @@ public abstract class JExpressionFactory {
 
 	private static final String BOOLEAN_AND = "And";
 
+	private static final String FUN_PRIMITIVE_EQ = "fun_univ_equals";
+
+	private static final String CAST_CHAR_TO_INT = "fun_cast_char_to_int";
+
+	private static final String CAST_CHAR_TO_LONG = "fun_cast_char_to_long";
+	
+	private static final String CAST_INT_TO_LONG = "fun_cast_int_to_long";
+
+	private static final String NARROW_CAST_INT_TO_CHAR = "fun_narrowing_cast_int_to_char";
+	
+	private static final String NARROW_CAST_LONG_TO_CHAR = "fun_narrowing_cast_long_to_char";
+
+	private static final String NARROW_CAST_LONG_TO_INT = "fun_narrowing_cast_long_to_int";
+
+	private static final String FUN_JAVA_PRIMITIVE_LONGINTtoLONG_VALUE_ADD = "fun_long_int_to_long_add";
+	
+	private static final String FUN_JAVA_PRIMITIVE_INTLONGtoLONG_VALUE_ADD = "fun_int_long_to_long_add";
+
+	private static final String FUN_JAVA_PRIMITIVE_LONGINTtoLONG_VALUE_SUB = "fun_long_int_to_long_sub";
+
+	private static final String FUN_JAVA_PRIMITIVE_INTLONGtoLONG_VALUE_SUB = "fun_int_long_to_long_sub";
+
+
 	public static AlloyExpression fun_java_primitive_integer_value_mul(
 			AlloyExpression... es) {
 		return unroll(FUN_JAVA_PRIMITIVE_INTEGER_VALUE_MUL, es);
@@ -519,11 +630,95 @@ public abstract class JExpressionFactory {
 		return unroll(FUN_JAVA_PRIMITIVE_LONG_VALUE_SUB, es);
 	}
 
-	
+	public static Object fun_java_primitive_long_value_eq(
+			AlloyExpression... es) {
+		return unroll(FUN_JAVA_PRIMITIVE_LONG_VALUE_EQ, es);
+	}
+
 	public static ExprFunction not(AlloyExpression es) {
 		return ExprFunction.buildExprFunction(NOT, es);
 	}
+
+	public static AlloyExpression buildEquals(String qualified_name, AlloyExpression prefix_expression, AlloyExpression alloyExpression) {
+		return ExprFunction.buildExprFunction(qualified_name, prefix_expression, alloyExpression);
+	}
+
+	public static AlloyExpression buildMethodCall(String name, AlloyExpression prefix_expression,
+			Vector<AlloyExpression> args_expression, String cType) {
+		AlloyExpression[] params = new AlloyExpression[args_expression.size() + 1];
+		params[0] = prefix_expression;
+		for (int i = 0; i<args_expression.size(); i++){
+			params[i+1] = args_expression.get(i);
+		}
+		return ExprFunction.buildExprFunction(name, params, cType);	
+	}
+
+	public static Object fun_boolean_eq(AlloyExpression... es) {
+		return unroll(FUN_PRIMITIVE_EQ, es);
+	}
+
+	public static Object fun_java_primitive_char_value_to_int_value(AlloyExpression... es) {
+		return buildExprFunction(CAST_CHAR_TO_INT, es);
+		
+	}
 	
+	public static Object fun_java_primitive_char_value_to_long_value(AlloyExpression... es) {
+		return buildExprFunction(CAST_CHAR_TO_LONG, es);
+		
+	}
+	
+	public static Object fun_java_primitive_int_value_to_long_value(AlloyExpression... es) {
+		return buildExprFunction(CAST_INT_TO_LONG, es);
+		
+	}
+
+	public static Object fun_java_primitive_int_value_to_char_value(AlloyExpression... es){
+		return buildExprFunction(NARROW_CAST_INT_TO_CHAR, es);
+	}
+	
+	public static Object fun_java_primitive_long_value_to_char_value(AlloyExpression... es){
+		return buildExprFunction(NARROW_CAST_LONG_TO_CHAR, es);
+	}
+
+	
+	public static Object fun_java_primitive_long_value_to_int_value(AlloyExpression... es){
+		return buildExprFunction(NARROW_CAST_LONG_TO_INT, es);
+	}
+
+	
+	public static Object fun_java_primitive_longCharToLong_value_add(AlloyExpression... es) {
+			// TODO Auto-generated method stub
+			return unroll(FUN_JAVA_PRIMITIVE_LONGCHARtoLONG_VALUE_ADD, es);
+	}
+
+	public static Object fun_java_primitive_longCharToLong_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_LONGCHARtoLONG_VALUE_SUB, es);
+	}
+
+	public static Object fun_java_primitive_longIntToLong_value_add(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_LONGINTtoLONG_VALUE_ADD, es);
+	}
+	
+	public static Object fun_java_primitive_intLongToLong_value_add(AlloyExpression... es) {
+		return unroll(FUN_JAVA_PRIMITIVE_INTLONGtoLONG_VALUE_ADD, es);
+	}
+
+
+	public static Object fun_java_primitive_longIntToLong_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_LONGINTtoLONG_VALUE_SUB, es);
+	}
+
+	public static Object fun_java_primitive_intLongToLong_value_sub(AlloyExpression... es) {
+		// TODO Auto-generated method stub
+		return unroll(FUN_JAVA_PRIMITIVE_INTLONGtoLONG_VALUE_SUB, es);
+	}
+
+
+
+
 
 
 }

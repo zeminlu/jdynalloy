@@ -39,20 +39,34 @@ public abstract class DynalloyFactory {
 
 	public static final ExprVariable USED_OBJECTS = buildExprVariable("usedObjects");
 
-	public static final AlloyVariable OBJECT_ARRAY_VARIABLE = new AlloyVariable("Object_Array");
-	public static final AlloyVariable PRIMED_OBJECT_ARRAY_VARIABLE = new AlloyVariable("Object_Array", true);
+	
+
+	public static final AlloyVariable ALLOY_INT_OBJECT_ARRAY_VARIABLE = new AlloyVariable("AlloyInt_Object_Array");
+	public static final AlloyVariable PRIMED_ALLOY_INT_OBJECT_ARRAY_VARIABLE = new AlloyVariable("Alloy_Int_Object_Array", true);
 	
 	public static final AlloyVariable OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_ObjectArray_contents", false);
 	public static final AlloyVariable PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_ObjectArray_contents", true);
 	
-	public static final AlloyVariable INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", false);
-	public static final AlloyVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", true);
-
 	public static final ExprVariable OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_VARIABLE);
 
+	public static final AlloyVariable INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", false);
+	public static final AlloyVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_IntArray_contents", true);
+
 	public static final ExprVariable INT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(INT_ARRAY_CONTENTS_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_INT_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_INT_ARRAY_CONTENTS_FIELD_VARIABLE);
+
+	public static final AlloyVariable CHAR_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_CharArray_contents", false);
+	public static final AlloyVariable PRIMED_CHAR_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_CharArray_contents", true);
+
+	public static final ExprVariable CHAR_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(CHAR_ARRAY_CONTENTS_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_CHAR_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_CHAR_ARRAY_CONTENTS_FIELD_VARIABLE);
+
+	public static final AlloyVariable LONG_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_contents", false);
+	public static final AlloyVariable PRIMED_LONG_ARRAY_CONTENTS_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_contents", true);
+
+	public static final ExprVariable LONG_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(LONG_ARRAY_CONTENTS_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_LONG_ARRAY_CONTENTS_FIELD_EXPRESSION = buildExprVariable(PRIMED_LONG_ARRAY_CONTENTS_FIELD_VARIABLE);
 
 //mfrias 16-03-2013: adding java_util_set support in specs
 	public static final AlloyVariable JAVA_UTIL_SET_ELEMS_FIELD_VARIABLE = new AlloyVariable("java_util_Set_elems", false);
@@ -75,9 +89,20 @@ public abstract class DynalloyFactory {
 	public static final ExprVariable INT_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(INT_ARRAY_LENGTH_FIELD_VARIABLE);
 	public static final ExprVariable PRIMED_INT_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(PRIMED_INT_ARRAY_LENGTH_FIELD_VARIABLE);
 	
+	public static final AlloyVariable CHAR_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_CharArray_length", false);
+	public static final AlloyVariable PRIMED_CHAR_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_CharArray_length", true);
 	
-	public static final ExprVariable OBJECT_ARRAY_EXPRESSION = buildExprVariable(OBJECT_ARRAY_VARIABLE);
-	public static final ExprVariable PRIMED_OBJECT_ARRAY_EXPRESSION = buildExprVariable(PRIMED_OBJECT_ARRAY_VARIABLE);
+	public static final ExprVariable CHAR_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(CHAR_ARRAY_LENGTH_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_CHAR_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(PRIMED_CHAR_ARRAY_LENGTH_FIELD_VARIABLE);
+
+	public static final AlloyVariable LONG_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_length", false);
+	public static final AlloyVariable PRIMED_LONG_ARRAY_LENGTH_FIELD_VARIABLE = new AlloyVariable("java_lang_LongArray_length", true);
+	
+	public static final ExprVariable LONG_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(LONG_ARRAY_LENGTH_FIELD_VARIABLE);
+	public static final ExprVariable PRIMED_LONG_ARRAY_LENGTH_FIELD_EXPRESSION = buildExprVariable(PRIMED_LONG_ARRAY_LENGTH_FIELD_VARIABLE);
+	
+	public static final ExprVariable ALLOY_INT_OBJECT_ARRAY_EXPRESSION = buildExprVariable(ALLOY_INT_OBJECT_ARRAY_VARIABLE);
+	public static final ExprVariable PRIMED_ALLOY_INT_OBJECT_ARRAY_EXPRESSION = buildExprVariable(PRIMED_ALLOY_INT_OBJECT_ARRAY_VARIABLE);
 
 	public static final ExprVariable MAP_ENTRIES = buildExprVariable("Map_entries");
 
@@ -173,11 +198,25 @@ public abstract class DynalloyFactory {
 
 	}
 
+	
 	public static InvokeAction updateArray(AlloyExpression array,
 			AlloyExpression index, AlloyExpression elem) {
-		return buildInvokeAction(null, UPDATE_ARRAY_ID, OBJECT_ARRAY_EXPRESSION, array,
+		return buildInvokeAction(null, UPDATE_ARRAY_ID, INT_ARRAY_CONTENTS_FIELD_EXPRESSION, array,
 				index, elem);
 	}
+
+	
+//	public static InvokeAction updateAlloyIntObjectArray(AlloyExpression array,
+//			AlloyExpression index, AlloyExpression elem) {
+//		return buildInvokeAction(null, UPDATE_ARRAY_ID, INT_ARRAY_CONTENTS_FIELD_EXPRESSION, array,
+//				index, elem);
+//	}
+//	
+//	public static InvokeAction updateAlloyIntArray(AlloyExpression array,
+//			AlloyExpression index, AlloyExpression elem) {
+//		return buildInvokeAction(null, UPDATE_ARRAY_ID, INT_ARRAY_CONTENTS_FIELD_EXPRESSION, array,
+//				index, elem);
+//	}
 
 	public static InvokeAction updateMap(AlloyExpression oldMap,
 			AlloyExpression newMap) {
@@ -199,8 +238,12 @@ public abstract class DynalloyFactory {
 		return buildInvokeAction(null, HAVOC_VARIABLE_3_ID, exprVariable);
 	}
 	
+//	public static Object havocAlloyIntObjectArrayContents(AlloyExpression expr) {
+//		return buildInvokeAction(null, HAVOC_ARRAY_CONTENTS_ID, expr, new ExprVariable(new AlloyVariable("Int")), ALLOY_INT_OBJECT_ARRAY_EXPRESSION);
+//	}
+
 	public static Object havocArrayContents(AlloyExpression expr) {
-		return buildInvokeAction(null, HAVOC_ARRAY_CONTENTS_ID, expr, new ExprVariable(new AlloyVariable("Int")), OBJECT_ARRAY_EXPRESSION);
+		return buildInvokeAction(null, HAVOC_ARRAY_CONTENTS_ID, expr, new ExprVariable(new AlloyVariable("Int")), INT_ARRAY_CONTENTS_FIELD_EXPRESSION);
 	}
 
 	public static Object havocFieldContents(AlloyExpression left,

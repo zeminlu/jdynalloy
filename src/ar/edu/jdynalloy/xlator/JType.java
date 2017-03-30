@@ -2,10 +2,13 @@ package ar.edu.jdynalloy.xlator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -51,53 +54,62 @@ public final class JType {
 
 	public enum SpecialType {
 		ALLOCATED_OBJECT, SYSTEM_ARRAY, SET_CONTAINS, MAP_ENTRIES, ALLOY_LIST_CONTAINS, JML_OBJECTSET_CONTAINS, JML_OBJECTSEQUENCE_CONTAINS, 
-		ITERATOR_CONTAINS, UNIV_TO_UNIV, OBJECT_ARRAY_CONTAINS, INT_ARRAY_CONTAINS, ALLOY_OBJECT_ARRAY_CONTAINS, ALLOY_INT_ARRAY_CONTAINS
+		ITERATOR_CONTAINS, UNIV_TO_UNIV, OBJECT_ARRAY_CONTAINS, INT_ARRAY_CONTAINS, LONG_ARRAY_CONTAINS, ALLOY_OBJECT_ARRAY_CONTAINS, ALLOY_INT_ARRAY_CONTAINS, CHAR_ARRAY_CONTAINS
 	};
-	
 
-	private static final String NULL_VALUE_SIGNATURE_ID = JSignatureFactory.NULL
+
+	public static final String NULL_VALUE_SIGNATURE_ID = JSignatureFactory.NULL
 			.getSignatureId();
 
-	private static final String INT_SIGNATURE_ID = JSignatureFactory.INT
+	public static final String INT_SIGNATURE_ID = JSignatureFactory.INT
 			.getSignatureId();
 
-	private final static JType ALLOCATED_OBJECTS_TYPE = new JType(
+	public final static JType ALLOCATED_OBJECTS_TYPE = new JType(
 			SpecialType.ALLOCATED_OBJECT);
 
-	private static final JType SYSTEM_ARRAY_TYPE = new JType(
+	public static final JType SYSTEM_ARRAY_TYPE = new JType(
 			SpecialType.SYSTEM_ARRAY);
 
-	private static final JType SET_CONTAINS_TYPE = new JType(
+	public static final JType SET_CONTAINS_TYPE = new JType(
 			SpecialType.SET_CONTAINS);
 
-	private static final JType MAP_ENTRIES_TYPE = new JType(
+	public static final JType MAP_ENTRIES_TYPE = new JType(
 			SpecialType.MAP_ENTRIES);
 
-//	private static final JType ALLOY_LIST_CONTAINS_TYPE = new JType(
-//			SpecialType.ALLOY_LIST_CONTAINS);
+	//	private static final JType ALLOY_LIST_CONTAINS_TYPE = new JType(
+	//			SpecialType.ALLOY_LIST_CONTAINS);
 
-	private static final JType JML_OBJECTSET_CONTAINS_TYPE = new JType(
+	public static final JType JML_OBJECTSET_CONTAINS_TYPE = new JType(
 			SpecialType.JML_OBJECTSET_CONTAINS);
 
-	private static final JType JML_OBJECTSEQUENCE_CONTAINS_TYPE = new JType(
+	public static final JType JML_OBJECTSEQUENCE_CONTAINS_TYPE = new JType(
 			SpecialType.JML_OBJECTSEQUENCE_CONTAINS);
 
-	private static final JType ITERATOR_CONTAINS_TYPE = new JType(
+	public static final JType ITERATOR_CONTAINS_TYPE = new JType(
 			SpecialType.ITERATOR_CONTAINS);
+
+	public static final JType OBJECT_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.OBJECT_ARRAY_CONTAINS, "java_lang_ObjectArray");
+
+	public static final JType INT_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.INT_ARRAY_CONTAINS, "java_lang_IntArray");
+
+	public static final JType LONG_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.LONG_ARRAY_CONTAINS, "java_lang_LongArray");
+
+	public static final JType ALLOY_OBJECT_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.ALLOY_OBJECT_ARRAY_CONTAINS, "java_lang_ObjectArray");
+
+	public static final JType ALLOY_INT_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.ALLOY_INT_ARRAY_CONTAINS, "java_lang_IntArray");
 	
-	private static final JType OBJECT_ARRAY_CONTAINS_TYPE = new JType(
-			SpecialType.OBJECT_ARRAY_CONTAINS);
-	
-	private static final JType INT_ARRAY_CONTAINS_TYPE = new JType(
-			SpecialType.INT_ARRAY_CONTAINS);
-	
-	private static final JType ALLOY_OBJECT_ARRAY_CONTAINS_TYPE = new JType(
-			SpecialType.ALLOY_OBJECT_ARRAY_CONTAINS);
-	
-	private static final JType ALLOY_INT_ARRAY_CONTAINS_TYPE = new JType(
-			SpecialType.ALLOY_INT_ARRAY_CONTAINS);
+	public static final JType CHAR_ARRAY_CONTAINS_TYPE = new JType(
+			SpecialType.CHAR_ARRAY_CONTAINS, "java_lang_CharArray");
 
 	public static JType parse(String source) {
+//		if (source.contains("Classfields")){
+//			System.out.println("HERE");
+//		}
 		String str = source.replaceAll("\\(", "").replaceAll("\\)", "");
 		str = str.replace("set -> lone","set->lone");
 		str = str.replace("-> one","->one");
@@ -111,21 +123,21 @@ public final class JType {
 			return new JType(from, Multiplier.SET_MULTIPLIER,
 					Multiplier.LONE_MULTIPLIER, to);
 
-//mfrias-mffrias-12/11/2012: Java fields are mapped to binary alloy fields. Ternary ones are used to
-//map special distinguished types. I will treat those as special.			
-//		} else if (str.split("->").length == 3) {
-//			String[] parts = str.split("->");
-//			String from = parts[0];
-//			String to = parts[1] + "->" + parts[2];
-//			
-//			JType to_type = JType.parse(to);
-//			JType from_type = JType.parse(from);
-//
-//			return new JType(from_type.singletonFrom(), to_type);
+			//mfrias-mffrias-12/11/2012: Java fields are mapped to binary alloy fields. Ternary ones are used to
+			//map special distinguished types. I will treat those as special.			
+			//		} else if (str.split("->").length == 3) {
+			//			String[] parts = str.split("->");
+			//			String from = parts[0];
+			//			String to = parts[1] + "->" + parts[2];
+			//			
+			//			JType to_type = JType.parse(to);
+			//			JType from_type = JType.parse(from);
+			//
+			//			return new JType(from_type.singletonFrom(), to_type);
 		} else if (str.equals("none->none")) {
 
 			return new JType(SpecialType.UNIV_TO_UNIV);
-			
+
 		} else if (str.startsWith("seq")) {
 
 			JType domType = JType.parse(str.substring("seq".length()));
@@ -141,13 +153,19 @@ public final class JType {
 			return JType.SYSTEM_ARRAY_TYPE;
 		else if (str.equals("java_lang_ObjectArray->JavaPrimitiveIntegerValue set->lone java_lang_Object+null"))
 			return JType.OBJECT_ARRAY_CONTAINS_TYPE;
+//		else if (str.equals("java_lang_ObjectArray->one  seq java_lang_Object+null"))
+//			return JType.ALLOY_OBJECT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("java_lang_IntArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveIntegerValue"))
 			return JType.INT_ARRAY_CONTAINS_TYPE;
+		else if (str.equals("java_lang_CharArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveCharValue"))
+			return JType.CHAR_ARRAY_CONTAINS_TYPE;
+		else if (str.equals("java_lang_LongArray->JavaPrimitiveIntegerValue set->lone JavaPrimitiveLongValue"))
+			return JType.LONG_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("java_lang_IntArray->Int set->lone Int"))
 			return JType.ALLOY_INT_ARRAY_CONTAINS_TYPE;
 		else if (str.equals("" + javaUtilPackage() + "Set->univ"))
 			return new JType(SpecialType.SET_CONTAINS, javaUtilPackage() + "Set", "null");
-		else if (str.equals("" + javaUtilPackage() + "Map->univ->lone univ"))
+		else if (str.equals("" + javaUtilPackage() + "Map->" + javaLangPackage() + "Object set->lone " + javaLangPackage() + "Object+null"))
 			return JType.MAP_ENTRIES_TYPE;
 		else if (str.equals("" + javaUtilPackage() + "List->Int->univ")) 
 			return new JType(SpecialType.ALLOY_LIST_CONTAINS, javaUtilPackage() + "List", "null");
@@ -155,7 +173,7 @@ public final class JType {
 			return JType.JML_OBJECTSET_CONTAINS_TYPE;
 		else if (str.equals("org_jmlspecs_models_JMLObjectSequence->(Int -> univ)"))
 			return JType.JML_OBJECTSEQUENCE_CONTAINS_TYPE;
-		else if (str.equals("" + javaUtilPackage() + "Iterator->set univ"))
+		else if (str.equals("" + javaUtilPackage() + "Iterator->univ"))
 			return JType.ITERATOR_CONTAINS_TYPE;
 		else if (str.startsWith("set ")) {
 			String setOf = str.substring("set ".length());
@@ -211,8 +229,8 @@ public final class JType {
 		}
 	}
 
-	
-	
+
+
 	public JType(String signatureId) {
 		this(Collections.<String> singleton(signatureId));
 	}
@@ -226,7 +244,7 @@ public final class JType {
 		specialType = null;
 	}
 
-	
+
 	public JType(String from, String to) {
 		this(Collections.<String> singleton(from), Collections
 				.<String> singleton(to));
@@ -238,20 +256,20 @@ public final class JType {
 		left_arrow_multiplier = from_multiplier;
 		right_arrow_multiplier = to_multiplier;
 	}
-	
-		
+
+
 	public JType(boolean isSet, Set<String> domain) {
 		this(domain);
 		if (isSet)
-		  left_arrow_multiplier = Multiplier.SET_MULTIPLIER;
+			left_arrow_multiplier = Multiplier.SET_MULTIPLIER;
 		else
-		  left_arrow_multiplier = null;
-			
+			left_arrow_multiplier = null;
+
 		right_arrow_multiplier = null;
 	}
 
 	public JType(Set<String> from, Set<String> to) {
-//		super();
+		//		super();
 		if ((from.size() == 1) && (from.contains(INT_SIGNATURE_ID))) {
 			isSequence = true;
 			isFunction = false;
@@ -287,7 +305,7 @@ public final class JType {
 		isSet = false;
 		specialType = _specialType;
 	}
-	
+
 	private JType(SpecialType _specialType, String from, String to) {
 		dom = new LinkedList<String>(Collections.<String> singleton(from));
 		img = new LinkedList<String>(Collections.<String> singleton(to));
@@ -320,16 +338,28 @@ public final class JType {
 		ternary_type = toType;
 	}
 
+
+	public JType(SpecialType specialType, String singletonFrom) {
+		this.specialType = specialType;
+		this.dom = new ArrayList<String>();
+		dom.add(singletonFrom);
+		this.img = new ArrayList<String>();
+		this.isSequence = false;
+		this.isFunction = false;
+	}
+
+
+
 	public boolean isSpecialType() {
 		return this.specialType != null;
 	}
-	
+
 	public SpecialType getSpecialType(){
 		return this.specialType;
 	}
-	
+
 	public boolean isBinaryRelation() {
-		return ((this.img!=null && this.img.size() > 0) || this.specialType != null);
+		return ((this.img!=null && this.img.size() > 0) || (this.specialType != null && !specialType.equals(SpecialType.MAP_ENTRIES)));
 	}
 
 	public boolean isTernaryRelation() {
@@ -388,18 +418,18 @@ public final class JType {
 		return false;
 	}
 
-	
+
 	public boolean isJML() {
 		if (specialType != null 
 				&& (specialType == SpecialType.JML_OBJECTSET_CONTAINS
-					|| specialType == SpecialType.JML_OBJECTSEQUENCE_CONTAINS
-					|| specialType == SpecialType.ALLOY_LIST_CONTAINS
-					|| specialType == SpecialType.SET_CONTAINS)){
+				|| specialType == SpecialType.JML_OBJECTSEQUENCE_CONTAINS
+				|| specialType == SpecialType.ALLOY_LIST_CONTAINS
+				|| specialType == SpecialType.SET_CONTAINS)){
 			return true;
 		}
 		return false;
 	}
-	
+
 	public boolean isNull() {
 		return this.from().size() == 1 && this.isBinaryRelation()
 				&& this.from().contains(NULL_VALUE_SIGNATURE_ID);
@@ -477,6 +507,16 @@ public final class JType {
 				used_types.add(javaLangPackage() + "IntArray");
 				used_types.add("JavaPrimitiveIntegerValue");
 				break;
+			case CHAR_ARRAY_CONTAINS:
+				used_types.add(javaLangPackage() + "CharArray");
+				used_types.add("JavaPrimitiveIntegerValue");
+				used_types.add("JavaPrimitiveCharValue");
+				break;
+			case LONG_ARRAY_CONTAINS:
+				used_types.add(javaLangPackage() + "LongArray");
+				used_types.add("JavaPrimitiveIntegerValue");
+				used_types.add("JavaPrimitiveLongValue");
+				break;
 			case OBJECT_ARRAY_CONTAINS:
 				used_types.add(javaLangPackage() + "ObjectArray");
 				used_types.add("JavaPrimitiveIntegerValue");
@@ -531,6 +571,12 @@ public final class JType {
 			case INT_ARRAY_CONTAINS:
 				s = "" + javaLangPackage() + "IntArray";
 				break;
+			case CHAR_ARRAY_CONTAINS:
+				s = "" + javaLangPackage() + "CharArray";
+				break;
+			case LONG_ARRAY_CONTAINS:
+				s = "" + javaLangPackage() + "LongArray";
+				break;				
 			case OBJECT_ARRAY_CONTAINS:
 				s = "" + javaLangPackage() + "ObjectArray";
 				break;
@@ -624,10 +670,16 @@ public final class JType {
 				sb.append("(org_jmlspecs_models_JMLObjectSequence)->(Int -> univ)");
 				break;
 			case ITERATOR_CONTAINS:
-				sb.append("(" + javaUtilPackage() + "Iterator)->set univ");
+				sb.append("" + javaUtilPackage() + "Iterator->univ");
 				break;
 			case INT_ARRAY_CONTAINS:
 				sb.append(javaLangPackage() + "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue)");
+				break;
+			case CHAR_ARRAY_CONTAINS:
+				sb.append(javaLangPackage() + "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue)");
+				break;
+			case LONG_ARRAY_CONTAINS:
+				sb.append(javaLangPackage() + "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue)");
 				break;
 			case OBJECT_ARRAY_CONTAINS:
 				sb.append(javaLangPackage() + "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone (" + javaLangPackage() + "Object + null))");
@@ -657,7 +709,7 @@ public final class JType {
 				String domStr = toString(dom);
 				String result = this.left_arrow_multiplier.toString() + "(" + domStr +")";
 				sb.append(result);
-				
+
 			} else if (this.imageIsSequence == true) {
 
 				String domStr = toString(dom);

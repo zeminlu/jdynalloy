@@ -58,6 +58,7 @@ import ar.edu.jdynalloy.factory.JExpressionFactory;
 import ar.edu.jdynalloy.factory.JTypeFactory;
 import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
+import ar.uba.dc.rfm.alloy.ast.expressions.ExprFunction;
 import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 import ar.uba.dc.rfm.alloy.ast.formulas.JFormulaVisitor;
 
@@ -66,6 +67,16 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 	private SymbolTable symbolTable;
 	IdentityHashMap<IProgramCall, JBindingKey> callBindings;
 	private boolean isClassLevel = true;
+	private boolean javaArithmetic;
+
+
+	public boolean getJavaArithmetic(){
+		return javaArithmetic;
+	}
+
+	public void setJavaArithmetic(boolean b){
+		this.javaArithmetic = b;
+	}
 
 	public IdentityHashMap<IProgramCall, JBindingKey> getCallBindings() {
 		return callBindings;
@@ -84,7 +95,7 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 	}
 
 	public SemanticCheckVisitor(SymbolTable symbolTable, boolean isJavaArithmetic) {
-		super(isJavaArithmetic);
+		super(isJavaArithmetic);		
 		this.symbolTable = symbolTable;
 		this.callBindings = new IdentityHashMap<IProgramCall, JBindingKey>();
 	}
@@ -92,6 +103,7 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 	public SemanticCheckVisitor(boolean isJavaArithmetic) {
 		super(isJavaArithmetic);
 		this.symbolTable = new SymbolTable();
+		symbolTable.setJavaArithmetic(this.javaArithmetic);
 		this.callBindings = new IdentityHashMap<IProgramCall, JBindingKey>();
 	}
 
@@ -146,12 +158,18 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JAssume node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
-		node.getCondition().accept(predicateCallCollectorVisitor);
-		for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		node.getCondition().accept(predicateAndFunctionCallCollectorVisitor);
+		for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 			processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 					.getArgumentsTypes());
 		}
+		//		for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+		//			processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+		//					functionCallAlloyFormulaDescriptor.getReturnType(), 
+		//					functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+		//		}
+
 		return super.visit(node);
 	}
 
@@ -188,27 +206,41 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JObjectInvariant node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 
 		return super.visit(node);
 	}
 
+
+
 	@Override
 	public Object visit(JClassInvariant node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 
 		return super.visit(node);
@@ -216,13 +248,19 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JObjectConstraint node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 
 		return super.visit(node);
@@ -230,13 +268,19 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JClassConstraint node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 
 		return super.visit(node);
@@ -244,39 +288,57 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JLoopInvariant node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 		return super.visit(node);
 	}
 
 	@Override
 	public Object visit(JPostcondition node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 		return super.visit(node);
 	}
 
 	@Override
 	public Object visit(JPrecondition node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
 		}
 		return super.visit(node);
 	}
@@ -299,6 +361,20 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 		return returnValue;
 	}
 
+
+	private void processIProgramCallSupport(ExprFunction functionCall, JType returnType, List<JType> arguments) {
+		JBindingKey binding = null;
+		String receiverType = extractReceiverTypeName(arguments.get(0));
+		arguments.add(1, returnType);
+		String programId = functionCall.getFunctionId();
+		binding = new JBindingKey(receiverType, programId, arguments);
+		IProgramCall programCall = new JProgramCall(false, programId, functionCall.getParameters());
+		callBindings.put(programCall, binding);
+
+	}
+
+
+
 	private void processIProgramCallSupport(IProgramCall programCall, List<JType> arguments) {
 		// TODO DOB:: Por ahora considero que si no es estatico, el primer
 		// parametro es el de la clase
@@ -306,15 +382,15 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 		if (programCall.isStatic()) {
 			binding = new JBindingKey(programCall.getProgramId(), arguments);
 		} else {
-			String reciverType = extractReciverTypeName(arguments.get(0));
-			binding = new JBindingKey(reciverType, programCall.getProgramId(), arguments);
+			String receiverType = extractReceiverTypeName(arguments.get(0));
+			binding = new JBindingKey(receiverType, programCall.getProgramId(), arguments);
 		}
 
 		callBindings.put(programCall, binding);
 	}
 
 	// TODO DOB::Extract to a common method (static or not ) in JType
-	private String extractReciverTypeName(JType type) {
+	private String extractReceiverTypeName(JType type) {
 		String returnValue;
 		// if (JType.fromIncludesNull(type)) {
 		// returnValue = JType.getBaseType(type);
@@ -365,13 +441,20 @@ public class SemanticCheckVisitor extends JDynAlloyVisitor {
 
 	@Override
 	public Object visit(JRepresents node) {
-		PredicateAndFunctionCallCollectorVisitor predicateCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
+		PredicateAndFunctionCallCollectorVisitor predicateAndFunctionCallCollectorVisitor = new PredicateAndFunctionCallCollectorVisitor(this.symbolTable);
 		if (node.getFormula() != null) {
-			node.getFormula().accept(predicateCallCollectorVisitor);
-			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateCallCollectorVisitor.getPredicatesCollected()) {
+			node.getFormula().accept(predicateAndFunctionCallCollectorVisitor);
+			for (PredicateCallAlloyFormulaDescriptor predicateCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getPredicatesCollected()) {
 				processIProgramCallSupport(predicateCallAlloyFormulaDescriptor.getPredicateCallAlloyFormula(), predicateCallAlloyFormulaDescriptor
 						.getArgumentsTypes());
 			}
+			//			for (FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor : predicateAndFunctionCallCollectorVisitor.getCalledFunctions()) {
+			//				processIProgramCallSupport(functionCallAlloyFormulaDescriptor.getfunctionCallInAlloyFormulaInfo(), 
+			//						functionCallAlloyFormulaDescriptor.getReturnType(), 
+			//						functionCallAlloyFormulaDescriptor.getArgumentsTypes());
+			//			}
+
+
 		}
 		return super.visit(node);
 	}

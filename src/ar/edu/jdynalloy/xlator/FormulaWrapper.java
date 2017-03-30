@@ -45,121 +45,7 @@ final class FormulaWrapper {
 		}
 	}
 
-	class PredicateDeclaration {
-		private final String predicateId;
-
-		private final List<AlloyVariable> formalParams;
-
-		private final AlloyTyping typing;
-
-		private final AlloyFormula formula;
-
-
-		public PredicateDeclaration(String predicateId,
-				List<AlloyVariable> signature, AlloyTyping t, AlloyFormula body) {
-			super();
-			this.predicateId = predicateId;
-			this.formalParams = signature;
-			this.typing = t;
-			this.formula = body;
-		}
-
-		public AlloyFormula getFormula() {
-			return formula;
-		}
-
-		public String getPredicateId() {
-			return predicateId;
-		}
-
-		public List<AlloyVariable> getFormalParams() {
-			return formalParams;
-		}
-
-		public AlloyTyping getTyping() {
-			return typing;
-		}
-
-		@Override
-		public boolean equals(Object arg0) {
-			if (arg0 != null
-					&& arg0.getClass().equals(PredicateDeclaration.class)) {
-				PredicateDeclaration that = (PredicateDeclaration) arg0;
-				return this.getPredicateId().equals(that.getPredicateId())
-						&& getFormalParams().equals(that.getFormalParams())
-						&& getTyping().equals(that.getTyping())
-						&& getFormula().equals(that.getFormula());
-
-			} else
-				return false;
-		}
-
-		@Override
-		public int hashCode() {
-			return getPredicateId().hashCode() + getFormalParams().hashCode()
-					+ getTyping().hashCode() + getFormula().hashCode();
-		}
-
-		public String toString(boolean prettyPrint) {
-			StringBuffer buff = new StringBuffer();
-			buff.append("pred " + this.getPredicateId());
-			buff.append("[");
-
-			if (prettyPrint)
-				buff.append("\n");
-
-			for (int i = 0; i < this.getFormalParams().size(); i++) {
-				AlloyVariable v = this.getFormalParams().get(i);
-
-				if (i != 0) {
-					buff.append(",");
-					if (prettyPrint)
-						buff.append("\n");
-				}
-
-				String parameterDecl = v.toString() + ":"
-						+ this.getTyping().get(v);
-
-				if (prettyPrint)
-					parameterDecl = "  " + parameterDecl;
-
-				buff.append(parameterDecl);
-			}
-
-			if (prettyPrint && !this.getFormalParams().isEmpty())
-				buff.append("\n");
-
-			buff.append("]{");
-
-			if (prettyPrint)
-				buff.append("\n");
-
-			JFormulaPrinter printer = new JFormulaPrinter();
-			printer.setPrettyPrinting(prettyPrint);
-
-			String formulaString = (String) this.getFormula().accept(printer);
-
-			if (prettyPrint) {
-				formulaString = increaseIdentation(formulaString);
-			}
-
-			buff.append(formulaString);
-
-			if (prettyPrint)
-				buff.append("\n");
-
-			buff.append("}");
-			buff.append("\n");
-
-			return buff.toString();
-
-		}
-
-		@Override
-		public String toString() {
-			return toString(false);
-		}
-	}
+	
 
 	private final JDynAlloyTyping fieldsTyping;
 
@@ -216,9 +102,9 @@ final class FormulaWrapper {
 
 
 	public PredicateFormula wrapFormula(String formulaId, AlloyFormula formula) {
-		QFtransformer qfprefixer = new QFtransformer(varsToPrefix);
-		FormulaMutator fm = new FormulaMutator(qfprefixer);
-		formula = (AlloyFormula)formula.accept(fm);
+//		QFtransformer qfprefixer = new QFtransformer(varsToPrefix);
+//		FormulaMutator fm = new FormulaMutator(qfprefixer);
+//		formula = (AlloyFormula)formula.accept(fm);
 		Predicate predicate = buildPredicate(formulaId, formula);
 		newPredicates.put(formulaId, predicate.declaration);
 		return predicate.formula;
@@ -234,9 +120,9 @@ final class FormulaWrapper {
 
 
 	public PredicateFormula wrapCondition(AlloyFormula f) {
-		QFtransformer qfprefixer = new QFtransformer(varsToPrefix);
-		FormulaMutator fm = new FormulaMutator(qfprefixer);
-		f = (AlloyFormula)f.accept(fm);
+//		QFtransformer qfprefixer = new QFtransformer(varsToPrefix);
+//		FormulaMutator fm = new FormulaMutator(qfprefixer);
+//		f = (AlloyFormula)f.accept(fm);
 		if (!cache.containsKey(f)) {
 			String predicateId = generateConditionId();
 			Predicate predicate = buildPredicate(predicateId, f);
@@ -346,6 +232,8 @@ final class FormulaWrapper {
 			return this.parameterVariables.getJAlloyType(v);
 		else if (localVariables.contains(v))
 			return this.localVariables.getJAlloyType(v);
+		else if (this.fieldsTyping.contains(v) && v.getVariableId().getString().startsWith("SK_jml_pred_java_primitive"))
+			return new JType("univ");
 		else if (this.fieldsTyping.contains(v))
 			return this.fieldsTyping.getJAlloyType(v);
 		else
@@ -359,6 +247,8 @@ final class FormulaWrapper {
 			if (v.isPrimed()) {
 				AlloyVariable unprimedVar = new AlloyVariable(v.getVariableId());
 				jType = getTypeOf(unprimedVar);
+				if (jType == null)
+					jType = getTypeOf(v);
 			} else if (v.isPreStateVar()) {
 				AlloyVariable actual_state_var = new AlloyVariable(v
 						.getVariableId());
@@ -407,6 +297,12 @@ final class FormulaWrapper {
 					t.put(v, FormulaWrapper.UNIV_TO_UNIV);
 					break;
 				case INT_ARRAY_CONTAINS:
+					t.put(v, FormulaWrapper.UNIV_TO_UNIV_TO_UNIV);
+					break;
+				case CHAR_ARRAY_CONTAINS:
+					t.put(v, FormulaWrapper.UNIV_TO_UNIV_TO_UNIV);
+					break;
+				case LONG_ARRAY_CONTAINS:
 					t.put(v, FormulaWrapper.UNIV_TO_UNIV_TO_UNIV);
 					break;
 				case OBJECT_ARRAY_CONTAINS:
@@ -567,13 +463,5 @@ final class FormulaWrapper {
 		return newPredicates;
 	}
 
-	private static String increaseIdentation(String string) {
-		StringBuffer buffer = new StringBuffer();
-		String[] lines = string.split("\n");
-		for (String line : lines) {
-			buffer.append("   " + line + "\n");
-		}
-		return buffer.toString();
-	}
 
 }

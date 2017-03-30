@@ -40,12 +40,23 @@ import ar.uba.dc.rfm.alloy.ast.formulas.IProgramCall;
 public class BindingManager {
 
 	private boolean isJavaArithmetic;
-	
+
 	private static Logger log = Logger.getLogger(BindingManager.class);
-	
+
 	private List<ar.edu.jdynalloy.ast.JDynAlloyModule> modules;
 	private JDynAlloyBinding dynJAlloyBinding;
-		
+
+	private boolean javaArithmetic;
+
+	public void setJavaArithmetic(boolean isJavaArithmetic) {
+		this.isJavaArithmetic = isJavaArithmetic;
+	}
+
+	public boolean getIsJavaArithmetic() {
+		return this.isJavaArithmetic;
+	}
+
+
 	public JDynAlloyBinding getDynJAlloyBinding() {
 		return dynJAlloyBinding;
 	}
@@ -57,23 +68,16 @@ public class BindingManager {
 	public BindingManager(List<JDynAlloyModule> modules) {
 		this.modules = modules;
 	}
-	
-	
-	public void setJavaArithmetic(boolean isJavaArithmetic) {
-		this.isJavaArithmetic = isJavaArithmetic;
-	}
 
-	public boolean getIsJavaArithmetic() {
-		return this.isJavaArithmetic;
-	}
 
 	public void execute() {
-		// aca viene el analisis semantico para los bindings
+
 		JDynAlloyContext dynJAlloyContext = new JDynAlloyContext();
 		for (JDynAlloyModule dynJAlloyModule : modules) {
 			dynJAlloyContext.load(dynJAlloyModule);
 		}
 		SymbolTable symbolTable = new SymbolTable();
+		symbolTable.setJavaArithmetic(javaArithmetic);
 		ProgramDeclarationCollectorVisitor programDeclarationCollectorVisitor = new ProgramDeclarationCollectorVisitor(isJavaArithmetic);
 		SemanticCheckVisitor semanticCheckVisitor = new SemanticCheckVisitor(symbolTable, isJavaArithmetic);
 		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArithmetic);
@@ -89,18 +93,18 @@ public class BindingManager {
 		for (JDynAlloyModule dynJAlloyModule : modules) {
 			dynJAlloyModule.accept(semanticCheckVisitor);			
 		}
-		
+
 		CallBindingResolver callBindingResolver = new CallBindingResolver(dynJAlloyContext, 
 				programDeclarationCollectorVisitor.getProgramBindings(), 
 				semanticCheckVisitor.getCallBindings(), isJavaArithmetic);
 		callBindingResolver.resolveBinding();			
 		IdentityHashMap<IProgramCall, JProgramDeclaration> bindings = callBindingResolver.getBinding();		
-		
+
 		SearchImplementors searchImplementors = new SearchImplementors(programDeclarationCollectorVisitor.getProgramBindings(), dynJAlloyContext);			
 		IdentityHashMap<JProgramDeclaration, List<JProgramDeclaration>> implementors = searchImplementors.searchImplementors();
-		
+
 		this.dynJAlloyBinding = new JDynAlloyBinding(bindings, implementors);
-		
+
 		log.debug("bindings:");
 		for (Entry<IProgramCall, JProgramDeclaration> entry : bindings.entrySet()) {
 			log.debug(entry);

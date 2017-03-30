@@ -26,6 +26,7 @@ public class DynAlloyLinker {
 			printer.setGrammar(DynalloyGrammar.C_LIKE);
 			printer.setPrettyPrinting(true);
 			String strModule = (String) m.accept(printer);
+//			System.out.println(strModule);
 			result.put(m.getModuleId(), strModule);
 		}
 

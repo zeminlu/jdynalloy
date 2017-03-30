@@ -39,10 +39,21 @@ public class SymbolTable implements Cloneable {
 	
 	private Scope globalScope;
 	
+	private boolean javaArithmetic;
+	
 	/**
 	 * JType x string  
 	 */	
 	private Map<FieldDescriptor,JType> fieldsBinding;
+	
+	public boolean getJavaArithmetic(){
+		return this.javaArithmetic;
+	}
+	
+	public void setJavaArithmetic(boolean b){
+		this.javaArithmetic = b;
+	}
+	
 	
 	public SymbolTable() {
 		table = new ArrayDeque<Scope>();		
@@ -89,6 +100,28 @@ public class SymbolTable implements Cloneable {
 	}
 	
 	public JType lookupField(String moduleName, String fieldName) {
+		if (javaArithmetic){
+			if (fieldName.equals("java_lang_IntArray_contents")){
+				return JType.INT_ARRAY_CONTAINS_TYPE;
+			}
+			if (fieldName.equals("java_lang_CharArray_contents")){
+				return JType.CHAR_ARRAY_CONTAINS_TYPE;
+			}
+			if (fieldName.equals("java_lang_LongArray_contents")){
+				return JType.LONG_ARRAY_CONTAINS_TYPE;
+			}
+			if (fieldName.equals("java_lang_ObjectArray_contents")){
+				return JType.OBJECT_ARRAY_CONTAINS_TYPE;
+			}
+		} else {
+			if (fieldName.equals("java_lang_IntArray_contents")){
+				return JType.ALLOY_INT_ARRAY_CONTAINS_TYPE;
+			}
+			if (fieldName.equals("java_lang_ObjectArray_contents")){
+				return JType.ALLOY_OBJECT_ARRAY_CONTAINS_TYPE;
+			}
+		}
+			
 		FieldDescriptor fieldDescriptor =  new FieldDescriptor(moduleName, fieldName);
 		if (!this.fieldsBinding.containsKey(fieldDescriptor)) {
 			
@@ -159,6 +192,7 @@ public class SymbolTable implements Cloneable {
 		SymbolTable symbolTable = new SymbolTable();
 		symbolTable.table = new ArrayDeque<Scope>(this.table);
 		symbolTable.fieldsBinding = this.fieldsBinding;
+		symbolTable.javaArithmetic = this.javaArithmetic;
 		return symbolTable;
 	}
 

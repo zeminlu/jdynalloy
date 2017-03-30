@@ -26,7 +26,7 @@ public class VariableNameChangerVisitor extends JDynAlloyMutator{
 		this.vars = vars;
 		VariableNameChangerFormulaMutator fm = new VariableNameChangerFormulaMutator(vars);
 		this.setFormulaMutator(fm);
-		
+
 	}
 
 

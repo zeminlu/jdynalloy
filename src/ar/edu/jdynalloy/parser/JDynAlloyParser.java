@@ -1,4 +1,4 @@
-// $ANTLR 2.7.6 (2005-12-22): "jdynalloy.g" -> "JDynAlloyParser.java"$
+// $ANTLR 2.7.7 (20060906): "jdynalloy.g" -> "JDynAlloyParser.java"$
 
  /*
  * TACO: Translation of Annotated COde
@@ -33,6 +33,13 @@ import ar.uba.dc.rfm.alloy.ast.expressions.ExprOverride;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprProduct;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprUnion;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
+import ar.uba.dc.rfm.alloy.ast.formulas.PredicateFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.AndFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.OrFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.NotFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.EqualsFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.ImpliesFormula;
 import ar.uba.dc.rfm.alloy.ast.formulas.*;
 import ar.uba.dc.rfm.alloy.ast.formulas.QuantifiedFormula.Operator;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprIntersection;
@@ -374,7 +381,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		}
 		
 				if (!moduleId.getText().equals(alloySignature.getText())) {
-					throw new RuntimeException("Module name must be equals to Signature name"); 
+					throw new RuntimeException("Module name must equal Signature name"); 
 				}
 				
 				buffer.setSignatureId(alloySignature.getText());
@@ -534,6 +541,8 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		Token  programName = null;
 		
 			boolean isAbstract = false;
+			boolean isConstructor = false;
+			boolean isPure = false;
 			String programId;
 			String signatureId;
 			List<JSpecCase> specCases = new ArrayList<JSpecCase>();
@@ -564,6 +573,24 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		}
 		}
 		match(PROGRAM);
+		{
+		switch ( LA(1)) {
+		case PURE:
+		{
+			match(PURE);
+			isPure = true;
+			break;
+		}
+		case IDENT:
+		{
+			break;
+		}
+		default:
+		{
+			throw new NoViableAltException(LT(1), getFilename());
+		}
+		}
+		}
 		moduleName = LT(1);
 		match(IDENT);
 		match(COLON);
@@ -574,7 +601,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		variableDeclaration1=jVariableDeclaration(ctx);
 		parameters.add(variableDeclaration1);
 		{
-		_loop22:
+		_loop23:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -582,7 +609,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				parameters.add(variableDeclaration1);
 			}
 			else {
-				break _loop22;
+				break _loop23;
 			}
 			
 		} while (true);
@@ -595,14 +622,14 @@ public JDynAlloyParser(ParserSharedInputState state) {
 			match(SPECIFICATION);
 			match(LBRACE);
 			{
-			_loop25:
+			_loop26:
 			do {
 				if ((LA(1)==SPECCASE)) {
 					specCase1=jSpecCase(ctx);
 					specCases.add(specCase1);
 				}
 				else {
-					break _loop25;
+					break _loop26;
 				}
 				
 			} while (true);
@@ -625,7 +652,8 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		
 			signatureId = moduleName.getText();
 			programId = programName.getText();
-			r = new JProgramDeclaration(isAbstract, signatureId, programId, parameters, specCases, body, new AlloyTyping(), new ArrayList<AlloyFormula>());
+			isConstructor = programName.getText().equals("Constructor");
+			r = new JProgramDeclaration(isAbstract, isConstructor, isPure, signatureId, programId, parameters, specCases, body, new AlloyTyping(), new ArrayList<AlloyFormula>());
 		
 		return r;
 	}
@@ -709,7 +737,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		match(SPECCASE_ID);
 		match(LBRACE);
 		{
-		_loop28:
+		_loop29:
 		do {
 			switch ( LA(1)) {
 			case REQUIRES:
@@ -732,7 +760,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 			}
 			default:
 			{
-				break _loop28;
+				break _loop29;
 			}
 			}
 		} while (true);
@@ -756,18 +784,18 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		
 		match(LBRACE);
 		{
-		int _cnt41=0;
-		_loop41:
+		int _cnt42=0;
+		_loop42:
 		do {
 			if ((_tokenSet_8.member(LA(1)))) {
 				aStatement=jStatement(ctx);
 				statementList.add(aStatement);
 			}
 			else {
-				if ( _cnt41>=1 ) { break _loop41; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt42>=1 ) { break _loop42; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			
-			_cnt41++;
+			_cnt42++;
 		} while (true);
 		}
 		match(RBRACE);
@@ -1054,7 +1082,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		parameter=termExpression(ctx);
 		parameterList.add(parameter);
 		{
-		_loop47:
+		_loop48:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -1062,7 +1090,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				parameterList.add(parameter);
 			}
 			else {
-				break _loop47;
+				break _loop48;
 			}
 			
 		} while (true);
@@ -1144,8 +1172,8 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		r = ""; String m=null;
 		
 		{
-		int _cnt83=0;
-		_loop83:
+		int _cnt84=0;
+		_loop84:
 		do {
 			switch ( LA(1)) {
 			case LITERAL_some:
@@ -1189,10 +1217,10 @@ public JDynAlloyParser(ParserSharedInputState state) {
 					r=r+= id.getText();
 				}
 			else {
-				if ( _cnt83>=1 ) { break _loop83; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt84>=1 ) { break _loop84; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			}
-			_cnt83++;
+			_cnt84++;
 		} while (true);
 		}
 		
@@ -1213,7 +1241,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		r=orFormula(ctx);
 		rightList.add(r);
 		{
-		_loop55:
+		_loop56:
 		do {
 			if ((LA(1)==IMPLIES) && (_tokenSet_15.member(LA(2))) && (_tokenSet_16.member(LA(3))) && (_tokenSet_17.member(LA(4))) && (_tokenSet_18.member(LA(5))) && (_tokenSet_19.member(LA(6))) && (_tokenSet_20.member(LA(7)))) {
 				match(IMPLIES);
@@ -1221,7 +1249,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				rightList.add(right);
 			}
 			else {
-				break _loop55;
+				break _loop56;
 			}
 			
 		} while (true);
@@ -1247,7 +1275,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		r=andFormula(ctx);
 		rightList.add(r);
 		{
-		_loop58:
+		_loop59:
 		do {
 			if ((LA(1)==OR) && (_tokenSet_15.member(LA(2))) && (_tokenSet_16.member(LA(3))) && (_tokenSet_17.member(LA(4))) && (_tokenSet_18.member(LA(5))) && (_tokenSet_19.member(LA(6))) && (_tokenSet_20.member(LA(7)))) {
 				match(OR);
@@ -1255,7 +1283,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				rightList.add(right);
 			}
 			else {
-				break _loop58;
+				break _loop59;
 			}
 			
 		} while (true);
@@ -1281,7 +1309,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		r=atomFormula(ctx);
 		rightList.add(r);
 		{
-		_loop61:
+		_loop62:
 		do {
 			if ((LA(1)==AND) && (_tokenSet_15.member(LA(2))) && (_tokenSet_16.member(LA(3))) && (_tokenSet_17.member(LA(4))) && (_tokenSet_18.member(LA(5))) && (_tokenSet_19.member(LA(6))) && (_tokenSet_20.member(LA(7)))) {
 				match(AND);
@@ -1289,7 +1317,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				rightList.add(right);
 			}
 			else {
-				break _loop61;
+				break _loop62;
 			}
 			
 		} while (true);
@@ -1440,7 +1468,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		parameter=termExpression(ctx);
 		parameterList.add(parameter);
 		{
-		_loop71:
+		_loop72:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -1448,7 +1476,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				parameterList.add(parameter);
 			}
 			else {
-				break _loop71;
+				break _loop72;
 			}
 			
 		} while (true);
@@ -1512,8 +1540,8 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		}
 		}
 		{
-		int _cnt66=0;
-		_loop66:
+		int _cnt67=0;
+		_loop67:
 		do {
 			if ((LA(1)==IDENT)) {
 				id = LT(1);
@@ -1528,10 +1556,10 @@ public JDynAlloyParser(ParserSharedInputState state) {
 							
 			}
 			else {
-				if ( _cnt66>=1 ) { break _loop66; } else {throw new NoViableAltException(LT(1), getFilename());}
+				if ( _cnt67>=1 ) { break _loop67; } else {throw new NoViableAltException(LT(1), getFilename());}
 			}
 			
-			_cnt66++;
+			_cnt67++;
 		} while (true);
 		}
 		match(PIPE);
@@ -1585,14 +1613,14 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		}
 		}
 		{
-		_loop76:
+		_loop77:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
 				variablesDeclarationSingleType(r);
 			}
 			else {
-				break _loop76;
+				break _loop77;
 			}
 			
 		} while (true);
@@ -1623,7 +1651,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		match(IDENT);
 		r.add(id.getText());
 		{
-		_loop80:
+		_loop81:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -1632,7 +1660,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				r.add(id2.getText());
 			}
 			else {
-				break _loop80;
+				break _loop81;
 			}
 			
 		} while (true);
@@ -1715,7 +1743,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		}
 		}
 		{
-		_loop90:
+		_loop91:
 		do {
 			if ((LA(1)==COMMA)) {
 				match(COMMA);
@@ -1723,7 +1751,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 				r.add(p);
 			}
 			else {
-				break _loop90;
+				break _loop91;
 			}
 			
 		} while (true);
@@ -2052,6 +2080,7 @@ public JDynAlloyParser(ParserSharedInputState state) {
 		"SUCH_THAT",
 		"VIRTUAL",
 		"PROGRAM",
+		"PURE",
 		"LBRACKET",
 		"COMMA",
 		"RBRACKET",
@@ -2113,162 +2142,162 @@ public JDynAlloyParser(ParserSharedInputState state) {
 	};
 	
 	private static final long[] mk_tokenSet_0() {
-		long[] data = { 4028478662775932960L, 896L, 0L, 0L};
+		long[] data = { 8056957325551863840L, 1792L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_0 = new BitSet(mk_tokenSet_0());
 	private static final long[] mk_tokenSet_1() {
-		long[] data = { -583207355643604942L, 1017L, 0L, 0L};
+		long[] data = { -1166414711290867662L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_1 = new BitSet(mk_tokenSet_1());
 	private static final long[] mk_tokenSet_2() {
-		long[] data = { 4618234718301703186L, 0L};
+		long[] data = { -9210274637110326254L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_2 = new BitSet(mk_tokenSet_2());
 	private static final long[] mk_tokenSet_3() {
-		long[] data = { -576464085705565134L, 1009L, 0L, 0L};
+		long[] data = { -1152928171411121102L, 2019L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_3 = new BitSet(mk_tokenSet_3());
 	private static final long[] mk_tokenSet_4() {
-		long[] data = { -576462951695778574L, 1017L, 0L, 0L};
+		long[] data = { -1152925903391556366L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_4 = new BitSet(mk_tokenSet_4());
 	private static final long[] mk_tokenSet_5() {
-		long[] data = { -576462951360234254L, 1017L, 0L, 0L};
+		long[] data = { -1152925902720467726L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_5 = new BitSet(mk_tokenSet_5());
 	private static final long[] mk_tokenSet_6() {
-		long[] data = { -576460752336977934L, 1023L, 0L, 0L};
+		long[] data = { -1152921504673955854L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_6 = new BitSet(mk_tokenSet_6());
 	private static final long[] mk_tokenSet_7() {
-		long[] data = { -33554446L, 1023L, 0L, 0L};
+		long[] data = { -67108878L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_7 = new BitSet(mk_tokenSet_7());
 	private static final long[] mk_tokenSet_8() {
-		long[] data = { 2455162220184608L, 896L, 0L, 0L};
+		long[] data = { 4910324440368160L, 1792L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_8 = new BitSet(mk_tokenSet_8());
 	private static final long[] mk_tokenSet_9() {
-		long[] data = { -8261853507796073438L, 7L, 0L, 0L};
+		long[] data = { 1923037058117403682L, 15L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_9 = new BitSet(mk_tokenSet_9());
 	private static final long[] mk_tokenSet_10() {
-		long[] data = { -8261650145288901598L, 903L, 0L, 0L};
+		long[] data = { 1923443783131737122L, 1807L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_10 = new BitSet(mk_tokenSet_10());
 	private static final long[] mk_tokenSet_11() {
-		long[] data = { -4613728915193070542L, 1023L, 0L, 0L};
+		long[] data = { 9219286243319741490L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_11 = new BitSet(mk_tokenSet_11());
 	private static final long[] mk_tokenSet_12() {
-		long[] data = { -2042896631464910L, 1023L, 0L, 0L};
+		long[] data = { -4085793262404558L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_12 = new BitSet(mk_tokenSet_12());
 	private static final long[] mk_tokenSet_13() {
-		long[] data = { -2040697339249422L, 1023L, 0L, 0L};
+		long[] data = { -4081394678498062L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_13 = new BitSet(mk_tokenSet_13());
 	private static final long[] mk_tokenSet_14() {
-		long[] data = { -3758097166L, 1023L, 0L, 0L};
+		long[] data = { -7516193550L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_14 = new BitSet(mk_tokenSet_14());
 	private static final long[] mk_tokenSet_15() {
-		long[] data = { 4028478662775930912L, 896L, 0L, 0L};
+		long[] data = { 8056957325551861792L, 1792L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_15 = new BitSet(mk_tokenSet_15());
 	private static final long[] mk_tokenSet_16() {
-		long[] data = { -583207355647262686L, 1017L, 0L, 0L};
+		long[] data = { -1166414711294525406L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_16 = new BitSet(mk_tokenSet_16());
 	private static final long[] mk_tokenSet_17() {
-		long[] data = { -578703755994718174L, 1017L, 0L, 0L};
+		long[] data = { -1157407511989444574L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_17 = new BitSet(mk_tokenSet_17());
 	private static final long[] mk_tokenSet_18() {
-		long[] data = { -576663053819974606L, 1023L, 0L, 0L};
+		long[] data = { -1153326107643614158L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_18 = new BitSet(mk_tokenSet_18());
 	private static final long[] mk_tokenSet_19() {
-		long[] data = { -7731444974542L, 1023L, 0L, 0L};
+		long[] data = { -15462889423822L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_19 = new BitSet(mk_tokenSet_19());
 	private static final long[] mk_tokenSet_20() {
-		long[] data = { -2199392355086L, 1023L, 0L, 0L};
+		long[] data = { -4398784709390L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_20 = new BitSet(mk_tokenSet_20());
 	private static final long[] mk_tokenSet_21() {
-		long[] data = { 2251799838851104L, 896L, 0L, 0L};
+		long[] data = { 4503599677702176L, 1792L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_21 = new BitSet(mk_tokenSet_21());
 	private static final long[] mk_tokenSet_22() {
-		long[] data = { -9214575935209616334L, 1017L, 0L, 0L};
+		long[] data = { 17592203286662194L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_22 = new BitSet(mk_tokenSet_22());
 	private static final long[] mk_tokenSet_23() {
-		long[] data = { -5188154502175794126L, 1017L, 0L, 0L};
+		long[] data = { 8070435069358496818L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_23 = new BitSet(mk_tokenSet_23());
 	private static final long[] mk_tokenSet_24() {
-		long[] data = { -576733431157743582L, 1023L, 0L, 0L};
+		long[] data = { -1153466862315495390L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_24 = new BitSet(mk_tokenSet_24());
 	private static final long[] mk_tokenSet_25() {
-		long[] data = { -202301516551118L, 1023L, 0L, 0L};
+		long[] data = { -404603036767182L, 2047L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_25 = new BitSet(mk_tokenSet_25());
 	private static final long[] mk_tokenSet_26() {
-		long[] data = { 2251799813685280L, 896L, 0L, 0L};
+		long[] data = { 4503599627370528L, 1792L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_26 = new BitSet(mk_tokenSet_26());
 	private static final long[] mk_tokenSet_27() {
-		long[] data = { -4609434218609508318L, 1017L, 0L, 0L};
+		long[] data = { -9218868437219016670L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_27 = new BitSet(mk_tokenSet_27());
 	private static final long[] mk_tokenSet_28() {
-		long[] data = { -4604930618956971998L, 1017L, 0L, 0L};
+		long[] data = { -9209861237913944030L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_28 = new BitSet(mk_tokenSet_28());
 	private static final long[] mk_tokenSet_29() {
-		long[] data = { -4602889916782228430L, 1017L, 0L, 0L};
+		long[] data = { -9205779833568113614L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_29 = new BitSet(mk_tokenSet_29());
 	private static final long[] mk_tokenSet_30() {
-		long[] data = { -576468483748406222L, 1017L, 0L, 0L};
+		long[] data = { -1152936967496278990L, 2035L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_30 = new BitSet(mk_tokenSet_30());
 	private static final long[] mk_tokenSet_31() {
-		long[] data = { -4605137318553072622L, 113L, 0L, 0L};
+		long[] data = { -9210274637110326254L, 227L, 0L, 0L};
 		return data;
 	}
 	public static final BitSet _tokenSet_31 = new BitSet(mk_tokenSet_31());

@@ -19,9 +19,12 @@ public class JavaPrimitiveIntValueArrayFactory {
 
 	public static AlloyExpression array_length(JType array_type,
 			AlloyExpression array) {
-
 		if (array_type.equals(JSignatureFactory.INT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayLength", array, DynalloyFactory.INT_ARRAY_LENGTH_FIELD_EXPRESSION);
+		} else if (array_type.equals(JSignatureFactory.CHAR_ARRAY_TYPE)) {
+			return buildExprFunction("arrayLength", array, DynalloyFactory.CHAR_ARRAY_LENGTH_FIELD_EXPRESSION);
+		} else if (array_type.equals(JSignatureFactory.LONG_ARRAY_TYPE)) {
+			return buildExprFunction("arrayLength", array, DynalloyFactory.LONG_ARRAY_LENGTH_FIELD_EXPRESSION);
 		} else if (array_type.equals(JSignatureFactory.OBJECT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayLength", array, DynalloyFactory.OBJECT_ARRAY_LENGTH_FIELD_EXPRESSION);
 		} else
@@ -31,20 +34,27 @@ public class JavaPrimitiveIntValueArrayFactory {
 
 	public static AlloyExpression primed_array_length(JType array_type,
 			AlloyExpression array) {
-
 		if (array_type.equals(JSignatureFactory.INT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayLength", array, DynalloyFactory.PRIMED_INT_ARRAY_LENGTH_FIELD_EXPRESSION);
+		} else if (array_type.equals(JSignatureFactory.CHAR_ARRAY_TYPE)) {
+			return buildExprFunction("arrayLength", array, DynalloyFactory.PRIMED_CHAR_ARRAY_LENGTH_FIELD_EXPRESSION);
+		} else if (array_type.equals(JSignatureFactory.LONG_ARRAY_TYPE)) {
+			return buildExprFunction("arrayLength", array, DynalloyFactory.PRIMED_LONG_ARRAY_LENGTH_FIELD_EXPRESSION);
 		} else if (array_type.equals(JSignatureFactory.OBJECT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayLength", array, DynalloyFactory.PRIMED_OBJECT_ARRAY_LENGTH_FIELD_EXPRESSION);
 		} else
 			throw new RuntimeException("Unsupported array type length");
 	}
 
-	
+
 	public static AlloyExpression array_access(JType array_type,
 			AlloyExpression array, AlloyExpression index) {
 		if (array_type.equals(JSignatureFactory.INT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.INT_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
+		} else if (array_type.equals(JSignatureFactory.CHAR_ARRAY_TYPE)) {
+			return buildExprFunction("arrayAccess", array, DynalloyFactory.CHAR_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
+		} else if (array_type.equals(JSignatureFactory.LONG_ARRAY_TYPE)) {
+			return buildExprFunction("arrayAccess", array, DynalloyFactory.LONG_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
 		} else if (array_type.equals(JSignatureFactory.OBJECT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
 		} else
@@ -52,11 +62,15 @@ public class JavaPrimitiveIntValueArrayFactory {
 					+ array_type);
 	}
 
-	
+
 	public static AlloyExpression primed_array_access(JType array_type,
 			AlloyExpression array, AlloyExpression index) {
 		if (array_type.equals(JSignatureFactory.INT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.PRIMED_INT_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
+		} else if (array_type.equals(JSignatureFactory.CHAR_ARRAY_TYPE)) {
+			return buildExprFunction("arrayAccess", array, DynalloyFactory.PRIMED_CHAR_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
+		} else if (array_type.equals(JSignatureFactory.LONG_ARRAY_TYPE)) {
+			return buildExprFunction("arrayAccess", array, DynalloyFactory.PRIMED_LONG_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
 		} else if (array_type.equals(JSignatureFactory.OBJECT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.PRIMED_OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION, index);
 		} else
@@ -82,6 +96,34 @@ public class JavaPrimitiveIntValueArrayFactory {
 			argumentsList.add(array_index);
 
 			String programId = "int_array_write";
+			JProgramCall programCall = new JProgramCall(false, programId,
+					argumentsList);
+
+			return programCall;
+		} else if (array_contents
+				.equals(JExpressionFactory.CHAR_ARRAY_CONTENTS_EXPRESSION)) {
+
+			List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+			argumentsList.add(array_expr);
+			argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+			argumentsList.add(new_value);
+			argumentsList.add(array_index);
+
+			String programId = "char_array_write";
+			JProgramCall programCall = new JProgramCall(false, programId,
+					argumentsList);
+
+			return programCall;
+		} else if (array_contents
+				.equals(JExpressionFactory.LONG_ARRAY_CONTENTS_EXPRESSION)) {
+
+			List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+			argumentsList.add(array_expr);
+			argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+			argumentsList.add(new_value);
+			argumentsList.add(array_index);
+
+			String programId = "long_array_write";
 			JProgramCall programCall = new JProgramCall(false, programId,
 					argumentsList);
 
@@ -127,6 +169,36 @@ public class JavaPrimitiveIntValueArrayFactory {
 					argumentsList);
 
 			return programCall;
+
+		} else if (array_contents
+				.equals(JExpressionFactory.CHAR_ARRAY_CONTENTS_EXPRESSION)) {
+
+			List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+			argumentsList.add(array_expr);
+			argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+			argumentsList.add(lvalue);
+			argumentsList.add(array_index);
+
+			String programId = "char_array_read";
+			JProgramCall programCall = new JProgramCall(false, programId,
+					argumentsList);
+
+			return programCall;
+		} else if (array_contents
+				.equals(JExpressionFactory.LONG_ARRAY_CONTENTS_EXPRESSION)) {
+
+			List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+			argumentsList.add(array_expr);
+			argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+			argumentsList.add(lvalue);
+			argumentsList.add(array_index);
+
+			String programId = "long_array_read";
+			JProgramCall programCall = new JProgramCall(false, programId,
+					argumentsList);
+
+			return programCall;
+
 		} else if (array_contents
 				.equals(JExpressionFactory.OBJECT_ARRAY_CONTENTS_EXPRESSION)) {
 
@@ -155,8 +227,8 @@ public class JavaPrimitiveIntValueArrayFactory {
 		AlloyExpression array_object = access_function.getParameters().get(0);
 		return array_object;
 	}
-	
-	
+
+
 	private static ExprVariable getArrayContents(AlloyExpression array_access) {
 		ExprFunction access_function = (ExprFunction) array_access;
 		ExprVariable array_contents = (ExprVariable) access_function.getParameters().get(1);

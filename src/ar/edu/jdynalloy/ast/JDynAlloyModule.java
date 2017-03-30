@@ -15,7 +15,7 @@ import ar.uba.dc.rfm.alloy.util.FormulaMutator;
 
 public final class JDynAlloyModule implements JDynAlloyASTNode {
 
-	public boolean pinnedForNonRelevancyAnalysisForStryker = false;
+	
 	
 	@Override
 	public int hashCode() {
@@ -114,6 +114,8 @@ public final class JDynAlloyModule implements JDynAlloyASTNode {
 	public String toString() {
 		return this.moduleId;
 	}
+
+	public boolean pinnedForNonRelevancyAnalysisForStryker = false;
 
 	private final String moduleId;
 	private final JSignature signature;

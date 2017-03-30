@@ -70,8 +70,17 @@ public class FieldArraysModifiesCase extends AbstractModifiesCase {
 		quantifiersCount++;
 		List<String> names = Collections.<String> singletonList(modifiesVarName);
 		
-		// Maybe there is a better way to do this... I don't know now.
-		AlloyExpression type = ExprConstant.buildExprConstant("java_lang_SystemArray");
+		AlloyExpression type;
+		if (arrayVariable.toString().contains("java_lang_IntArray")) {
+			type = ExprConstant.buildExprConstant("java_lang_IntArray");
+		} else if (arrayVariable.toString().contains("java_lang_LongArray")) {
+			type = ExprConstant.buildExprConstant("java_lang_LongArray");
+		} else if (arrayVariable.toString().contains("java_lang_CharArray")) {
+			type = ExprConstant.buildExprConstant("java_lang_CharArray");
+		} else {
+			type = ExprConstant.buildExprConstant("java_lang_ObjectArray");
+		}
+
 		List<AlloyExpression> typeSets = Collections.<AlloyExpression> singletonList(type);
 		
 		AlloyExpression quantifiedVariable = ExprVariable.buildExprVariable(modifiesVarName);

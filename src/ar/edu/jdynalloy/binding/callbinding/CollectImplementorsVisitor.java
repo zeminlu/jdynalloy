@@ -22,10 +22,10 @@ package ar.edu.jdynalloy.binding.callbinding;
 import ar.edu.jdynalloy.ast.JDynAlloyVisitor;
 
 public class CollectImplementorsVisitor extends JDynAlloyVisitor{
-	
+
 	public CollectImplementorsVisitor(boolean isJavaArithmetic) {
 		super(isJavaArithmetic);
 	}
-	
+
 
 }

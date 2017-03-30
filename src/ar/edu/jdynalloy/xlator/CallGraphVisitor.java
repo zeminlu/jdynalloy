@@ -6,10 +6,12 @@ import ar.edu.jdynalloy.ast.JProgramDeclaration;
 
 class CallGraphVisitor extends JDynAlloyVisitor {
 
+	
 	public CallGraphVisitor(boolean isJavaArith) {
 		super(isJavaArith);
 	}
-	
+		
+		
 	public Graph<String> getCallGraph() {
 		return callGraph;
 	}

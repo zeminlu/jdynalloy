@@ -64,7 +64,10 @@ class RecursionUnfolderVisitor extends JDynAlloyMutator {
 				unfold_index = i+1;
 				JStatement body = (JStatement) n.getBody().accept(this);
 
-				JProgramDeclaration unfolded_program = new JProgramDeclaration(isAbstract,
+				JProgramDeclaration unfolded_program = new JProgramDeclaration(
+											isAbstract, 
+											n.isConstructor(),
+											n.isPure(),
 											signatureId,
 											unfolded_programId,
 											parameters,
@@ -79,6 +82,8 @@ class RecursionUnfolderVisitor extends JDynAlloyMutator {
                         JStatement updated_body = (JStatement) n.getBody().accept(this);
 
                         JProgramDeclaration updated_n = new JProgramDeclaration(n.isAbstract(),
+                        													n.isConstructor(),
+                        													n.isPure(),
                                                                             n.getSignatureId(),
                                                                             n.getProgramId(),
                                                                             n.getParameters(),

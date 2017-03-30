@@ -44,6 +44,8 @@ public final class AlloyIntArrayFactory {
 			AlloyExpression index) {
 		if (type.equals(JSignatureFactory.INT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.INT_ARRAY_CONTENTS_FIELD_EXPRESSION, index); //mfrias
+		} else if (type.equals(JSignatureFactory.LONG_ARRAY_TYPE)) {
+			return buildExprFunction("arrayAccess", array, DynalloyFactory.LONG_ARRAY_CONTENTS_FIELD_EXPRESSION, index); //mfrias
 		} else if (type.equals(JSignatureFactory.OBJECT_ARRAY_TYPE)) {
 			return buildExprFunction("arrayAccess", array, DynalloyFactory.OBJECT_ARRAY_CONTENTS_FIELD_EXPRESSION, index); //mfrias
 		} else {
@@ -88,6 +90,36 @@ public final class AlloyIntArrayFactory {
 					argumentsList);
 
 			return programCall;
+		} else if (array_contents
+					.equals(JExpressionFactory.CHAR_ARRAY_CONTENTS_EXPRESSION)) {
+
+				List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+				argumentsList.add(array_expr);
+				argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+				argumentsList.add(new_value);
+				argumentsList.add(array_index);
+
+				String programId = "char_array_write";
+				JProgramCall programCall = new JProgramCall(false, programId,
+						argumentsList);
+
+				return programCall;
+
+		} else if (array_contents
+				.equals(JExpressionFactory.LONG_ARRAY_CONTENTS_EXPRESSION)) {
+
+			List<AlloyExpression> argumentsList = new ArrayList<AlloyExpression>();
+			argumentsList.add(array_expr);
+			argumentsList.add(JExpressionFactory.THROW_EXPRESSION);
+			argumentsList.add(new_value);
+			argumentsList.add(array_index);
+
+			String programId = "long_array_write";
+			JProgramCall programCall = new JProgramCall(false, programId,
+					argumentsList);
+
+			return programCall;
+
 		} else if (array_contents
 				.equals(JExpressionFactory.OBJECT_ARRAY_CONTENTS_EXPRESSION)) {
 
@@ -177,6 +209,10 @@ public final class AlloyIntArrayFactory {
 				DynalloyFactory.INT_ARRAY_CONTENTS_FIELD_EXPRESSION, array);
 	}
 
+//	public static AlloyExpression alloyIntArrayElements(AlloyExpression array) {
+//		return buildExprFunction("arrayElements",
+//				DynalloyFactory.ARRAY_EXPRESSION, array);
+//	}
 
 
 	public static boolean isArrayAccess(AlloyExpression e) {

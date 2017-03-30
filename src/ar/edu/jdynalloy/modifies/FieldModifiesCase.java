@@ -27,6 +27,7 @@ import ar.edu.jdynalloy.JDynAlloyNotImplementedYetException;
 import ar.edu.jdynalloy.ast.JModifies;
 import ar.edu.jdynalloy.binding.callbinding.ExpressionTypeResolver;
 import ar.edu.jdynalloy.binding.symboltable.SymbolTable;
+import ar.edu.jdynalloy.factory.JExpressionFactory;
 import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -73,43 +74,48 @@ public class FieldModifiesCase extends AbstractModifiesCase {
 
 	@Override
 	public AlloyFormula generateFormula(JModifies modifies) {
-//		ExprJoin location = (ExprJoin) addThizToStart(modifies.getLocation());
+		ExprJoin location;
 		if (!(modifies.getLocation() instanceof ExprJoin)) {
-			throw new JDynAlloyNotImplementedYetException();
+			try {
+				location = (ExprJoin) addThizToStart(modifies.getLocation());
+			} catch (Exception e){
+				throw new JDynAlloyNotImplementedYetException(e.getMessage());
+			}
+		} else {
+			location = (ExprJoin) modifies.getLocation();
 		}
-		ExprJoin location = (ExprJoin) modifies.getLocation();
 
 		String fieldName = extractFieldName(location);
 
-		getModificableFieldSet().add(fieldName);
+		getModifiableFieldSet().add(fieldName);
 
 		ExpressionTypeResolver expressionTypeResolver = new ExpressionTypeResolver(null, this.getSymbolTable());
 		AlloyExpression leftPart = location.getLeft();
 		JType leftPartType = (JType) leftPart.accept(expressionTypeResolver);
 		ExprVariable rightPart = (ExprVariable) location.getRight();
 
-		AlloyFormula returnValue = modificableFieldSupport(leftPart, leftPartType, rightPart.getVariable().getVariableId().getString());
+		AlloyFormula returnValue = modifiableFieldSupport(leftPart, leftPartType, rightPart.getVariable().getVariableId().getString());
 		return returnValue;
 	}
 
-//	private AlloyExpression addThizToStart(AlloyExpression location) {
-//		AlloyExpression returnValue;
-//		if (location instanceof ExprVariable) {
-//			ExprVariable exprVariable = (ExprVariable) location;
-//			if (exprVariable.getVariable().getVariableId().getString().equals(JExpressionFactory.THIS_EXPRESSION.getVariable().getVariableId())) {
-//				returnValue = location;
-//			} else {
-//				returnValue = new ExprJoin(JExpressionFactory.THIS_EXPRESSION, exprVariable);
-//			}
-//		} else if (location instanceof ExprJoin) {
-//			ExprJoin exprJoin =(ExprJoin) location;
-//			AlloyExpression left = addThizToStart(exprJoin.getLeft());
-//			returnValue = ExprJoin.join(left, exprJoin.getRight()); 
-//		} else {
-//			throw new DynJML4AlloyException("Not supported!");
-//		}
-//		return returnValue;
-//	}
+	private AlloyExpression addThizToStart(AlloyExpression location) throws Exception {
+		AlloyExpression returnValue;
+		if (location instanceof ExprVariable) {
+			ExprVariable exprVariable = (ExprVariable) location;
+			if (exprVariable.getVariable().getVariableId().getString().equals(JExpressionFactory.THIS_EXPRESSION.getVariable().getVariableId())) {
+				returnValue = location;
+			} else {
+				returnValue = new ExprJoin(JExpressionFactory.THIS_EXPRESSION, exprVariable);
+			}
+		} else if (location instanceof ExprJoin) {
+			ExprJoin exprJoin =(ExprJoin) location;
+			AlloyExpression left = addThizToStart(exprJoin.getLeft());
+			returnValue = ExprJoin.join(left, exprJoin.getRight()); 
+		} else {
+			throw new Exception("Not supported!");
+		}
+		return returnValue;
+	}
 
 	private String extractFieldName(AlloyExpression alloyExpression) {
 		if (alloyExpression instanceof ExprVariable) {
@@ -133,15 +139,15 @@ public class FieldModifiesCase extends AbstractModifiesCase {
 	private static final String MODIFIES_QUANTIFIER_VARIABLE = "mod_q";
 	private static int quantifiersCount = 0;
 
-	protected AlloyFormula modificableFieldSupport(AlloyExpression leftPart, JType leftPartType,String fieldName) {
+	protected AlloyFormula modifiableFieldSupport(AlloyExpression leftPart, JType leftPartType,String fieldName) {
 		String modifiesVarName = MODIFIES_QUANTIFIER_VARIABLE + "_" + quantifiersCount;
 		quantifiersCount++;
 
 		AlloyFormula leftFormula = new NotFormula(ModifiesUtils.createFormulaFieldValueEqualsToOldFieldValue(modifiesVarName, fieldName));
 
-//		ExprVariable.buildExprVariable("thiz")
+		//		ExprVariable.buildExprVariable("thiz")
 		AlloyExpression primedLeftPartExpression = primeExpression(leftPart);
-		
+
 		AlloyFormula rightFormula = new EqualsFormula(ExprVariable.buildExprVariable(modifiesVarName), primedLeftPartExpression);
 		AlloyFormula alloyFormula = new ImpliesFormula(leftFormula, rightFormula);
 		List<AlloyExpression> typesSet = Collections.<AlloyExpression> singletonList(ExprConstant.buildExprConstant(leftPartType.dpdTypeNameExtract()));

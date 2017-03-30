@@ -29,6 +29,7 @@ class ModifiesTableBuilder {
 			// TODO Auto-generated constructor stub
 		}
 
+		
 		public Map<String, Set<AlloyVariable>> getDirectModifiesTable() {
 			return modifiesTable;
 		}
@@ -43,7 +44,7 @@ class ModifiesTableBuilder {
 					.get(currentProgramId);
 
 			if (isArrayAccess(lvalue)) {
-				AlloyVariable objectArray = DynalloyFactory.OBJECT_ARRAY_EXPRESSION
+				AlloyVariable objectArray = DynalloyFactory.INT_ARRAY_CONTENTS_FIELD_EXPRESSION
 						.getVariable();
 				modifiesFields.add(objectArray);
 

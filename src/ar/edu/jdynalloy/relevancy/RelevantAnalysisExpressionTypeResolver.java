@@ -1,11 +1,16 @@
 package ar.edu.jdynalloy.relevancy;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import ar.edu.jdynalloy.binding.callbinding.ExpressionTypeResolver;
+import ar.edu.jdynalloy.binding.callbinding.FunctionCallAlloyFormulaDescriptor;
+import ar.edu.jdynalloy.binding.callbinding.PredicateAndFunctionCallRelevancyVisitor;
 import ar.edu.jdynalloy.binding.symboltable.SymbolTable;
 import ar.edu.jdynalloy.xlator.JType;
+import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprFunction;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprVariable;
@@ -16,7 +21,7 @@ public class RelevantAnalysisExpressionTypeResolver extends
 
 	private final Set<JType> relevantTypes;
 	
-	private Set<String> calledFunctionsNames = new HashSet<String>();
+	private Set<FunctionCallAlloyFormulaDescriptor> functionsCollected = new HashSet<FunctionCallAlloyFormulaDescriptor>();
 
 	public RelevantAnalysisExpressionTypeResolver(
 			FormulaVisitor formulaVisitor, SymbolTable symbolTable) {
@@ -25,8 +30,8 @@ public class RelevantAnalysisExpressionTypeResolver extends
 	}
 
 	
-	public Set<String> getCalledFunctionsNames(){
-		return this.calledFunctionsNames;
+	public Set<FunctionCallAlloyFormulaDescriptor> getCalledFunctions(){
+		return this.functionsCollected;
 	}
 	
 	public Object visit(ExprConstant exprConstant) {
@@ -41,9 +46,22 @@ public class RelevantAnalysisExpressionTypeResolver extends
 	}
 	
 	
-	public Object visit(ExprFunction exprFunction){
-		this.calledFunctionsNames.add(exprFunction.getFunctionId());
-		return super.visit(exprFunction);
+	public Object visit(ExprFunction fc){
+		List<JType> argumentsTypeList = new ArrayList<JType>();
+		ExpressionTypeResolver expressionTypeResolver;
+		for (AlloyExpression alloyExpression : fc.getParameters()) {
+			expressionTypeResolver = 
+					new ExpressionTypeResolver(((PredicateAndFunctionCallRelevancyVisitor)this.formulaVisitor).getSymbolTable());
+
+			JType jType = (JType) alloyExpression.accept(expressionTypeResolver);
+			argumentsTypeList.add(jType);
+			alloyExpression.accept(this);
+		}
+		expressionTypeResolver = new ExpressionTypeResolver(((PredicateAndFunctionCallRelevancyVisitor)this.formulaVisitor).getSymbolTable());
+		JType returnType = (JType) fc.accept(expressionTypeResolver);
+		FunctionCallAlloyFormulaDescriptor functionCallAlloyFormulaDescriptor = new FunctionCallAlloyFormulaDescriptor(fc,returnType,argumentsTypeList);
+		functionsCollected.add(functionCallAlloyFormulaDescriptor);
+		return super.visit(fc);
 	}
 	
 	public Object visit(ExprVariable exprVariable) {

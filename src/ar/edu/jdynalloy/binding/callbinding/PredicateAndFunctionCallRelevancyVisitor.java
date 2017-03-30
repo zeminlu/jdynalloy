@@ -27,6 +27,7 @@ import java.util.Vector;
 
 import ar.edu.jdynalloy.JDynAlloyException;
 import ar.edu.jdynalloy.binding.symboltable.SymbolTable;
+import ar.edu.jdynalloy.relevancy.RelevantAnalysisExpressionTypeResolver;
 import ar.edu.jdynalloy.xlator.JType;
 import ar.uba.dc.rfm.alloy.VariableId;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
@@ -38,7 +39,7 @@ import ar.uba.dc.rfm.alloy.ast.formulas.PredicateCallAlloyFormula;
 import ar.uba.dc.rfm.alloy.ast.formulas.PredicateFormula;
 import ar.uba.dc.rfm.alloy.ast.formulas.QuantifiedFormula;
 
-public class PredicateAndFunctionCallCollectorVisitor extends JFormulaVisitor {
+public class PredicateAndFunctionCallRelevancyVisitor extends JFormulaVisitor {
 
 	private SymbolTable symbolTable;
 
@@ -59,11 +60,11 @@ public class PredicateAndFunctionCallCollectorVisitor extends JFormulaVisitor {
 	}
 
 
-	public PredicateAndFunctionCallCollectorVisitor(SymbolTable symbolTable) {
+	public PredicateAndFunctionCallRelevancyVisitor(SymbolTable symbolTable) {
 		// DOB::I need put some ExpressionVisitor there, but I will does not
 		// use it.
 		// I chose ExpressionVisitor, but any instance it's ok.
-		super(new FunctionCallCollectorExpressionVisitor());
+		super(new ExpressionVisitor());
 		ExpressionVisitor expressionVisitor = this.getDfsExprVisitor();
 		expressionVisitor.setFormulaVisitor(this);
 		this.predicatesCollected = new ArrayList<PredicateCallAlloyFormulaDescriptor>();
@@ -83,7 +84,7 @@ public class PredicateAndFunctionCallCollectorVisitor extends JFormulaVisitor {
 	public Object visit(PredicateFormula n) {
 		Vector<Object> result = new Vector<Object>();
 		result.add(super.visit(n));
-		this.functionsCollected.addAll(((FunctionCallCollectorExpressionVisitor)getDfsExprVisitor()).getFunctionsCollected());
+		this.functionsCollected.addAll(((RelevantAnalysisExpressionTypeResolver)getDfsExprVisitor()).getCalledFunctions());
 		return result;
 	}
 

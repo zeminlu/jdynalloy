@@ -60,15 +60,25 @@ public class RelevancyAnalysisManager {
 	RelevancyAnalysisSymbolTable symbolTable;
 
 	private ar.edu.jdynalloy.relevancy.Scene scene;
-	
+
 	private int bitWidth;
-	
+
+	private static boolean javaArithmetic;
+
 	public void setBitWidth(int bw){
 		this.bitWidth = bw;
 	}
 
+	public boolean getJavaArithmetic(){
+		return this.javaArithmetic;
+	}
+
+	public void setJavaArithmetic(boolean b){
+		this.javaArithmetic = b;
+	}
+
 	public String process(List<JDynAlloyModule> modules,
-			JDynAlloyBinding dynJAlloyBinding, boolean isJavaArith) {
+			JDynAlloyBinding dynJAlloyBinding, boolean isJavaArith) {		
 		this.dynJAlloyBinding = dynJAlloyBinding;
 		this.modules = modules;
 
@@ -80,9 +90,23 @@ public class RelevancyAnalysisManager {
 
 		// scene = <{ Program_to_check }, {}, {}>
 		scene = new Scene();
-		
-	
+
+
 		String moduleName = JDynAlloyConfig.getInstance().getClassToCheck();
+
+		/* Keyword "Instrumented" as part of class/method names seems to be obsolete.
+		String[] splitModuleName = moduleName.split("_");
+		moduleName = "";
+		for (int idx = 0; idx < splitModuleName.length - 2; idx++){
+			moduleName += splitModuleName[idx] + "_";
+		}
+		if (splitModuleName.length > 1){
+			moduleName += splitModuleName[splitModuleName.length - 2] + "Instrumented_";
+		}
+		moduleName += splitModuleName[splitModuleName.length - 1];
+		 */
+
+
 		JDynAlloyModule moduleToCheck = RelevancyAnalysisUtils
 				.findModuleByName(moduleName, modules);
 		scene.addModule(moduleToCheck);
@@ -159,7 +183,7 @@ public class RelevancyAnalysisManager {
 			JProgramDeclaration program, boolean isJavaArith) {
 
 		this.symbolTable.beginScope();
-		
+
 		for (JVariableDeclaration varDeclaration : program.getParameters()) {
 			this.symbolTable.insertLocal(varDeclaration.getVariable()
 					.getVariableId(), varDeclaration.getType());
@@ -170,8 +194,8 @@ public class RelevancyAnalysisManager {
 			RelevancyAnalysisUtils.findModuleAndToScene(scene, type,
 					this.modules);
 		}
-		
-		
+
+
 		//Add those variables arising from arithmetic operations in contracts and invariants.
 		for (AlloyVariable av : program.getVarsResultOfArithmeticOperationsInContracts().varSet()) {
 			this.symbolTable.insertLocal(av.getVariableId(), 
@@ -190,8 +214,9 @@ public class RelevancyAnalysisManager {
 		// AnalyzeFormula( scene, C.Precondition )
 		// AnalyzeFormula( scene, C.Postcondition )
 		// End For each
-		
+
 		RelevancyAnalysisUtils.setBitWidth(this.bitWidth);
+
 		for (JSpecCase specCase : program.getSpecCases()) {
 			for (JPrecondition precondition : specCase.getRequires()) {
 				RelevancyAnalysisUtils.analyzeFormula(scene, precondition
@@ -209,6 +234,7 @@ public class RelevancyAnalysisManager {
 						this.modules);
 			}
 		}
+
 
 		// If X = Program_to_check
 		// For each s in x.Body
@@ -275,13 +301,12 @@ public class RelevancyAnalysisManager {
 		// For each i in X.Invariant
 		// AnalyzeFormula(scene, I.Predicate )
 		// End For each
-		// End If
 		for (JObjectInvariant invariant : module.getObjectInvariants()) {
 			RelevancyAnalysisUtils.analyzeObjectInvariant(scene,
 					invariant.getFormula(), this.symbolTable,
 					this.dynJAlloyBinding, this.modules);
 		}
-		
+
 		if (module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants() != null){
 			for (AlloyFormula af : module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants()){
 				RelevancyAnalysisUtils.analyzeFormula(scene,
@@ -297,7 +322,83 @@ public class RelevancyAnalysisManager {
 					this.dynJAlloyBinding, this.modules);
 		}
 
+
+		// For each f in X.Fields
+		// AnalyzeField(scene, f )
+		// End For each
+		for (JField field : module.getFields()){
+			relevancyAnalysisIterationField(scene, field);
+		}
+
+
+		// For each primitiveTypeUsed t
+		// Add(scene, t )
+		// End For each
+		relevancyAnalysisAddRequiredTypes(scene, module);
+
+
+
 		this.symbolTable.endScope();
+	}
+
+
+	//For the time being, this method will encode for some types (notably arrays) the types they require, and that were
+	//incorrectly considered irrelevant at this point. This should be generalized.
+	private void relevancyAnalysisAddRequiredTypes(Scene scene2, JDynAlloyModule module) {
+		if (module.getModuleId().equals("java_lang_CharArray")){
+			JDynAlloyModule theCharMod = null;
+			for (JDynAlloyModule mod : this.modules){
+				if (mod.getModuleId().equals("JavaPrimitiveCharValue")){
+					theCharMod = mod;
+					break;
+				}
+			}
+			if (theCharMod != null){
+				scene.addModule(theCharMod);
+			} else {
+				throw new JDynAlloyException("Module JavaPrimitiveCharValue not found.");
+			}
+		}
+
+		if (module.getModuleId().equals("JavaPrimitiveLongValue")){
+			JDynAlloyModule theCharMod = null;
+			JDynAlloyModule theIntMod = null;
+			for (JDynAlloyModule mod : this.modules){
+				if (mod.getModuleId().equals("JavaPrimitiveCharValue")){
+					theCharMod = mod;
+				}
+				if (mod.getModuleId().equals("JavaPrimitiveIntegerValue")){
+					theIntMod = mod;
+				}
+
+			}
+			if (theCharMod != null){
+				scene.addModule(theCharMod);
+			} else {
+				throw new JDynAlloyException("Module JavaPrimitiveCharValue not found.");
+			}
+			if (theIntMod != null){
+				scene.addModule(theIntMod);
+			} else {
+				throw new JDynAlloyException("Module JavaPrimitiveIntegerValue not found.");
+			}
+
+		}
+
+		if (module.getModuleId().equals("JavaPrimitiveIntegerValue")){
+			JDynAlloyModule theCharMod = null;
+			for (JDynAlloyModule mod : this.modules){
+				if (mod.getModuleId().equals("JavaPrimitiveCharValue")){
+					theCharMod = mod;
+				}
+
+			}
+			if (theCharMod != null){
+				scene.addModule(theCharMod);
+			} else {
+				throw new JDynAlloyException("Module JavaPrimitiveCharValue not found.");
+			}
+		}
 	}
 
 	private void analizeStatement(Scene scene, JStatement body, boolean isJavaArith) {
@@ -341,8 +442,8 @@ public class RelevancyAnalysisManager {
 	private static RelevancyAnalysisSymbolTable createSymbolTable(
 			List<JDynAlloyModule> modules, boolean isJavaArith) {
 		RelevancyAnalysisSymbolTable symbolTable = new RelevancyAnalysisSymbolTable();
-		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(
-				symbolTable, isJavaArith);
+		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArith);
+		fieldCollectorVisitor.setJavaArithmetic(javaArithmetic);
 		// ProgramDeclarationCollectorVisitor and fieldCollectorVisitor do not have
 		// interdependences.
 		// They can run together. But semanticCheckVisitor visitor needs the
@@ -350,12 +451,11 @@ public class RelevancyAnalysisManager {
 		// fieldCollectorVisitor must be run before semanticCheckVisitor
 		for (JDynAlloyModule dynJAlloyModule : modules) {
 			dynJAlloyModule.accept(fieldCollectorVisitor);
-			if (dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants() != null){
-				for (AlloyVariable av : dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().varSet()){
-					fieldCollectorVisitor.getSymbolTable().insertField(dynJAlloyModule.getModuleId(), av.getVariableId().getString(), new JType(dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().get(av)));
-				}
-			}	
-			
+			//			if (dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants() != null){
+			//				for (AlloyVariable av : dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().varSet()){
+			//					fieldCollectorVisitor.getSymbolTable().insertField(dynJAlloyModule.getModuleId(), av.getVariableId().getString(), new JType(dynJAlloyModule.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants().get(av)));
+			//				}
+			//			}	
 		}
 		return symbolTable;
 	}

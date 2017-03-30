@@ -19,9 +19,18 @@ import ar.uba.dc.rfm.dynalloy.ast.DynalloyModule;
 public final class JDynAlloyTranslator {
 
 	private Object inputToFix = null;
-	
 	private final JDynAlloyBinding binding;
+	private boolean removeQuantifiers;
+	
+	public boolean getRemoveQuantifiers(){
+		return removeQuantifiers;
+	}
 
+	public void setRemoveQuantifiers(boolean rq){
+		this.removeQuantifiers = rq;
+	}
+	
+	
 	public static String headerComment(String fragmentId) {
 		return "//-------------- " + fragmentId + "--------------//" + "\n";
 	}
@@ -95,6 +104,9 @@ public final class JDynAlloyTranslator {
 
 		// prune unused methods
 		String programToCheck = JDynAlloyConfig.getInstance().getMethodToCheck();
+		
+
+		
 		PruneVisitor pruneVisitor = new PruneVisitor(callGraph, programToCheck, isJavaArith);
 		Vector<JDynAlloyModule> prunedModules = new Vector<JDynAlloyModule>();
 		for (JDynAlloyModule module : ms) {
@@ -149,7 +161,7 @@ public final class JDynAlloyTranslator {
 			String signatureId = m.getSignature().getSignatureId();
 
 			// Collect vars per module. These vars come from arithmetic constraints and 
-			// should be constrained outside the program. That requires to prefix them 
+			// should be constrained outside the program. That requires to (eventually) prefix them 
 			// with a "QF.".
 			HashSet<AlloyVariable> sav = new HashSet<AlloyVariable>();
 			if (m.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants() != null)
@@ -158,11 +170,11 @@ public final class JDynAlloyTranslator {
 			for (JProgramDeclaration jpd : m.getPrograms()){
 				if (jpd.getVarsResultOfArithmeticOperationsInContracts() != null)
 					sav.addAll(jpd.getVarsResultOfArithmeticOperationsInContracts().getVarsInTyping());
-			}
-			
+			}			
 
 			if (containsModule(context.getRelevantModules(), signatureId)) {
 				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith);
+				visitor.setRemoveQuantifiers(removeQuantifiers);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}

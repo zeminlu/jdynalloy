@@ -101,9 +101,8 @@ public class SceneSlicerManager {
 								.getClassConstraints(), module
 								.getObjectInvariants(), module
 								.getObjectConstraints(),
-						module.getRepresents(), to_add, module.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
-						module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), module.pinnedForNonRelevancyAnalysisForStryker);
-				
+								module.getRepresents(), to_add, module.getVarsEncodingValueOfArithmeticOperationsInObjectInvariants(), 
+								module.getPredsEncodingValueOfArithmeticOperationsInObjectInvariants(), module.pinnedForNonRelevancyAnalysisForStryker);				
 				pruned_program_modules.add(pruned_module);
 
 			} else

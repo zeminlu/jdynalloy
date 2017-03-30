@@ -52,6 +52,12 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 
 	SymbolTable symbolTable;
 
+
+	public ExpressionTypeResolver(SymbolTable symbolTable) {
+		super();
+		this.symbolTable = symbolTable;
+	}
+
 	public ExpressionTypeResolver(FormulaVisitor formulaVisitor,
 			SymbolTable symbolTable) {
 		super();
@@ -87,7 +93,7 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 
 		Object ret_val = super.visit(n);
 
-		// Functions defined int alloy built in predicate file utils/integer.als
+		// Functions defined in alloy built in predicate file utils/integer.als
 		Set<String> integerAlloyFunctionsSet = new HashSet<String>();
 		Collections.addAll(integerAlloyFunctionsSet, "add", "sub", "mul",
 				"div", "rem", "negate", "fun_list_size", "arrayLength",
@@ -109,6 +115,10 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 		Collections.addAll(seqFunctionsSet,
 				"fun_list_add", "fun_list_remove");
 
+		
+		Set<String> javaPrimitiveCharValueFunctionsSet = new HashSet<String>();
+		Collections.addAll(javaPrimitiveCharValueFunctionsSet,"fun_narrowing_cast_long_to_char");
+		
 		Set<String> javaPrimitiveIntegerValueFunctionsSet = new HashSet<String>();
 		Collections.addAll(javaPrimitiveIntegerValueFunctionsSet,
 				"fun_java_primitive_integer_value_add",
@@ -119,10 +129,19 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 				"fun_java_primitive_integer_value_rem",
 				"fun_java_primitive_integer_value_size_of",
 				"fun_java_primitive_integer_value_sshr",
-				"fun_java_primitive_integer_value_java_util_set_size");
+				"fun_java_primitive_integer_value_java_util_set_size",
+				"fun_java_primitive_char_value_addCharCharToJavaPrimitiveIntegerValue",
+				"fun_java_primitive_char_value_subCharCharToJavaPrimitiveIntegerValue",
+				"fun_java_primitive_char_value_addCharIntToJavaPrimitiveIntegerValue",
+				"fun_java_primitive_char_value_subCharIntToJavaPrimitiveIntegerValue",
+				"fun_java_primitive_char_value_addIntCharToJavaPrimitiveIntegerValue",
+				"fun_java_primitive_char_value_subIntCharToJavaPrimitiveIntegerValue",
+				"fun_cast_char_to_int",
+				"fun_narrowing_cast_int_to_char",
+				"fun_narrowing_cast_long_to_int");
 
 		Set<String> javaPrimitiveLongValueFunctionsSet = new HashSet<String>();
-		Collections.addAll(javaPrimitiveIntegerValueFunctionsSet,
+		Collections.addAll(javaPrimitiveLongValueFunctionsSet,
 				"fun_java_primitive_long_value_add",
 				"fun_java_primitive_long_value_sub",
 				"fun_java_primitive_long_value_negate",
@@ -130,14 +149,22 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 				"fun_java_primitive_long_value_mul",
 				"fun_java_primitive_long_value_rem",
 				"fun_java_primitive_long_value_size_of",
-				"fun_java_primitive_long_value_sshr");
-
-
-
+				"fun_java_primitive_long_value_sshr",
+				"fun_cast_char_to_long",
+				"fun_cast_int_to_long",
+				"fun_java_primitive_char_value_addCharLongToJavaPrimitiveLongValue",
+				"fun_java_primitive_char_value_addLongCharToJavaPrimitiveLongValue",
+				"fun_java_primitive_char_value_subCharLongToJavaPrimitiveLongValue",
+				"fun_java_primitive_char_value_subLongCharToJavaPrimitiveLongValue",
+				"fun_long_int_to_long_add",
+				"fun_int_long_to_long_add",
+				"fun_long_int_to_long_sub");
 
 		if (javaPrimitiveLongValueFunctionsSet.contains(n.getFunctionId())) {
 			return JSignatureFactory.JAVA_PRIMITIVE_LONG_VALUE;
 		} else if (javaPrimitiveIntegerValueFunctionsSet.contains(n.getFunctionId())) {
+			return JSignatureFactory.JAVA_PRIMITIVE_INTEGER_VALUE;
+		} else if (javaPrimitiveCharValueFunctionsSet.contains(n.getFunctionId())) {
 			return JSignatureFactory.JAVA_PRIMITIVE_INTEGER_VALUE;
 		} else if (integerAlloyFunctionsSet.contains(n.getFunctionId())) {
 			return JSignatureFactory.INT.getType();
@@ -182,7 +209,11 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 			return JSignatureFactory.BOOLEAN.getType();			
 		} else if (n.getFunctionId().equalsIgnoreCase("fun_java_lang_float_isNaN")) {
 			return JSignatureFactory.BOOLEAN.getType();
-		} else {
+		} else if (n.getFunctionId().contains("_equals")) {
+			return JSignatureFactory.BOOLEAN.getType();
+		} else if (n.getReturnType() != null){
+			return new JType(n.getReturnType());
+		}	else {
 			// other functions aren't implemented
 			throw new JDynAlloyNotImplementedYetException(
 					"Function not implemented for Type Resolution: "

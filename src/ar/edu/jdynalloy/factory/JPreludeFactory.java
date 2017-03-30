@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import ar.edu.jdynalloy.JDynAlloyConfig;
+import ar.edu.jdynalloy.JDynAlloyException;
 import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.VariableId;
@@ -56,9 +57,9 @@ public abstract class JPreludeFactory {
 		bff.append("}\n");
 		bff.append("\n");
 
-		
+
 		bff.append("one sig AssertionFailureLit extends java_lang_Throwable {} \n");
-		
+
 		if (integer_complement) {
 			StringBuffer complement_func = new StringBuffer();
 
@@ -88,12 +89,12 @@ public abstract class JPreludeFactory {
 			bff.append("              type: set univ, \n");
 			bff.append("              field: univ -> univ, \n");
 			bff
-					.append("              JMLObjectSet_contains: org_jmlspecs_models_JMLObjectSet -> set univ \n");
+			.append("              JMLObjectSet_contains: org_jmlspecs_models_JMLObjectSet -> set univ \n");
 			bff.append("]: org_jmlspecs_models_JMLObjectSet { \n");
 			bff.append("   {\n");
 			bff.append("      x : org_jmlspecs_models_JMLObjectSet | \n");
 			bff
-					.append("        x.JMLObjectSet_contains = (h.*(field & type->(type+null)) & type) \n");
+			.append("        x.JMLObjectSet_contains = (h.*(field & type->(type+null)) & type) \n");
 			bff.append("   }\n");
 			bff.append("}\n");
 			bff.append("\n");
@@ -158,7 +159,7 @@ public abstract class JPreludeFactory {
 		bff.append("} \n");
 
 
-		
+
 		bff.append("pred isSubset[\n");
 		bff.append("  l: set univ,\n");
 		bff.append("  r: set univ\n");
@@ -177,12 +178,12 @@ public abstract class JPreludeFactory {
 		bff.append("\n");
 
 		bff
-				.append("fun fun_not_empty_set[s: set univ]: boolean { (no s) => false else true } \n");
+		.append("fun fun_not_empty_set[s: set univ]: boolean { (no s) => false else true } \n");
 		bff.append("\n");
 
 		bff.append("fun fun_set_is_empty[s: set univ]: boolean { (no s) => true else false } \n");
-        bff.append("\n");
-		
+		bff.append("\n");
+
 		bff.append("pred pred_empty_set[l: set univ] { (no l) } \n");
 		bff.append("\n");
 
@@ -286,7 +287,7 @@ public abstract class JPreludeFactory {
 		bff.append("\n");
 
 		bff
-				.append("fun fun_list_empty[s: Int -> univ]: boolean { (#s = 0) => true else false } \n");
+		.append("fun fun_list_empty[s: Int -> univ]: boolean { (#s = 0) => true else false } \n");
 		bff.append("\n");
 
 		// map functions
@@ -395,43 +396,43 @@ public abstract class JPreludeFactory {
 
 			bff.append("action updateMap[\n");
 			bff.append("  Map_entries:" + javaUtilPackage()
-					+ "Map->univ->univ,\n");
+			+ "Map -> (univ set -> lone univ),\n");
 			bff.append("  map:" + javaUtilPackage()
-					+ "Map,entries: univ->univ\n");
+			+ "Map,entries: univ->univ\n");
 			bff.append("]{ \n");
 
 			bff.append("  pre{TruePred[]} \n");
 			bff
-					.append("  post{updateMapPost[Map_entries',Map_entries,map,entries]} \n");
+			.append("  post{updateMapPost[Map_entries',Map_entries,map,entries]} \n");
 			bff.append("}\n");
 		}
 		// updateList
 
-//		if ((JDynAlloyConfig.getInstance().getBuiltInModules().isEmpty() || JDynAlloyConfig
-//				.getInstance().getBuiltInModules().contains("JList"))
-//				&& java_util_List_is_registered) {
-//
-//			bff.append("pred updateListPost[\n");
-//			bff.append("  f1:univ->(seq univ),\n");
-//			bff.append("  f0:univ->(seq univ),\n");
-//			bff.append("  list:univ, \n");
-//			bff.append("  entries:seq univ\n");
-//			bff.append("]{ \n");
-//			bff.append("  f1 = f0 ++ (list->entries) \n");
-//			bff.append("} \n\n");
-//
-//			bff.append("action updateList[\n");
-//			bff.append("  List_contains:" + javaUtilPackage()
-//					+ "List->(seq univ),\n");
-//			bff.append("  list:" + javaUtilPackage() + "List,\n");
-//			bff.append("  entries: seq univ\n");
-//			bff.append("]{\n");
-//			bff.append("  pre{TruePred[]} \n");
-//			bff
-//					.append("  post{updateListPost[List_contains',List_contains,list,entries]} \n");
-//			bff.append("}\n");
-//			bff.append("\n");
-//		}
+		//		if ((JDynAlloyConfig.getInstance().getBuiltInModules().isEmpty() || JDynAlloyConfig
+		//				.getInstance().getBuiltInModules().contains("JList"))
+		//				&& java_util_List_is_registered) {
+		//
+		//			bff.append("pred updateListPost[\n");
+		//			bff.append("  f1:univ->(seq univ),\n");
+		//			bff.append("  f0:univ->(seq univ),\n");
+		//			bff.append("  list:univ, \n");
+		//			bff.append("  entries:seq univ\n");
+		//			bff.append("]{ \n");
+		//			bff.append("  f1 = f0 ++ (list->entries) \n");
+		//			bff.append("} \n\n");
+		//
+		//			bff.append("action updateList[\n");
+		//			bff.append("  List_contains:" + javaUtilPackage()
+		//					+ "List->(seq univ),\n");
+		//			bff.append("  list:" + javaUtilPackage() + "List,\n");
+		//			bff.append("  entries: seq univ\n");
+		//			bff.append("]{\n");
+		//			bff.append("  pre{TruePred[]} \n");
+		//			bff
+		//					.append("  post{updateListPost[List_contains',List_contains,list,entries]} \n");
+		//			bff.append("}\n");
+		//			bff.append("\n");
+		//		}
 
 		// custom relational override
 		bff.append("fun rel_override[\n");
@@ -458,16 +459,16 @@ public abstract class JPreludeFactory {
 
 		bff.append("fun Xor[a: boolean, b: boolean]: boolean {\n");
 		bff
-				.append("    ((a==true and b==false) or (a==false and b==true)) => true else false\n");
+		.append("    ((a==true and b==false) or (a==false and b==true)) => true else false\n");
 		bff.append("}\n");
 
 		bff
-				.append("fun AdderCarry[a: boolean, b: boolean, cin: boolean]: boolean {\n");
+		.append("fun AdderCarry[a: boolean, b: boolean, cin: boolean]: boolean {\n");
 		bff.append("    Or[ And[a,b], And[cin, Xor[a,b]]] \n");
 		bff.append("}\n");
 
 		bff
-				.append("fun AdderSum[a: boolean, b: boolean, cin: boolean]: boolean {\n");
+		.append("fun AdderSum[a: boolean, b: boolean, cin: boolean]: boolean {\n");
 		bff.append("    Xor[Xor[a, b], cin]\n");
 		bff.append("}\n");
 
@@ -532,7 +533,7 @@ public abstract class JPreludeFactory {
 		bff.append("\n");
 
 		// havocVariable3
-		
+
 		//seq univ seq univ seq univ seq univ
 		bff.append("pred havocVariable3Post[u:univ->(seq univ)]{}\n");
 		bff.append("action havocVariable3[u:univ->(seq univ)]{\n");
@@ -548,8 +549,8 @@ public abstract class JPreludeFactory {
 		bff.append("} \n");
 		bff.append("\n");
 
-		
-//mfrias 17-03-2013: Functions added for specifying the size of a java.util.Set		
+
+		//mfrias 17-03-2013: Functions added for specifying the size of a java.util.Set		
 		if (moduleIds.contains("java_util_Set")) {
 			if (!moduleIds.contains("JavaPrimitiveIntegerValue")) {
 				bff.append("fun fun_alloy_int_java_util_set_size[\n");
@@ -566,7 +567,7 @@ public abstract class JPreludeFactory {
 				bff.append("} \n");
 				bff.append("\n");
 			}
-			
+
 			bff.append("fun fun_java_util_set_contains[\n");
 			bff.append("   s : java_util_Set, o : java_lang_Object + null,\n");
 			bff.append("   java_util_Set_elems : java_util_Set -> univ] : boolean { \n");
@@ -574,9 +575,9 @@ public abstract class JPreludeFactory {
 			bff.append("} \n");
 			bff.append("\n");
 		}
-		
+
 		// havocArrayContents
-		if ((moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray")) && !moduleIds.contains("JavaPrimitiveIntegerValue")){
+		if ((moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray") || moduleIds.contains("java_lang_CharArray")) && !moduleIds.contains("JavaPrimitiveIntegerValue")){
 			bff.append("pred havocArrayContentsPost[array:  univ,\n");
 			bff.append("                            domain: set univ,\n");
 			bff.append("                            Array_0: univ -> (Int set -> lone univ),\n");
@@ -599,7 +600,7 @@ public abstract class JPreludeFactory {
 			bff.append("                             ]\n");
 			bff.append("     }\n");
 			bff.append("}\n");
-		} else if (moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray")) {
+		} else if (moduleIds.contains("java_lang_ObjectArray") || moduleIds.contains("java_lang_IntArray") || moduleIds.contains("java_lang_LongArray") || moduleIds.contains("java_lang_CharArray")) {
 			bff.append("pred havocArrayContentsPost[array:  univ,\n");
 			bff.append("                            domain: set univ,\n");
 			bff.append("                            Array_0: univ -> (JavaPrimitiveIntegerValue set -> lone univ),\n");
@@ -638,7 +639,7 @@ public abstract class JPreludeFactory {
 		bff.append("}\n");
 		bff.append("\n");
 
-		
+
 		// havocListSeq
 		bff.append("pred havocListSeqPost[target: univ,\n");
 		bff.append("                            field_0: univ -> Int -> univ, \n");
@@ -653,8 +654,8 @@ public abstract class JPreludeFactory {
 		bff.append("}\n");
 		bff.append("\n");
 
-		
-		
+
+
 		PredicateFormula havocFieldPre = PredicateFormula
 				.buildPredicate("TruePred");
 		PredicateFormula havocFieldPost = PredicateFormula.buildPredicate(
@@ -678,7 +679,7 @@ public abstract class JPreludeFactory {
 
 		// isCasteableTo
 		bff
-				.append("pred isCasteableTo[n: univ, t: set univ] { (n in t) or (n = null) } \n");
+		.append("pred isCasteableTo[n: univ, t: set univ] { (n in t) or (n = null) } \n");
 		bff.append("\n");
 
 		// getUnusedObject
@@ -714,16 +715,16 @@ public abstract class JPreludeFactory {
 						updateVar, updateField, havocVar, havocField,
 						getUnusedObject }));
 
-		
+
 		if (moduleIds.contains("JavaPrimitiveFloatValue")){
 			bff.append("\n");
 			bff.append("fun fun_java_lang_float_isNaN[f : JavaPrimitiveFloatValue] : boolean {\n");
 			bff.append("	pred_java_primitive_float_value_is_NaN[f] => true else false\n");
 			bff.append("}\n");
 		}
-		
+
 		//mfrias: prelude for object array with or without Java Integers
-		
+
 		if (moduleIds.contains("java_lang_ObjectArray") && !moduleIds.contains("JavaPrimitiveIntegerValue")) {
 			// Arrays
 			bff.append("pred updateArrayPost[\n");
@@ -738,28 +739,6 @@ public abstract class JPreludeFactory {
 			bff.append("} \n");
 			bff.append("\n");
 
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Object_Array:" + javaLangPackage()
-//					+ "ObjectArray->(seq univ), \n");
-//			bff
-//					.append("  array: " + javaLangPackage()
-//							+ "ObjectArray+null, \n");
-//			bff.append("  index: Int\n");
-//			bff.append("]: univ {\n");
-//			bff.append("  (array.Object_Array)[index]\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-
-//mfrias-mffrias-9/11/2012: put removed parameter back
-			
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("     Object_Array:" + javaLangPackage() + "ObjectArray, \n");
-//			bff.append("     index: Int\n");
-//			bff.append("]: univ {\n");
-//			bff.append("     some (Object_Array."+javaLangPackage() + "ObjectArray_contents)[index] implies (Object_Array."+javaLangPackage() + "ObjectArray_contents)[index] else null\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-
 
 			bff.append("fun arrayAccess[\n");
 			bff.append("     Object_Array:" + javaLangPackage() + "ObjectArray, \n");
@@ -771,7 +750,7 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 
-			
+
 			bff.append("fun arrayLength[\n");
 			bff.append("     array: " + javaLangPackage() + "ObjectArray+null,\n");
 			bff.append("     length_field: " + javaLangPackage() + "ObjectArray -> one Int\n");
@@ -780,13 +759,13 @@ public abstract class JPreludeFactory {
 			bff.append("}\n");
 			bff.append("\n");
 
-			
+
 			bff.append("fun arrayElements[\n");
-			bff.append("  elems_field:" + javaLangPackage()
-					+ "ObjectArray->(Int set -> lone univ), \n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "ObjectArray->(Int set -> lone univ), \n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null\n");
 			bff.append("]: set univ {\n");
-			bff.append("  Int.(array.elems_field)\n");
+			bff.append("  Int.(array.array_contents)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -815,15 +794,15 @@ public abstract class JPreludeFactory {
 
 			actionDeclarations.add(updateArray);
 
-			
+
 		} else if (moduleIds.contains("java_lang_ObjectArray")) {
-			
-			
+
+
 			bff.append("pred updateArrayPost[\n");
 			bff.append("  Object_Array1: " + javaLangPackage()
-					+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ), \n");
+			+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ), \n");
 			bff.append("  Object_Array0: " + javaLangPackage()
-					+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ),\n");
+			+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ),\n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null,\n");
 			bff.append("  index:JavaPrimitiveIntegerValue,\n");
 			bff.append("  elem:univ\n");
@@ -833,26 +812,6 @@ public abstract class JPreludeFactory {
 			bff.append("} \n");
 			bff.append("\n");
 
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Object_Array:" + javaLangPackage()
-//					+ "ObjectArray->(seq univ), \n");
-//			bff
-//					.append("  array: " + javaLangPackage()
-//							+ "ObjectArray+null, \n");
-//			bff.append("  index: Int\n");
-//			bff.append("]: univ {\n");
-//			bff.append("  (array.Object_Array)[index]\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-			
-			//mfrias-mffrias-9/11/2012: put rempved parameter back
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Object_Array:" + javaLangPackage() + "ObjectArray, \n");
-//			bff.append("  index: JavaPrimitiveIntegerValue\n");
-//			bff.append("]: univ {\n");
-//			bff.append("     some (Object_Array."+javaLangPackage() + "ObjectArray_contents)[index] implies (Object_Array."+javaLangPackage() + "ObjectArray_contents)[index] else null\n");
-//			bff.append("}\n");
-//			bff.append("\n");
 
 			bff.append("fun arrayAccess[\n");
 			bff.append("     Object_Array:" + javaLangPackage() + "ObjectArray, \n");
@@ -862,11 +821,11 @@ public abstract class JPreludeFactory {
 			bff.append("     some (Object_Array.array_field)[index] implies (Object_Array.array_field)[index] else null\n");
 			bff.append("}\n");
 			bff.append("\n");
-			
-			
-			
+
+
+
 			//mfrias-mffrias-10/11/2012: put removed parameter back
-			
+
 			bff.append("fun arrayLength[\n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null,\n");
 			bff.append("  length_field: " + javaLangPackage() + "ObjectArray -> one JavaPrimitiveIntegerValue \n");
@@ -876,11 +835,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  elems_field:" + javaLangPackage()
-					+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ), \n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "ObjectArray -> (JavaPrimitiveIntegerValue set -> lone univ), \n");
 			bff.append("  array: " + javaLangPackage() + "ObjectArray+null\n");
 			bff.append("]: set univ {\n");
-			bff.append("  JavaPrimitiveIntegerValue.(array.elems_field)\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.array_contents)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -909,20 +868,20 @@ public abstract class JPreludeFactory {
 
 			actionDeclarations.add(updateArray);
 		}
-		
-		
-		
-		
-		
+
+
+
+
+
 		//mfrias: prelude for Int arrays with or without Java Integers
-		
+
 		if (moduleIds.contains("java_lang_IntArray") && !moduleIds.contains("JavaPrimitiveIntegerValue")) {
 			// Arrays
 			bff.append("pred updateArrayPost[\n");
 			bff.append("  Int_Array1: " + javaLangPackage()
-					+ "IntArray -> (Int set -> lone Int), \n");
+			+ "IntArray -> (Int set -> lone Int), \n");
 			bff.append("  Int_Array0: " + javaLangPackage()
-					+ "IntArray -> (Int set -> lone Int),\n");
+			+ "IntArray -> (Int set -> lone Int),\n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null,\n");
 			bff.append("  index:Int,\n");
 			bff.append("  elem:Int\n");
@@ -932,31 +891,6 @@ public abstract class JPreludeFactory {
 			bff.append("} \n");
 			bff.append("\n");
 
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Int_Array:" + javaLangPackage()
-//					+ "IntArray->(seq Int), \n");
-//			bff
-//					.append("  array: " + javaLangPackage()
-//							+ "IntArray+null, \n");
-//			bff.append("  index: Int\n");
-//			bff.append("]: Int {\n");
-//			bff.append("  (array.Int_Array)[index]\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-
-			
-			//mfrias: removed one parameter from arrayAccess			
-
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Int_Array:" + javaLangPackage() + "IntArray, \n");
-//			bff.append("  index: Int\n");
-//			bff.append("]: Int {\n");
-//			bff.append("  some (Int_Array."+javaLangPackage() + "IntArray_contents)[index] implies (Int_Array."+javaLangPackage() + "IntArray_contents)[index] else 0\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-
-			//mfrias-mffrias-10/11/2012: put removed parameter back
-			
 			bff.append("fun arrayAccess[\n");
 			bff.append("  Int_Array:" + javaLangPackage() + "IntArray, \n");
 			bff.append("  array_field:" + javaLangPackage() + "IntArray -> (Int set -> lone Int),\n");
@@ -966,9 +900,9 @@ public abstract class JPreludeFactory {
 			bff.append("}\n");
 			bff.append("\n");
 
-			
+
 			//mfrias-mffrias-10/11/2012: put removed parameter back
-			
+
 			bff.append("fun arrayLength[\n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null,\n");
 			bff.append("  length_field: " + javaLangPackage() + "IntArray -> one Int\n");
@@ -978,11 +912,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  elems_field:" + javaLangPackage()
-					+ "IntArray->(Int set -> lone Int), \n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "IntArray->(Int set -> lone Int), \n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null\n");
 			bff.append("]: set Int {\n");
-			bff.append("  Int.(array.elems_field)\n");
+			bff.append("  Int.(array.array_contents)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -1011,15 +945,15 @@ public abstract class JPreludeFactory {
 
 			actionDeclarations.add(updateArray);
 
-			
+
 		} else if (moduleIds.contains("java_lang_IntArray")) {
-			
-			
+
+
 			bff.append("pred updateArrayPost[\n");
 			bff.append("  Int_Array1: " + javaLangPackage()
-					+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
+			+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
 			bff.append("  Int_Array0: " + javaLangPackage()
-					+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue),\n");
+			+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue),\n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null,\n");
 			bff.append("  index:JavaPrimitiveIntegerValue,\n");
 			bff.append("  elem:JavaPrimitiveIntegerValue\n");
@@ -1029,31 +963,7 @@ public abstract class JPreludeFactory {
 			bff.append("} \n");
 			bff.append("\n");
 
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Int_Array:" + javaLangPackage()
-//					+ "IntArray -> one (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
-//			bff
-//					.append("  array: " + javaLangPackage()
-//							+ "IntArray+null, \n");
-//			bff.append("  index: JavaPrimitiveIntegerValue\n");
-//			bff.append("]: JavaPrimitiveIntegerValue {\n");
-//			bff.append("  (array.Int_Array)[index]\n");
-//			bff.append("}\n");
-//			bff.append("\n");
 
-			
-			//mfrias removed one parameter from arrayAccess
-
-//			bff.append("fun arrayAccess[\n");
-//			bff.append("  Int_Array:" + javaLangPackage() + "IntArray, \n");
-//			bff.append("  index: JavaPrimitiveIntegerValue\n");
-//			bff.append("]: JavaPrimitiveIntegerValue {\n");
-//			bff.append("  some (Int_Array."+javaLangPackage() + "IntArray_contents)[index] implies (Int_Array."+javaLangPackage() + "IntArray_contents)[index] else JavaPrimitiveIntegerLiteral0\n");
-//			bff.append("}\n");
-//			bff.append("\n");
-
-			//mfrias-mffrias-10/11/2012: put removed parameter back
-			
 			bff.append("fun arrayAccess[\n");
 			bff.append("  Int_Array:" + javaLangPackage() + "IntArray, \n");
 			bff.append("  array_field:" + javaLangPackage() + "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
@@ -1062,14 +972,12 @@ public abstract class JPreludeFactory {
 			bff.append("  some (Int_Array.array_field)[index] implies (Int_Array.array_field)[index] else JavaPrimitiveIntegerLiteral0\n");
 			bff.append("}\n");
 			bff.append("\n");
-			
-			
+
+
 			if (!moduleIds.contains("JavaPrimitiveIntegerLiteral0")){
 				moduleIds.add("JavaPrimitiveIntegerLiteral0");
 				bff.append("one sig JavaPrimitiveIntegerLiteral0 extends JavaPrimitiveIntegerValue {}\n");
 			}
-			
-			//mfrias-mffrias-10/11/2012: put removed parameter back
 
 			bff.append("fun arrayLength[\n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null,\n");
@@ -1080,11 +988,11 @@ public abstract class JPreludeFactory {
 			bff.append("\n");
 
 			bff.append("fun arrayElements[\n");
-			bff.append("  elems_field:" + javaLangPackage()
-					+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "IntArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveIntegerValue), \n");
 			bff.append("  array: " + javaLangPackage() + "IntArray+null\n");
 			bff.append("]: set JavaPrimitiveIntegerValue {\n");
-			bff.append("  JavaPrimitiveIntegerValue.(array.elems_field)\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.array_contents)\n");
 			bff.append("}\n");
 			bff.append("\n");
 
@@ -1114,10 +1022,164 @@ public abstract class JPreludeFactory {
 			actionDeclarations.add(updateArray);
 		}
 
-		
-		
-		
-		
+
+		if (moduleIds.contains("java_lang_CharArray") && !moduleIds.contains("JavaPrimitiveIntegerValue")) {
+			throw new JDynAlloyException("Attempting to use LongArray type but Java arithmetic is not enabled.");
+		} else if (moduleIds.contains("java_lang_CharArray")){
+			bff.append("pred updateArrayPost[\n");
+			bff.append("  Char_Array1: " + javaLangPackage()
+			+ "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue), \n");
+			bff.append("  Char_Array0: " + javaLangPackage()
+			+ "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue),\n");
+			bff.append("  array: " + javaLangPackage() + "CharArray+null,\n");
+			bff.append("  index:JavaPrimitiveIntegerValue,\n");
+			bff.append("  elem:JavaPrimitiveCharValue\n");
+			bff.append("]{ \n");
+			bff.append("  Char_Array1 = Char_Array0 ++ \n");
+			bff.append("  (array->(array.Char_Array0++(index->elem)))\n");
+			bff.append("} \n");
+			bff.append("\n");
+
+
+			bff.append("fun arrayAccess[\n");
+			bff.append("  Char_Array:" + javaLangPackage() + "CharArray, \n");
+			bff.append("  array_field:" + javaLangPackage() + "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue), \n");
+			bff.append("  index: JavaPrimitiveIntegerValue\n");
+			bff.append("]: JavaPrimitiveCharValue {\n");
+			bff.append("  some (Char_Array.array_field)[index] implies (Char_Array.array_field)[index] else JavaPrimitiveCharLiteralu0000\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+
+			if (!moduleIds.contains("JavaPrimitiveCharLiteralu0000")) {
+				moduleIds.add("JavaPrimitiveCharLiteralu0000");
+				bff.append("one sig JavaPrimitiveCharLiteralu0000 extends JavaPrimitiveCharValue {}\n");
+			}
+
+			bff.append("fun arrayLength[\n");
+			bff.append("  array: " + javaLangPackage() + "CharArray+null,\n");
+			bff.append("  length_field: " + javaLangPackage() + "CharArray -> one JavaPrimitiveIntegerValue\n");
+			bff.append("]: JavaPrimitiveIntegerValue {\n");
+			bff.append("  array.length_field\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+			bff.append("fun arrayElements[\n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue), \n");
+			bff.append("  array: " + javaLangPackage() + "CharArray+null\n");
+			bff.append("]: set JavaPrimitiveCharValue {\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.array_contents)\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+			PredicateFormula updateArrayPre = PredicateFormula
+					.buildPredicate("TruePred");
+			PredicateFormula updateArrayPost = PredicateFormula.buildPredicate(
+					"updateArrayPost", new AlloyVariable("Char_Array", true),
+					new AlloyVariable("Char_Array"), new AlloyVariable(
+							"array"), new AlloyVariable("index"),
+					new AlloyVariable("elem"));
+
+			AlloyTyping updateArrayTyping = new AlloyTyping();
+			updateArrayTyping.put(new AlloyVariable("Char_Array"), ""
+					+ javaLangPackage() + "CharArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveCharValue)");
+			updateArrayTyping.put(new AlloyVariable("array"), ""
+					+ javaLangPackage() + "CharArray+null");
+			updateArrayTyping.put(new AlloyVariable("index"), "JavaPrimitiveIntegerValue");
+			updateArrayTyping.put(new AlloyVariable("elem"), "univ");
+			List<VariableId> updateArrayPs = Arrays.<VariableId> asList(
+					new VariableId("Char_Array"), new VariableId("array"),
+					new VariableId("index"), new VariableId("elem"));
+
+			ActionDeclaration updateArray = new ActionDeclaration(
+					"updateArray", updateArrayPs, updateArrayPre,
+					updateArrayPost, updateArrayTyping);
+
+			actionDeclarations.add(updateArray);
+		}
+
+		//mfrias: prelude for Long arrays (only defined when Java Integers are enabled)
+
+		if (moduleIds.contains("java_lang_LongArray") && !moduleIds.contains("JavaPrimitiveIntegerValue")) {
+			throw new JDynAlloyException("Attempting to use LongArray type but Java arithmetic is not enabled.");
+
+		} else if (moduleIds.contains("java_lang_LongArray")) {
+
+			bff.append("pred updateArrayPost[\n");
+			bff.append("  Long_Array1: " + javaLangPackage()
+			+ "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue), \n");
+			bff.append("  Long_Array0: " + javaLangPackage()
+			+ "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue),\n");
+			bff.append("  array: " + javaLangPackage() + "LongArray+null,\n");
+			bff.append("  index:JavaPrimitiveIntegerValue,\n");
+			bff.append("  elem:JavaPrimitiveLongValue\n");
+			bff.append("]{ \n");
+			bff.append("  Long_Array1 = Long_Array0 ++ \n");
+			bff.append("  (array->(array.Long_Array0++(index->elem)))\n");
+			bff.append("} \n");
+			bff.append("\n");
+
+
+			bff.append("fun arrayAccess[\n");
+			bff.append("  Long_Array:" + javaLangPackage() + "LongArray, \n");
+			bff.append("  array_field:" + javaLangPackage() + "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue), \n");
+			bff.append("  index: JavaPrimitiveIntegerValue\n");
+			bff.append("]: JavaPrimitiveLongValue {\n");
+			bff.append("  some (Long_Array.array_field)[index] implies (Long_Array.array_field)[index] else JavaPrimitiveLongLiteral0\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+
+			if (!moduleIds.contains("JavaPrimitiveLongLiteral0")){
+				moduleIds.add("JavaPrimitiveLongLiteral0");
+				bff.append("one sig JavaPrimitiveLongLiteral0 extends JavaPrimitiveLongValue {}\n");
+			}
+
+			bff.append("fun arrayLength[\n");
+			bff.append("  array: " + javaLangPackage() + "LongArray+null,\n");
+			bff.append("  length_field: " + javaLangPackage() + "LongArray -> one JavaPrimitiveIntegerValue\n");
+			bff.append("]: JavaPrimitiveIntegerValue {\n");
+			bff.append("  array.length_field\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+			bff.append("fun arrayElements[\n");
+			bff.append("  array_contents:" + javaLangPackage()
+			+ "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue), \n");
+			bff.append("  array: " + javaLangPackage() + "LongArray+null\n");
+			bff.append("]: set JavaPrimitiveLongValue {\n");
+			bff.append("  JavaPrimitiveIntegerValue.(array.array_contents)\n");
+			bff.append("}\n");
+			bff.append("\n");
+
+			PredicateFormula updateArrayPre = PredicateFormula
+					.buildPredicate("TruePred");
+			PredicateFormula updateArrayPost = PredicateFormula.buildPredicate(
+					"updateArrayPost", new AlloyVariable("Long_Array", true),
+					new AlloyVariable("Long_Array"), new AlloyVariable(
+							"array"), new AlloyVariable("index"),
+					new AlloyVariable("elem"));
+
+			AlloyTyping updateArrayTyping = new AlloyTyping();
+			updateArrayTyping.put(new AlloyVariable("Long_Array"), ""
+					+ javaLangPackage() + "LongArray -> (JavaPrimitiveIntegerValue set -> lone JavaPrimitiveLongValue)");
+			updateArrayTyping.put(new AlloyVariable("array"), ""
+					+ javaLangPackage() + "LongArray+null");
+			updateArrayTyping.put(new AlloyVariable("index"), "JavaPrimitiveIntegerValue");
+			updateArrayTyping.put(new AlloyVariable("elem"), "univ");
+			List<VariableId> updateArrayPs = Arrays.<VariableId> asList(
+					new VariableId("Long_Array"), new VariableId("array"),
+					new VariableId("index"), new VariableId("elem"));
+
+			ActionDeclaration updateArray = new ActionDeclaration(
+					"updateArray", updateArrayPs, updateArrayPre,
+					updateArrayPost, updateArrayTyping);
+
+			actionDeclarations.add(updateArray);
+		}
+
+
 
 		DynalloyModule preludeModule = new DynalloyModule("prelude", null, bff
 				.toString(), actionDeclarations, Collections
@@ -1153,9 +1215,9 @@ public abstract class JPreludeFactory {
 
 	private static boolean integer_complement = false;
 
-//	private static boolean java_int_lang_systemArray_is_registered = true;
-	
-//	private static boolean java_JavaPrimitiveIntegerValue_lang_systemArray_is_registered = true;
+	//	private static boolean java_int_lang_systemArray_is_registered = true;
+
+	//	private static boolean java_JavaPrimitiveIntegerValue_lang_systemArray_is_registered = true;
 
 	private static boolean java_util_Map_is_registered = true;
 
@@ -1181,7 +1243,7 @@ public abstract class JPreludeFactory {
 		integer_complement = true;
 	}
 
-	
+
 	public static void unregister_JavaPrimitiveIntegerValue_java_lang_SystemArray() {
 		java_JavaPrimitiveIntegerValue_lang_systemArray_is_registered = false;
 	}
@@ -1189,8 +1251,8 @@ public abstract class JPreludeFactory {
 	public static void register_JavaPrimitiveIntegerValue_java_lang_SystemArray() {
 		java_JavaPrimitiveIntegerValue_lang_systemArray_is_registered = true;
 	}
-	
-	
+
+
 	public static void unregister_int_java_lang_SystemArray() {
 		java_int_lang_systemArray_is_registered = false;
 	}
