@@ -294,10 +294,15 @@ public class ExpressionTypeResolver extends ExpressionVisitor {
 				Set<String> from =leftType.from();
 				return new JType(from);
 			}
+		} else if (n.getRight() instanceof ExprProduct) {
+			//this should only happen when a static field is not accessed statically. This is allowed by the Java accesibility rules.
+			//the RHS expression should be of the form (univ) -> ((Classfields).(staticField)). The resulting type should be that 
+			//returned by the static field.
+			return ((ExprProduct)n.getRight()).getRight().accept(this);
 		}
 
 		throw new JDynAlloySemanticException(
-				"Invalid 'Join' expression. Only variable expression are supported at right size in join expression");
+				"Invalid 'Join' expression. Only variable expression are supported at right side in join expression");
 	}
 
 	@Override
