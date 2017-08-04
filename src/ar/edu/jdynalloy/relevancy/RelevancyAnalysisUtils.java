@@ -230,6 +230,10 @@ public class RelevancyAnalysisUtils {
 				fc.getfunctionCallInAlloyFormulaInfo().getParameters());
 		JProgramDeclaration program = dynJAlloyBinding.resolve(programCall);
 		if (program == null){
+			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("fun_set_size") &&
+					fc.getArgumentsTypes().size() == 1){
+				return;
+			}
 			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("fun_reach") &&
 					fc.getArgumentsTypes().size() == 3){
 				return;
@@ -238,10 +242,10 @@ public class RelevancyAnalysisUtils {
 					fc.getArgumentsTypes().size() == 2){
 				return;
 			}
-			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("fun_java_primitive_integer_value_size_of") &&
-					fc.getArgumentsTypes().size() == 1){
-				return;
-			}
+//			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("fun_java_primitive_integer_value_size_of") &&
+//					fc.getArgumentsTypes().size() == 1){
+//				return;
+//			}
 			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("add") && 
 					fc.getArgumentsTypes().get(0).toString().equals("Int") &&
 					fc.getArgumentsTypes().get(1).toString().equals("Int")){
