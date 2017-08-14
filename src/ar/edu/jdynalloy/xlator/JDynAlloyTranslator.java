@@ -21,6 +21,8 @@ public final class JDynAlloyTranslator {
 	private Object inputToFix = null;
 	private final JDynAlloyBinding binding;
 	private boolean removeQuantifiers;
+	private String classToCheck;
+	private String methodToCheck;
 	
 	public boolean getRemoveQuantifiers(){
 		return removeQuantifiers;
@@ -35,10 +37,12 @@ public final class JDynAlloyTranslator {
 		return "//-------------- " + fragmentId + "--------------//" + "\n";
 	}
 
-	public JDynAlloyTranslator(JDynAlloyBinding binding, Object inputToFix) {
+	public JDynAlloyTranslator(JDynAlloyBinding binding, String classToCheck, String methodToCheck, Object inputToFix) {
 		super();
 		this.binding = binding;
 		this.inputToFix = inputToFix;
+		this.classToCheck = classToCheck;
+		this.methodToCheck = methodToCheck;
 	}
 
 	public Vector<DynalloyModule> translateAll(JDynAlloyModule[] asts, boolean isJavaArith) {
@@ -172,8 +176,8 @@ public final class JDynAlloyTranslator {
 					sav.addAll(jpd.getVarsResultOfArithmeticOperationsInContracts().getVarsInTyping());
 			}			
 
-			if (containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith);
+			if (containsModule(context.getRelevantModules(), signatureId)) {				
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith, this.classToCheck, this.methodToCheck);
 				visitor.setRemoveQuantifiers(removeQuantifiers);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
@@ -193,7 +197,7 @@ public final class JDynAlloyTranslator {
 			}
 
 			if (!containsModule(context.getRelevantModules(), signatureId)) {
-				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith);
+				JDynAlloyXlatorVisitor visitor = new JDynAlloyXlatorVisitor(context, sav, inputToFix, isJavaArith, this.classToCheck, this.methodToCheck);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
 			}
