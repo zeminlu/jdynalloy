@@ -154,6 +154,10 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
 	private boolean removeQuantifiers;
 
+	private String classToCheck;
+
+	private String methodToCheck;
+
 	public boolean getRemoveQuantifiers(){
 		return removeQuantifiers;
 	}
@@ -166,12 +170,14 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 		return this.varsToPrefix;
 	}
 
-	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav, Object inputToFix, boolean isJavaArith) {
+	public JDynAlloyXlatorVisitor(JDynAlloyContext _context, HashSet<AlloyVariable> sav, Object inputToFix, boolean isJavaArith, String classToCheck, String methodToCheck) {
 		super(isJavaArith);
 		this.isJavaArith = isJavaArith;		
 		this.context = _context;
 		this.varsToPrefix = sav;
 		this.inputToFix = inputToFix;
+		this.classToCheck = classToCheck;
+		this.methodToCheck = methodToCheck;
 	}
 
 
@@ -1750,7 +1756,12 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 		}
 	}
 	
-	
+	@Override
+	public String getFullyQualifiedMethodName(){
+		String className = this.classToCheck.replace('.', '_');
+		String classPlusMethod = className + "_" + this.methodToCheck;
+		return classPlusMethod;
+	}
 	
 	
 	
