@@ -4,16 +4,29 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import ar.edu.jdynalloy.JDynAlloyConfig;
+import ar.edu.jdynalloy.ast.JClassConstraint;
+import ar.edu.jdynalloy.ast.JClassInvariant;
 import ar.edu.jdynalloy.ast.JDynAlloyModule;
 import ar.edu.jdynalloy.ast.JDynAlloyPrinter;
+import ar.edu.jdynalloy.ast.JField;
+import ar.edu.jdynalloy.ast.JObjectConstraint;
+import ar.edu.jdynalloy.ast.JObjectInvariant;
 import ar.edu.jdynalloy.ast.JProgramDeclaration;
+import ar.edu.jdynalloy.ast.JRepresents;
+import ar.edu.jdynalloy.ast.JSignature;
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
+import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
+import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
+import ar.uba.dc.rfm.alloy.ast.formulas.AlloyFormula;
+import ar.uba.dc.rfm.alloy.ast.formulas.PredicateFormula;
 import ar.uba.dc.rfm.dynalloy.ast.DynalloyModule;
 
 public final class JDynAlloyTranslator {
@@ -181,6 +194,77 @@ public final class JDynAlloyTranslator {
 				visitor.setRemoveQuantifiers(removeQuantifiers);
 				DynalloyModule dynalloyModule = (DynalloyModule) m.accept(visitor);
 				ms.add(dynalloyModule);
+				
+				//Will create new modules for those primitive type values that were
+				//introduced in the precondition when fixing the input value.
+				for (String s : visitor.intsCollected){
+					if (!containsModule(context.getRelevantModules(), s)){
+						// Create new module and add it to relevant modules
+						ExprConstant theParam = new ExprConstant(null, s);
+						LinkedList<AlloyExpression> theParams = new LinkedList<>();
+						theParams.add(theParam);
+						String theNumber = s.substring(27);
+						PredicateFormula pred = new PredicateFormula(null, "pred_java_primitive_integer_value_literal_" + theNumber, theParams);
+						HashSet<AlloyFormula> theFacts = new HashSet<AlloyFormula>();
+						theFacts.add(pred);		
+						JSignature sig = new JSignature(true, false, s, new JDynAlloyTyping(), false, "JavaPrimitiveIntegerValue", null, new HashSet<String>(), theFacts, new LinkedList<String>(), new LinkedList<String>(), new String[0]);
+						JDynAlloyModule lit = new JDynAlloyModule(s, sig, null, null, new LinkedList<JField>(), new HashSet<JClassInvariant>(), new HashSet<JClassConstraint>(), new HashSet<JObjectInvariant>(), new HashSet<JObjectConstraint>(), new HashSet<JRepresents>(), new HashSet<JProgramDeclaration>(), new AlloyTyping(), new LinkedList<AlloyFormula>(), true);
+						context.getRelevantModules().add(lit);
+						dynalloyModule = (DynalloyModule) lit.accept(visitor);
+						ms.add(dynalloyModule);
+					}
+				}
+				for (String s : visitor.longsCollected){
+					if (!containsModule(context.getRelevantModules(), s)){
+						// Create new module and add it to relevant modules
+						ExprConstant theParam = new ExprConstant(null, s);
+						LinkedList<AlloyExpression> theParams = new LinkedList<>();
+						theParams.add(theParam);
+						String theNumber = s.substring(27);
+						PredicateFormula pred = new PredicateFormula(null, "pred_java_primitive_long_value_literal_" + theNumber, theParams);
+						HashSet<AlloyFormula> theFacts = new HashSet<AlloyFormula>();
+						theFacts.add(pred);		
+						JSignature sig = new JSignature(true, false, s, new JDynAlloyTyping(), false, "JavaPrimitiveLongValue", null, new HashSet<String>(), theFacts, new LinkedList<String>(), new LinkedList<String>(), new String[0]);
+						JDynAlloyModule lit = new JDynAlloyModule(s, sig, null, null, new LinkedList<JField>(), new HashSet<JClassInvariant>(), new HashSet<JClassConstraint>(), new HashSet<JObjectInvariant>(), new HashSet<JObjectConstraint>(), new HashSet<JRepresents>(), new HashSet<JProgramDeclaration>(), new AlloyTyping(), new LinkedList<AlloyFormula>(), true);
+						context.getRelevantModules().add(lit);
+						dynalloyModule = (DynalloyModule) lit.accept(visitor);
+						ms.add(dynalloyModule);
+					}
+				}
+				for (String s : visitor.floatsCollected){
+					if (!containsModule(context.getRelevantModules(), s)){
+						// Create new module and add it to relevant modules
+						ExprConstant theParam = new ExprConstant(null, s);
+						LinkedList<AlloyExpression> theParams = new LinkedList<>();
+						theParams.add(theParam);
+						String theNumber = s.substring(27);
+						PredicateFormula pred = new PredicateFormula(null, "pred_java_primitive_float_value_literal_" + theNumber, theParams);
+						HashSet<AlloyFormula> theFacts = new HashSet<AlloyFormula>();
+						theFacts.add(pred);		
+						JSignature sig = new JSignature(true, false, s, new JDynAlloyTyping(), false, "JavaPrimitiveFloatValue", null, new HashSet<String>(), theFacts, new LinkedList<String>(), new LinkedList<String>(), new String[0]);
+						JDynAlloyModule lit = new JDynAlloyModule(s, sig, null, null, new LinkedList<JField>(), new HashSet<JClassInvariant>(), new HashSet<JClassConstraint>(), new HashSet<JObjectInvariant>(), new HashSet<JObjectConstraint>(), new HashSet<JRepresents>(), new HashSet<JProgramDeclaration>(), new AlloyTyping(), new LinkedList<AlloyFormula>(), true);
+						context.getRelevantModules().add(lit);
+						dynalloyModule = (DynalloyModule) lit.accept(visitor);
+						ms.add(dynalloyModule);
+					}
+				}
+				for (String s : visitor.charsCollected){
+					if (!containsModule(context.getRelevantModules(), s)){
+						// Create new module and add it to relevant modules
+						ExprConstant theParam = new ExprConstant(null, s);
+						LinkedList<AlloyExpression> theParams = new LinkedList<>();
+						theParams.add(theParam);
+						String theNumber = s.substring(27);
+						PredicateFormula pred = new PredicateFormula(null, "pred_java_primitive_char_value_literal_" + theNumber, theParams);
+						HashSet<AlloyFormula> theFacts = new HashSet<AlloyFormula>();
+						theFacts.add(pred);		
+						JSignature sig = new JSignature(true, false, s, new JDynAlloyTyping(), false, "JavaPrimitiveCharValue", null, new HashSet<String>(), theFacts, new LinkedList<String>(), new LinkedList<String>(), new String[0]);
+						JDynAlloyModule lit = new JDynAlloyModule(s, sig, null, null, new LinkedList<JField>(), new HashSet<JClassInvariant>(), new HashSet<JClassConstraint>(), new HashSet<JObjectInvariant>(), new HashSet<JObjectConstraint>(), new HashSet<JRepresents>(), new HashSet<JProgramDeclaration>(), new AlloyTyping(), new LinkedList<AlloyFormula>(), true);
+						context.getRelevantModules().add(lit);
+						dynalloyModule = (DynalloyModule) lit.accept(visitor);
+						ms.add(dynalloyModule);
+					}
+				}
 			}
 		}
 
