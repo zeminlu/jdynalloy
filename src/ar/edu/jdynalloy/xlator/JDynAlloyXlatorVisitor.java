@@ -79,6 +79,8 @@ import ar.uba.dc.rfm.alloy.util.ExpressionCloner;
 import ar.uba.dc.rfm.alloy.util.ExpressionMutator;
 import ar.uba.dc.rfm.alloy.util.FormulaCloner;
 import ar.uba.dc.rfm.alloy.util.FormulaMutator;
+import ar.uba.dc.rfm.alloy.util.LiteralCollector;
+import ar.uba.dc.rfm.alloy.util.LiteralCollectorExpVisitor;
 import ar.uba.dc.rfm.alloy.util.QFPostconditionPostfixTransformer;
 import ar.uba.dc.rfm.alloy.util.QFPreconditionPostfixTransformer;
 import ar.uba.dc.rfm.alloy.util.QFtransformer;
@@ -101,7 +103,44 @@ import ar.uba.dc.rfm.dynalloy.util.ProgramCloner;
 
 final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 
-	
+	public HashSet<String> getIntsCollected() {
+		return intsCollected;
+	}
+
+	public void setIntsCollected(HashSet<String> intsCollected) {
+		this.intsCollected = intsCollected;
+	}
+
+	public HashSet<String> getLongsCollected() {
+		return longsCollected;
+	}
+
+	public void setLongsCollected(HashSet<String> longsCollected) {
+		this.longsCollected = longsCollected;
+	}
+
+	public HashSet<String> getCharsCollected() {
+		return charsCollected;
+	}
+
+	public void setCharsCollected(HashSet<String> charsCollected) {
+		this.charsCollected = charsCollected;
+	}
+
+	public HashSet<String> getFloatsCollected() {
+		return floatsCollected;
+	}
+
+	public void setFloatsCollected(HashSet<String> floatsCollected) {
+		this.floatsCollected = floatsCollected;
+	}
+
+
+	public HashSet<String> intsCollected = new HashSet<String>();
+	public HashSet<String> longsCollected = new HashSet<String>();
+	public HashSet<String> charsCollected = new HashSet<String>();
+	public HashSet<String> floatsCollected = new HashSet<String>();
+
 	
 	@Override
 	public Object visit(JModifies node) {
@@ -113,6 +152,14 @@ final class JDynAlloyXlatorVisitor extends JDynAlloyVisitor {
 		Vector<Object> v = (Vector<Object>) super.visit(node);
 		Vector<AlloyFormula> requires = (Vector<AlloyFormula>) v.get(0);
 		for (int index = 0; index < requires.size() && requires.get(index) != null; index++){
+			LiteralCollectorExpVisitor lce = new LiteralCollectorExpVisitor();
+			LiteralCollector lc = new LiteralCollector(lce);
+			AlloyFormula af = (AlloyFormula)requires.get(0); 
+			af.accept(lc);
+			this.getIntsCollected().addAll(lc.intsCollected);
+			this.getLongsCollected().addAll(lc.longsCollected);
+			this.getCharsCollected().addAll(lc.charsCollected);
+			this.getFloatsCollected().addAll(lc.floatsCollected);
 			requires.set(index, (AlloyFormula)requires.get(index));
 		}
 
