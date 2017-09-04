@@ -8,7 +8,10 @@ import java.util.List;
 import java.util.Vector;
 
 import ar.edu.jdynalloy.xlator.JType;
+import ar.edu.taco.simplejml.builtin.JavaPrimitiveCharValue;
+import ar.edu.taco.simplejml.builtin.JavaPrimitiveFloatValue;
 import ar.edu.taco.simplejml.builtin.JavaPrimitiveIntegerValue;
+import ar.edu.taco.simplejml.builtin.JavaPrimitiveLongValue;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;
@@ -19,6 +22,8 @@ import ar.uba.dc.rfm.alloy.ast.formulas.AndFormula;
 import ar.uba.dc.rfm.alloy.ast.formulas.EqualsFormula;
 import ar.uba.dc.rfm.alloy.ast.formulas.NotFormula;
 import ar.uba.dc.rfm.alloy.util.FormulaMutator;
+import ar.uba.dc.rfm.alloy.util.LiteralCollector;
+import ar.uba.dc.rfm.alloy.util.LiteralCollectorExpVisitor;
 import ar.uba.dc.rfm.alloy.util.QFtransformer;
 
 public class JDynAlloyVisitor implements IJDynAlloyVisitor {
@@ -386,18 +391,59 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 			if (!vd.getVariable().getVariableId().getString().equals("throw")
 					&& !vd.getVariable().getVariableId().getString().equals("return")
 					&& !vd.getVariable().getVariableId().getString().startsWith("customvar")){
-				if (vd.getType().toString().equals("JavaPrimitiveIntegerValue")) {
 
-					AlloyFormula af = new EqualsFormula(
-							new ExprVariable(vd.getVariable()), 
-							new ExprConstant("JavaPrimitiveIntegerValue", 
-									JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(((Integer)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).intValue(), true).getConstantId()
-									)
-							);
-					if (fixedInputFormula == null)
-						fixedInputFormula = af;
-					else
-						fixedInputFormula = new AndFormula(fixedInputFormula, af);
+				if (isJavaArithmetic) {
+					if (vd.getType().toString().equals("JavaPrimitiveIntegerValue")) {
+						AlloyFormula af = new EqualsFormula(
+								new ExprVariable(vd.getVariable()), 
+								new ExprConstant("JavaPrimitiveIntegerValue", 
+										JavaPrimitiveIntegerValue.getInstance().toJavaPrimitiveIntegerLiteral(((Integer)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).intValue(), true).getConstantId()
+										)
+								);
+						if (fixedInputFormula == null)
+							fixedInputFormula = af;
+						else
+							fixedInputFormula = new AndFormula(fixedInputFormula, af);
+					}
+					if (vd.getType().toString().equals("JavaPrimitiveLongValue")) {
+						AlloyFormula af = new EqualsFormula(
+								new ExprVariable(vd.getVariable()), 
+								new ExprConstant("JavaPrimitiveLongValue", 
+										JavaPrimitiveLongValue.getInstance().toJavaPrimitiveLongLiteral(((Long)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).longValue(), true).getConstantId()
+										)
+								);
+						if (fixedInputFormula == null)
+							fixedInputFormula = af;
+						else
+							fixedInputFormula = new AndFormula(fixedInputFormula, af);
+
+					}
+					if (vd.getType().toString().equals("JavaPrimitiveFloatValue")) {
+						AlloyFormula af = new EqualsFormula(
+								new ExprVariable(vd.getVariable()), 
+								new ExprConstant("JavaPrimitiveFloatValue", 
+										JavaPrimitiveFloatValue.getInstance().toJavaPrimitiveFloatLiteral(((Float)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).floatValue(), true).getConstantId()
+										)
+								);
+						if (fixedInputFormula == null)
+							fixedInputFormula = af;
+						else
+							fixedInputFormula = new AndFormula(fixedInputFormula, af);
+
+					}
+					if (vd.getType().toString().equals("JavaPrimitiveCharValue")) {
+						AlloyFormula af = new EqualsFormula(
+								new ExprVariable(vd.getVariable()), 
+								new ExprConstant("JavaPrimitiveCharValue", 
+										JavaPrimitiveCharValue.getInstance().toJavaPrimitiveCharLiteral(((Character)(inputToFix2.get(vd.getVariable().getVariableId().getString()))).charValue(), true).getConstantId()
+										)
+								);
+						if (fixedInputFormula == null)
+							fixedInputFormula = af;
+						else
+							fixedInputFormula = new AndFormula(fixedInputFormula, af);
+
+					}
 
 				} else {
 					if (vd.getType().toString().equals("Int")){
@@ -409,30 +455,32 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 							fixedInputFormula = af;
 						else
 							fixedInputFormula = new AndFormula(fixedInputFormula, af);
-					} else {
-
-						if (!mapConcreteToExpre.containsKey(inputToFix2.get(vd.getVariable().getVariableId().getString()))) {
-							AlloyFormula f = null;
-							if (inputToFix2.get(vd.getVariable().getVariableId().getString()) != null){
-								mapConcreteToExpre.put(inputToFix2.get(vd.getVariable().getVariableId().getString()), new ExprVariable(vd.getVariable()));
-								f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre, isJavaArithmetic);
-							} else {
-								f = new EqualsFormula(new ExprVariable(vd.getVariable()), new ExprConstant(vd.getType().toString(), "null"));
-							}
-							if (fixedInputFormula == null)
-								fixedInputFormula = f;
-							else
-								fixedInputFormula = new AndFormula(fixedInputFormula, f);
-						} else {
-							AlloyFormula aff = new EqualsFormula(new ExprVariable(vd.getVariable()), mapConcreteToExpre.get(inputToFix2.get(vd.getVariable().getVariableId().getString())));
-							if (fixedInputFormula == null)
-								fixedInputFormula = aff;
-							else
-								fixedInputFormula = new AndFormula(fixedInputFormula, aff);
-						}
 					}
-					index++;
+
 				}
+
+				if (!mapConcreteToExpre.containsKey(inputToFix2.get(vd.getVariable().getVariableId().getString()))) {
+					AlloyFormula f = null;
+					if (inputToFix2.get(vd.getVariable().getVariableId().getString()) != null){
+						mapConcreteToExpre.put(inputToFix2.get(vd.getVariable().getVariableId().getString()), new ExprVariable(vd.getVariable()));
+						f = processInputToFixToFormula(inputToFix2.get(vd.getVariable().getVariableId().getString()), mapConcreteToExpre, isJavaArithmetic);
+					} else {
+						f = new EqualsFormula(new ExprVariable(vd.getVariable()), new ExprConstant(vd.getType().toString(), "null"));
+					}
+					if (fixedInputFormula == null)
+						fixedInputFormula = f;
+					else
+						fixedInputFormula = new AndFormula(fixedInputFormula, f);
+				} else {
+					AlloyFormula aff = new EqualsFormula(new ExprVariable(vd.getVariable()), mapConcreteToExpre.get(inputToFix2.get(vd.getVariable().getVariableId().getString())));
+					if (fixedInputFormula == null)
+						fixedInputFormula = aff;
+					else
+						fixedInputFormula = new AndFormula(fixedInputFormula, aff);
+				}
+
+				index++;
+
 			}
 		}
 
@@ -506,6 +554,8 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 										accumulator = new AndFormula(accumulator, af);  
 									}
 								}
+								
+								
 
 
 							}
@@ -591,10 +641,39 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 				return new ExprConstant("Int", ((Integer)o).toString());
 			}
 		} 
+		if (o.getClass().equals(long.class) || o.getClass().equals(Long.class)){
+			if (isJavaArith){
+				return new ExprConstant("JavaPrimitiveLongValue", 
+						JavaPrimitiveLongValue.getInstance().toJavaPrimitiveLongLiteral(((Long)o).longValue(), true).toString()
+						);
+			} else {
+				return new ExprConstant("Int", ((Integer)o).toString());
+			}
+		} 
+		if (o.getClass().equals(float.class) || o.getClass().equals(Float.class)){
+			if (isJavaArith){
+				return new ExprConstant("JavaPrimitiveFloatValue", 
+						JavaPrimitiveFloatValue.getInstance().toJavaPrimitiveFloatLiteral(((Float)o).floatValue(), true).toString()
+						);
+			} else {
+				return null;
+			}
+		} 
+		if (o.getClass().equals(char.class) || o.getClass().equals(Character.class)){
+			if (isJavaArith){
+				return new ExprConstant("JavaPrimitiveCharValue", 
+						JavaPrimitiveCharValue.getInstance().toJavaPrimitiveCharLiteral(((Character)o).charValue(), true).toString()
+						);
+			} else {
+				return null;
+			}
+		} 
+		
 		if (o.getClass().equals(boolean.class) || o.getClass().equals(Boolean.class)){
 			return new ExprConstant("boolean", ((Boolean)o).toString());
 
 		} 
+
 		return null;
 	}
 
