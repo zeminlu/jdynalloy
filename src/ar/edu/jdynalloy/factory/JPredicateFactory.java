@@ -70,6 +70,8 @@ public abstract class JPredicateFactory {
 	
 	public static String PRED_JAVA_PRIMITIVE_CHAR_VALUE_LONG_MUL = "pred_java_primitive_char_value_long_mul";
 	
+	public static final String PRED_JAVA_PRIMITIVE_INTEGER_VALUE_ADD_MARKER = "pred_java_primitive_integer_value_add_marker";
+	
 	public static final String PRED_JAVA_PRIMITIVE_INTEGER_VALUE_ADD = "pred_java_primitive_integer_value_add";
 	
 	public static final String PRED_JAVA_PRIMITIVE_INTEGER_VALUE_SUB = "pred_java_primitive_integer_value_sub";
