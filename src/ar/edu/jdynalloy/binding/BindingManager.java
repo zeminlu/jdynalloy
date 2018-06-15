@@ -46,7 +46,7 @@ public class BindingManager {
 	private List<ar.edu.jdynalloy.ast.JDynAlloyModule> modules;
 	private JDynAlloyBinding dynJAlloyBinding;
 
-	private boolean javaArithmetic;
+//	private boolean javaArithmetic;
 
 	public void setJavaArithmetic(boolean isJavaArithmetic) {
 		this.isJavaArithmetic = isJavaArithmetic;
@@ -77,7 +77,7 @@ public class BindingManager {
 			dynJAlloyContext.load(dynJAlloyModule);
 		}
 		SymbolTable symbolTable = new SymbolTable();
-		symbolTable.setJavaArithmetic(javaArithmetic);
+		symbolTable.setJavaArithmetic(isJavaArithmetic);
 		ProgramDeclarationCollectorVisitor programDeclarationCollectorVisitor = new ProgramDeclarationCollectorVisitor(isJavaArithmetic);
 		SemanticCheckVisitor semanticCheckVisitor = new SemanticCheckVisitor(symbolTable, isJavaArithmetic);
 		FieldCollectorVisitor fieldCollectorVisitor = new FieldCollectorVisitor(symbolTable, isJavaArithmetic);

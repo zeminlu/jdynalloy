@@ -142,6 +142,18 @@ public class SymbolTable implements Cloneable {
 				}
 			}
 			
+			if (fieldName.startsWith("SK_pred_java_primitive")){
+				FieldDescriptor fieldDescriptor_inv =  new FieldDescriptor(moduleName, fieldName+"_0");
+				if (!this.fieldsBinding.containsKey(fieldDescriptor_inv)) {
+					for (FieldDescriptor fd : this.fieldsBinding.keySet()) {
+						if (fd.getFieldName().equals(fieldName+"_0"))
+							return this.fieldsBinding.get(fd);
+					}
+				} else {
+					return this.fieldsBinding.get(fieldDescriptor);		
+				}
+			}
+			
 			throw new JDynAlloySemanticException("Field doesn't exist: " + moduleName + "." + fieldName);
 		}
 		return this.fieldsBinding.get(fieldDescriptor);		
