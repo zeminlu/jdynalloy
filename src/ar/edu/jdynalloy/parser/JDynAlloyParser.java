@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (20060906): "jdynalloy.g" -> "JDynAlloyParser.java"$
+// $ANTLR 2.7.6 (2005-12-22): "jdynalloy.g" -> "JDynAlloyParser.java"$
 
  /*
  * TACO: Translation of Annotated COde

@@ -1,4 +1,4 @@
-// $ANTLR 2.7.7 (20060906): "jdynalloy.g" -> "JDynAlloyLexer.java"$
+// $ANTLR 2.7.6 (2005-12-22): "jdynalloy.g" -> "JDynAlloyLexer.java"$
 
  /*
  * TACO: Translation of Annotated COde
@@ -22,6 +22,7 @@
 	
 package ar.edu.jdynalloy.parser;
 
+import ar.uba.dc.rfm.alloy.AlloyTyping;
 import ar.uba.dc.rfm.alloy.AlloyVariable;
 import ar.uba.dc.rfm.alloy.ast.expressions.AlloyExpression;
 import ar.uba.dc.rfm.alloy.ast.expressions.ExprConstant;

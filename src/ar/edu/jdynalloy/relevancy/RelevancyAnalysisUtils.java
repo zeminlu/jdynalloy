@@ -315,6 +315,10 @@ public class RelevancyAnalysisUtils {
 					fc.getArgumentsTypes().get(1).toString().contains("java_lang_CharArray")){ //in this line we had equals("java_lang_CharArray")
 				return;
 			}
+			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("Not") && 
+					fc.getArgumentsTypes().get(0).toString().equals("boolean")){
+				return;
+			}
 			if (fc.getfunctionCallInAlloyFormulaInfo().getFunctionId().equals("fun_univ_equals") && 
 					fc.getArgumentsTypes().get(0).toString().equals("boolean") &&
 					fc.getArgumentsTypes().get(1).toString().equals("boolean")){

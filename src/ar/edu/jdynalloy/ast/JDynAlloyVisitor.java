@@ -647,7 +647,7 @@ public class JDynAlloyVisitor implements IJDynAlloyVisitor {
 						JavaPrimitiveLongValue.getInstance().toJavaPrimitiveLongLiteral(((Long)o).longValue(), true).toString()
 						);
 			} else {
-				return new ExprConstant("Int", ((Integer)o).toString());
+				return new ExprConstant("Int", o.toString());
 			}
 		} 
 		if (o.getClass().equals(float.class) || o.getClass().equals(Float.class)){
